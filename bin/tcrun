@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+
+'''
+Created on Aug 25, 2018
+
+@author: fred
+'''
+
+import getopt, sys, subprocess, os, time
+from subprocess import Popen
+
+absdir = os.path.dirname(os.path.abspath(__file__))
+os.environ["PYTHONPATH"] = absdir+"/.."
+
+def openlog(casename, logdir="./caselogs"):
+    try:
+        os.mkdir(logdir)
+    except:
+        pass
+    t = time.localtime()
+    tstr = '%4d-%02d-%02d-%02d:%02d:%02d' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
+    filename = "%s/%s-%s.log" % (logdir, casename, tstr)
+    logfile = open(filename, 'a')
+    return logfile
+    
+def log(logfile, msg):
+    if not logfile:
+        return False
+    lines = msg.splitlines()
+    for line in lines:
+        print line
+        logfile.write(line+"\n")
+        sys.stdout.flush()
+    return True
+    
+def run(path, case_param):
+    casename = os.path.basename(path)
+    logfile = openlog(casename)
+    
+    log( logfile, "*" * 35 + " start %s " % (casename) + "*" * 35 )
+    p = Popen("/usr/bin/env python %s %s" % (path, case_param), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    for line in iter(p.stdout.readline, b''):
+        log( logfile, line )
+#         txt = p.stdout.read()
+    if p.wait() == 0:
+        log(logfile, "tcrun: %s SUCCEED." % (casename))
+    else:
+        log(logfile, "tcrun: %s FAILED with exit code %s" % (casename, p.returncode))
+    log( logfile, "*" * 35 + " end %s " % (casename) + "*" * 35 )
+    return p.returncode, logfile.name
+    
+def usage():
+    print "Usage: tcrun case_name ..."
+    print "Parameters:"
+    print "  -h: print this help."
+    print "  -p: case parameters, will be passed to each of cases in case list."
+    print "      standard parameters:"
+    print "          -t: a target list, format: user:password@address0, user:password@address1, ..."
+    print "          -l: a percentage from 0-100, represents how big load should a case generates"
+    print "      other case-specific parameters:"
+    print "           format: param_name=value param_name=value ..."
+    print "           any parameter can be passed in to a case, the case interprets them respectively" 
+    exit(0)
+
+def report(results):
+    logfile = openlog("summary")
+    log(logfile, "\n\n" + "*" * 30 + " SUMMARY REPORT " + "*" * 30)
+    log(logfile, "CASENAME\tRESULT\tDUR(S)\tLOGFILE")
+    for r in results:
+        casename = r[0]
+        start = r[1]
+        end = r[2]
+        dur = time.mktime(end) - time.mktime(start) if (end and start) else None
+        result = 'success' if not r[3] else 'fail' 
+        logname = r[4]
+#         start_str = '%4d-%02d-%02d %02d:%02d:%02d' % (start.tm_year, start.tm_mon, start.tm_mday, start.tm_hour, start.tm_min, start.tm_sec) if start else None
+#         end_str = '%4d-%02d-%02d %02d:%02d:%02d' % (end.tm_year, end.tm_mon, end.tm_mday, end.tm_hour, end.tm_min, end.tm_sec) if end else None
+        log(logfile, "%s\t%s\t%s\t%s" % (casename, result, dur, os.path.basename(logname)))
+    log(logfile, "*" * 76)
+
+if __name__ == "__main__":
+    s = "hp:"
+    opts, args = getopt.gnu_getopt(sys.argv[1:], s)
+    
+    case_param = ''
+    
+    for opt in opts:
+        if opt[0] == '-h':
+            usage()
+        if opt[0] == '-p':
+            case_param = opt[1]
+    
+    results = []  # (casename, start, stop, result, logname)
+    for case in args:
+        try:
+            start = time.localtime()
+            rt,logname = run(case, case_param)
+            end = time.localtime()
+        except Exception, msg:
+            results.append((case, None, None, -1, msg))
+        else:
+            results.append((case, start, end, rt, logname))
+    report(results)
