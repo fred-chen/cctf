@@ -30,7 +30,7 @@ class connection(common.common, common.lockable):
         self.newline = newline
         self.txt = ""
         if not self.connect():
-            raise connError, "Failed to connect to %s" % (host)
+            raise connError, BaseException("Failed to connect to %s" % (host))
             
     def connect(self):
         raise NotImplementedError( "Should have implemented this" )
@@ -84,7 +84,6 @@ class connection(common.common, common.lockable):
                 the text with the pattern if success
                 None if timeout
         """
-#         print "waiting for %s timeout=%d" % (pattern,timeout)
         dur = 0
         reg = re.compile(pattern, re.IGNORECASE|re.DOTALL)
         txt = ""
@@ -92,12 +91,13 @@ class connection(common.common, common.lockable):
         while True:
             t = self.read(1)
             if t: txt += t
-#             print txt
+            print txt
             m = reg.search(txt)
             if m:
                 break
             dur = time.time() - start
-#             print "dur: %d timeout: %d" % (dur, timeout)
+            print "dur: %d timeout: %d" % (dur, timeout)
+            print "waiting for %s timeout=%d" % (pattern,timeout)
             if timeout and dur > timeout:
                 txt = None
                 break
@@ -146,7 +146,7 @@ class connection(common.common, common.lockable):
         return True
     
     def printlog(self):
-        print self.txt
+        print (self.txt)
     
     def svcalive(self):
         raise "need implementation..."
