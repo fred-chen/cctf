@@ -95,14 +95,12 @@ class connection(common.common, common.lockable):
         while True:
             t = self.read(1)
             if (not t is None): txt += t
-            else: return None
-            # print txt
             m = reg.search(txt)
             if m:
                 break
             dur = time.time() - start
             if timeout and dur > timeout:
-                txt = None
+                print "timeout:\n%s\n" % (txt)
                 break
         return txt
     

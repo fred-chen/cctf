@@ -80,11 +80,10 @@ class target(common):
     
     def __str__(self):
         if self.hostname:
-            return self.hostname
+            return "%s - %s" % (self.address, self.hostname)
         else:
-            return self.gethostname()
+            return "%s - %s" % (self.address, self.gethostname())
         
-    
     def gethostname(self):
         raise "not implemented"
     
