@@ -13,9 +13,9 @@ class uxtarget(target):
         this kind of targets share similar commands
         so it makes sense for them to share a same parent class
     """
-    def __init__(self, address, svc='ssh', username='root', password=None, timeout=60):
+    def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
         self.newline = '\n'
-        target.__init__(self, address, svc, username, password, timeout)
+        target.__init__(self, address, svc, username, password, conn, timeout)
 
     def gethostname(self):
         if self.hostname:

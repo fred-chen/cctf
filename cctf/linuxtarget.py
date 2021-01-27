@@ -8,8 +8,8 @@ from uxtarget import uxtarget
 import time
 
 class linuxtarget(uxtarget):
-    def __init__(self, address, svc='ssh', username='root', password=None, timeout=60):
-        uxtarget.__init__(self, address, svc, username, password, timeout)
+    def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
+        uxtarget.__init__(self, address, svc, username, password, conn, timeout)
         self.newline = '\n'
 
     def panic(self, log=True):

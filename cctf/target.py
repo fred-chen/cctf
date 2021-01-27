@@ -27,13 +27,12 @@ def gettarget(host, username=None, password=None, svc="ssh", timeout=60):
         from linuxtarget import linuxtarget
         txt = execmd(conn, "ceph -s", timeout)   
         if txt and txt.find("cluster:") >= 0: # ceph cluster node
-            t = bdtarget(host, svc, username, password, timeout)
+            t = bdtarget(host, svc, username, password, conn, timeout)
         else:
-            t = linuxtarget(host, svc, username, password, timeout)
+            t = linuxtarget(host, svc, username, password, conn, timeout)
     else:
         conn.printlog()
         common.log("unsupported target type.")
-    conn.disconnect()
     return t
 
 def execmd(conn, cmd, timeout=60):
@@ -53,13 +52,14 @@ class target(common):
     """
         target class. a target object represents a login-able host or a device.
     """
-    def __init__(self, address, svc='ssh', username='root', password=None, timeout=60):
+    def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
         self.address = address
         self.svc = svc
         self.username = username
         self.password = password
         self.timeout = timeout
         self.hostname = None 
+        self.conn = conn
         self.shell = self.newshell()
         self.inittarget()
     
@@ -72,7 +72,7 @@ class target(common):
             a target object can have multiple shell objects associated on it.
             getshell is actually a factory method of shell objects.
         """ 
-        sh = shell(self)
+        sh = shell(self, self.conn)
         return sh
 
     def exe(self, cmdline, wait=True, log=True):

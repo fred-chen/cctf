@@ -14,17 +14,18 @@ import re
 import datetime
 
 class shell(common.common, threading.Thread):
-    def __init__(self, target):
+    def __init__(self, target, conn=None):
         threading.Thread.__init__(self)
         self.q = Queue()
         self.t = target
-        self.conn = None
+        self.conn = conn
         self.connect()
         self.setDaemon(True)
         self.start()
         
     def connect(self):
-        self.conn = connect(self.t.address, self.t.username, self.t.password, self.t.svc, self.t.timeout, self.t.newline)
+        if (self.conn is None):
+            self.conn = connect(self.t.address, self.t.username, self.t.password, self.t.svc, self.t.timeout, self.t.newline)
         return self.conn
     def reconnect(self):
         self.disconnect()

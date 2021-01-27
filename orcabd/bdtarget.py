@@ -12,9 +12,8 @@ class bdtarget(linuxtarget):
     target class for OrcaBD
     '''
 
-    def __init__(self, address, svc='ssh', username='root', password=None, timeout=60):
-        linuxtarget.__init__(self, address, svc, username, password, timeout)
-        
+    def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
+        linuxtarget.__init__(self, address, svc, username, password, conn, timeout)
     
     def newop(self):
         return bdoperator(self)
