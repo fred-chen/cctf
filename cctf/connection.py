@@ -62,7 +62,11 @@ class connection(common.common, common.lockable):
         else:
             r = select.select([self.pty_fd], [], [])
         if r[0]:
-            txt = os.read(self.pty_fd, 4096)
+            try:
+                txt = os.read(self.pty_fd, 4096)
+            except OSError as err:
+                print("oserror: %s" % (err))
+                return None
             self.txt += txt
         self.unlock()
         return txt
@@ -90,14 +94,13 @@ class connection(common.common, common.lockable):
         start = time.time()
         while True:
             t = self.read(1)
-            if t: txt += t
-            print txt
+            if (not t is None): txt += t
+            else: return None
+            # print txt
             m = reg.search(txt)
             if m:
                 break
             dur = time.time() - start
-            print "dur: %d timeout: %d" % (dur, timeout)
-            print "waiting for %s timeout=%d" % (pattern,timeout)
             if timeout and dur > timeout:
                 txt = None
                 break
@@ -115,7 +118,6 @@ class connection(common.common, common.lockable):
     def login(self):
         if not self.connected():
             return False
-        inshell = 0
         needpasswd = 0
         txt = self.waitfor('.+', self.timeout)
         

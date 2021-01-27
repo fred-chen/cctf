@@ -51,9 +51,9 @@ def createconn(host, svc, username, password, timeout, newline):
                 conn = telnetconnection(host, username, password, timeout, newline)
             else:
                 return None
-        except connection.connError, msg:
+        except connection.connError as err:
             conn = None
-            common.log("couldn't connect %s with %s. (%s)" % (host, svc, msg))    
+            common.log("couldn't connect %s with %s. (%s)" % (host, svc, err))    
     else:
         common.log("couldn't connect %s with %s. (%s)" % (host, svc, "service is not available."))   
         conn = None
