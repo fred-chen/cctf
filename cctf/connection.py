@@ -100,7 +100,7 @@ class connection(common.common, common.lockable):
                 break
             dur = time.time() - start
             if timeout and dur > timeout:
-                print "timeout:\n%s\n" % (txt)
+                print ("timeout %ds:\n%s\n" % (timeout, txt))
                 break
         return txt
     

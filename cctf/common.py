@@ -21,11 +21,11 @@ class common():
             pri = "ERROR"
         elif level == 2:
             pri = "WARN"
-        elif level == 3:
+        else:
             pri = "INFO"
         t = time.localtime()
         tstr = '%4d-%02d-%02d %02d:%02d:%02d' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
-        print "[" + pri + "]" + "[" + tstr + "]" + "[" + os.path.basename(sys.argv[0]) + ":" + cls.__name__ + "] " + msg
+        print ("[" + pri + "]" + "[" + tstr + "]" + "[" + os.path.basename(sys.argv[0]) + ":" + cls.__name__ + "] " + msg)
         sys.stdout.flush()
         g_printlck.release()
 

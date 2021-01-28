@@ -60,19 +60,19 @@ class target(common):
         self.timeout = timeout
         self.hostname = None 
         self.conn = conn
-        self.shell = self.newshell()
+        self.shell = self.newshell(self.conn)
         self.inittarget()
     
     def inittarget(self):
         self.gethostname()
         
-    def newshell(self):
+    def newshell(self, conn=None):
         """
             getshell returns a shell object. Users use shell object to operate on this target.
             a target object can have multiple shell objects associated on it.
             getshell is actually a factory method of shell objects.
         """ 
-        sh = shell(self, self.conn)
+        sh = shell(self, conn)
         return sh
 
     def exe(self, cmdline, wait=True, log=True):
@@ -96,6 +96,12 @@ class target(common):
     def panicreboot(self, wait=True, log=True):
         raise "not implemented"
     
+    def upload(self, local_path, remote_path, wait=True, log=True):
+        raise "not implemented"
+
+    def download(self, local_path, remote_path, wait=True, log=True):
+        raise "not implemented"
+
     def wait_alive(self, timeout=None):
         self.log("waiting %s to be online..." % (self.address))
         start = time.time()
