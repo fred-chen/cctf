@@ -4,7 +4,7 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-import os, socket
+import os, socket, re, time, pty, select, subprocess
 import commands
 
 def is_path_executable(path):
@@ -84,6 +84,65 @@ def _is_server_port_alive(host, port, timeout=None ):
         s.connect((host, port))
         s.close()
         return True
-    except socket.error, msg:
+    except socket.error as msg:
         s.close()
         return False
+
+def expect(cmd, patterns=(), ignorecase=False, timeout=0):
+    """
+        create a pseudo pty and execute a command
+        wait for a specific pattern then send a response if specified
+        arguments:
+            cmd: command line to execute
+            patters: ((pattern, resp), ...)
+        return:
+            (output, returncode) of command
+    """
+    dur = 0
+    regs = []   # [(reg, resp), ...]
+    for pattern in patterns:
+        pat, resp = pattern
+        regs.append((re.compile(pat, re.IGNORECASE|re.DOTALL if ignorecase else re.DOTALL), resp))
+
+    child_pid = 0; pty_fd = 0
+    args = cmd.split()
+    (pid, fd) = pty.fork()
+    if(pid == 0):
+        os.execvp(args[0], args)
+    else:
+        child_pid = pid
+        pty_fd = fd
+    txt = ""; dur=0; start = time.time()
+    while True:
+        try:
+            r = select.select([pty_fd], [], [], 1)
+            if r[0]:
+                line = os.read(pty_fd, 4096)
+                txt += line
+                for reg in regs:
+                    r, resp = reg
+                    m = r.search(line)
+                    if m:
+                        if resp:
+                            os.write(pty_fd, resp+'\n')
+        except OSError as err:         # child process ended
+            break
+        dur = time.time() - start
+        if (timeout and dur >= timeout):
+            os.kill(child_pid, 9)      # timeout, no reason to keep running the command
+            break
+    pid, rt = os.waitpid(child_pid,0)
+    return (txt, rt)
+
+def ls(path):
+    '''
+        expand a wildcard filenames
+        return a list of absolute paths of filenames
+    '''
+    status, output = commands.getstatusoutput('ls -d %s' % path)
+    if status != 0:
+        return None
+    return output.split()
+
+def call(cmd, *args, **kwargs):
+    return subprocess.call(cmd, *args, **kwargs)
