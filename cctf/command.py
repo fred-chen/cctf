@@ -78,11 +78,11 @@ class command(common, lockable):
 
     def getlist(self, splitter='\r\n'):
         self.wait()
-        r = None
+        r = []
         try:
-            r = self.stdout.strip().split(splitter)
+            r = self.stdout.strip().split(splitter) if self.stdout.strip() else []
         except:
-            r = None
+            r = []
         return r
         
     
