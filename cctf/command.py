@@ -76,7 +76,7 @@ class command(common, lockable):
             r = None
         return r
 
-    def getlist(self, splitter='\n'):
+    def getlist(self, splitter='\r\n'):
         self.wait()
         r = None
         try:
