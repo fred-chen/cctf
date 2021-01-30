@@ -4,9 +4,9 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from sys import stderr, stdin
 from target import target
-import time, subprocess, os, pty
+import time, os, pty
+import me
 
 class uxtarget(target):
     """
@@ -54,34 +54,26 @@ class uxtarget(target):
         '''
         child_pid = 0
         pty_fd = 0
-        if log: self.log("copying %s to %s@%s:%s" % (src, self.username, self.address, tgt))
+        if log: self.log("copying %s to %s" % (src, tgt))
 
         if (os.path.exists(self.password)):  # the password is an IdentityFile for ssh authentication
-            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "IdentityFile=%s" % (self.password), "-o", "ServerAliveInterval=60", "-o", "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s"%(src),"%s@%s:%s" % (self.username, self.address, tgt))
+            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "IdentityFile=%s"%(self.password), "-o", "ServerAliveInterval=60", "-o", "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s"%(src),"%s"%(tgt))
         else:
-            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "ServerAliveInterval=60", "-o", "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s" % (src), "%s@%s:%s" % (self.username, self.address, tgt))
-        (pid, fd) = pty.fork()
-        if(pid == 0):
-            os.execvp("scp", args)
-        else:
-            child_pid = pid
-            pty_fd = fd
-        try:
-            txt = os.read(pty_fd, 4096)
-        except OSError as err:
-            txt = ""
-        if (txt.find("password:") >= 0):
-            os.write(pty_fd, "%s\n" % (self.password))
-        pid, rt = os.waitpid(child_pid,0)
-        if (rt != 0):
-            self.log("error: scp returned %d:\n%s" % (rt, txt) ,1)
+            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "ServerAliveInterval=60", "-o", "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s"%(src), "%s"%(tgt))
+        cmd = " ".join(args)
+        output, status = me.expect(cmd, [("password:", self.password)])
+        if (status != 0):
+            self.log("error: scp returned %d:\n%s" % (status, output) ,1)
             return False
-        if log: self.log("copying %s to %s@%s:%s. Done!" % (src, self.username, self.address, tgt))
         return True
 
     def upload(self, local_path, remote_path, log=True):
-        return self._scp(local_path, remote_path)
+        flist = me.ls(local_path)
+        src_str = ' '.join(flist)
+        return self._scp(src_str, "%s@%s:%s" % (self.username, self.address, remote_path))
 
     def download(self, local_path, remote_path, log=True):
-        return self._scp(remote_path, local_path)
+        co = self.exe("ls -d %s" % (remote_path))
+        path_str = ' '.join([ '%s@%s:%s' % ( self.username, self.address, path ) for path in co.getlist()])
+        return self._scp(path_str, local_path)
 
