@@ -145,4 +145,4 @@ def ls(path):
     return output.split()
 
 def call(cmd, *args, **kwargs):
-    return subprocess.call(cmd, *args, **kwargs)
+    return subprocess.call(cmd, shell=True, *args, **kwargs)
