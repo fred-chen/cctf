@@ -144,5 +144,5 @@ def ls(path):
         return None
     return output.split()
 
-def call(cmd, *args, **kwargs):
-    return subprocess.call(cmd, shell=True, *args, **kwargs)
+def exe(cmd):
+    return subprocess.call(cmd, shell=True)
