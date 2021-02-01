@@ -25,7 +25,7 @@ def gettarget(host, username=None, password=None, svc="ssh", timeout=60):
     if txt and txt.find("Linux") >= 0:
         from orcabd import bdtarget
         from linuxtarget import linuxtarget
-        txt = execmd(conn, "ceph -s", timeout)   
+        txt = execmd(conn, "ceph -s", timeout)
         if txt and txt.find("cluster:") >= 0: # ceph cluster node
             t = bdtarget(host, svc, username, password, conn, timeout)
         else:
