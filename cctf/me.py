@@ -5,6 +5,7 @@ Created on Aug 25, 2018
 '''
 
 import os, socket, re, time, pty, select, subprocess
+from shutil import copyfile
 import commands
 
 def is_path_executable(path):
@@ -146,3 +147,6 @@ def ls(path):
 
 def exe(cmd):
     return subprocess.call(cmd, shell=True)
+
+def cp(src, dst):
+    return copyfile(src, dst)
