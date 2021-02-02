@@ -54,7 +54,7 @@ class connection(common.common, common.lockable):
                 os.execvp(args[0], args)
             else:  
                 # the middle layer process monitors its parent
-                # kill's the bottom layer child process if top parent is dead
+                # kill's the bottom layer child process if top layer parent is dead
                 while os.getppid() != 1:
                     time.sleep(1)
                 os.kill(cpid, 9)
