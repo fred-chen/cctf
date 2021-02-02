@@ -5,8 +5,7 @@ Created on Aug 25, 2018
 '''
 
 from common import common, lockable
-import threading
-import re
+import threading, time
 
 class command(common, lockable):
     def __init__(self, cmd, log=True):
@@ -36,10 +35,16 @@ class command(common, lockable):
         self.cv.release()
     
     def wait(self, timeout=None):
-        self.cv.acquire()
+        start = time.time()
         while not self._done:
-            self.cv.wait(timeout)
-        self.cv.release()
+            self.cv.acquire()
+            self.cv.wait(10)
+            self.cv.release()
+            dur = time.time() - start
+            if dur>=30 and int(dur) % 30 == 0:  # print notification every 30s for long wait command
+                self.log("Command has been running on '%s' for %d secs. CMD : %s\n\n" % (self.shell.t.address, dur, self.cmdline))
+            if timeout and dur > timeout:
+                break
     
     def __str__(self):
         out = self.stdout.strip() if len(self.stdout.strip().splitlines()) <= 1 else "\n" + self.stdout.strip()
