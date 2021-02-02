@@ -20,6 +20,7 @@ class shell(common.common, threading.Thread):
         self.t = target
         self.conn = conn
         self.connect()
+        self.setshell()
         self.setDaemon(True)
         self.start()
         
@@ -27,6 +28,9 @@ class shell(common.common, threading.Thread):
         if (self.conn is None):
             self.conn = connect(self.t.address, self.t.username, self.t.password, self.t.svc, self.t.timeout, self.t.newline)
         return self.conn
+    def setshell(self):
+        self.conn.write("set +H")
+        self.conn.nl()
     def reconnect(self):
         self.disconnect()
         return self.connect()
@@ -71,7 +75,7 @@ class shell(common.common, threading.Thread):
         cmd += "cat ${FN}.exit;echo ==EXITEND==;"
         cmd += "echo ==${FN}END==;"
         cmd += "rm -f ${FN}.out ${FN}.err ${FN}.exit"
-        # print (cmd)
+        print (cmd)
         self.conn.write(cmd)
         self.conn.nl()
     
