@@ -75,7 +75,6 @@ class shell(common.common, threading.Thread):
         cmd += "cat ${FN}.exit;echo ==EXITEND==;"
         cmd += "echo ==${FN}END==;"
         cmd += "rm -f ${FN}.out ${FN}.err ${FN}.exit"
-        print (cmd)
         self.conn.write(cmd)
         self.conn.nl()
     
