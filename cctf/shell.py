@@ -63,7 +63,6 @@ class shell(common.common, threading.Thread):
     
     def _sendcmd(self, cmdobj):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
-        cmdline = cmdobj.cmdline.replace("'", r"\'")
         cmd  = "FN=/tmp/%s;" % (cmdobj.reserve)
         cmd += 'eval "%s" > ${FN}.out 2>${FN}.err;echo $?>${FN}.exit;' % (cmdline)
         cmd += "echo ==${FN}START==;"
