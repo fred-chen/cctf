@@ -102,28 +102,28 @@ class target(common):
     def download(self, local_path, remote_path, wait=True, log=True):
         raise "not implemented"
 
-    def wait_alive(self, timeout=None):
-        self.log("waiting %s to be online..." % (self.address))
+    def wait_alive(self, svc=None, timeout=None):
+        self.log("waiting %s:%s to be online..." % (self.address, str(svc)))
         start = time.time()
-        while not self.alive(1):
+        while not self.alive(svc, 1):
             dur = time.time() - start
             if timeout and dur >= timeout:
                 return False
-        for i in range(3):
-            if self.shell.reconnect(): break
-            self.log("connection attempt %d" % (i))
-        self.log("%s is back online." % self.address)
+        self.log("%s:%s is back online." % (self.address, str(svc)))
         return True
     
-    def wait_down(self, timeout=None):
+    def wait_down(self, svc=None, timeout=None):
         start = time.time()
-        while self.alive(1):
+        while self.alive(svc, 1):
             dur = time.time() - start
             if timeout and dur >= timeout:
                 return False
-        self.log("%s is down." % self.address)
+        self.log("%s:%s is down." % (self.address, str(svc)))
         return True
 
-    def alive(self, timeout=1):
-        return is_server_svc_alive(host=self.address, svc=self.svc, timeout=timeout)
+    def alive(self, svc=None, timeout=1):
+        service = svc
+        if not service:
+            service = self.svc
+        return is_server_svc_alive(host=self.address, svc=service, timeout=timeout)
     

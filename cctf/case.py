@@ -40,10 +40,11 @@ class case(common):
                 any parameter can be passed in to a case, the case interprets them respectively 
         """
         s="-t:-l:"
+        opts = []; args = []
         try:
             opts, args = getopt.gnu_getopt(sys.argv[1:], s)
-        except Exception, msg:
-            print msg
+        except Exception as msg:
+            print (msg)
         for opt in opts:
             if opt[0] == '-t':
                 # parse target addresses

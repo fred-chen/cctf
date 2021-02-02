@@ -55,6 +55,7 @@ class shell(common.common, threading.Thread):
             cmdobj.reserve = filename
             self._sendcmd(cmdobj)
             start = datetime.datetime.now()
+            cmdobj.start = start
             self._getresults(cmdobj)
             diff = datetime.datetime.now() - start
             cmdobj.dur = diff.total_seconds() * 1000

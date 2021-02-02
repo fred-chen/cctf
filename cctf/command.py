@@ -5,7 +5,7 @@ Created on Aug 25, 2018
 '''
 
 from common import common, lockable
-import threading, time
+import threading, time, datetime
 
 class command(common, lockable):
     def __init__(self, cmd, log=True):
@@ -17,8 +17,9 @@ class command(common, lockable):
         self.reserve = ""
         self._done = False
         self.cv = threading.Condition()
-        self.shell = None
-        self.dur = None
+        self.shell = None   # command.shell will be assigned by shell object
+        self.start = None   # command.start will be filled when the shell actually starts executing it
+        self.dur = None     # command.dur will be filled by the shell when it finishes executing it
         self.printlog = log
     
     def done(self):
@@ -40,10 +41,16 @@ class command(common, lockable):
             self.cv.acquire()
             self.cv.wait(10)
             self.cv.release()
-            dur = time.time() - start
-            if dur>=30 and int(dur) % 30 == 0:  # print notification every 30s for long wait command
-                self.log("Command has been running on '%s' for %d secs. CMD : %s\n\n" % (self.shell.t.address, dur, self.cmdline))
-            if timeout and dur > timeout:
+            dur_wait = time.time() - start
+            if dur_wait>=30 and int(dur_wait) % 30 == 0:  # print notification every 30s for long wait command
+                msg = "waited for %d secs. CMD : %s\n\n" % (dur_wait, self.cmdline)
+                if not self.start:
+                    msg = "cmd on target '%s' hasn't started yet. " % (self.shell.t.address) + msg
+                else:
+                    dur = datetime.datetime.now() - self.start
+                    msg = "cmd on target '%s' has run for %d secs. " % (self.shell.t.address, dur.total_seconds()) + msg
+                self.log(msg)
+            if timeout and dur_wait > timeout:
                 break
     
     def __str__(self):
