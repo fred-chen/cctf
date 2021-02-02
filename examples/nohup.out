@@ -1,0 +1,391 @@
+[INFO][2021-02-02 23:04:51][example_shells.py:common] connecting 192.168.103.253 with ssh
+txt: CCTF2018:==/tmp/139628756899584_742211562START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/139628756899584_742211562END==
+
+[INFO][2021-02-02 23:04:51][example_shells.py:common] connecting 192.168.103.253 with ssh
+Exception in thread Thread-2:
+Traceback (most recent call last):
+  File "/usr/lib64/python2.7/threading.py", line 812, in __bootstrap_inner
+    self.run()
+  File "/root/fred/cp/perftest/uio_scripts/cctf/cctf/shell.py", line 59, in run
+    self._getresults(cmdobj)
+  File "/root/fred/cp/perftest/uio_scripts/cctf/cctf/shell.py", line 82, in _getresults
+    m = reg.search(txt)
+TypeError: expected string or buffer
+
+[INFO][2021-02-02 23:13:30][test.py:common] connecting 192.168.103.253 with ssh
+txt: CCTF2018:==/tmp/140567062865664_994595411START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567062865664_994595411END==
+
+[INFO][2021-02-02 23:13:30][test.py:common] connecting 192.168.103.253 with ssh
+waiting for results
+txt: CCTF2018:==/tmp/140567054472960_484240133START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_484240133END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_976531474START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_976531474END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_926844650START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_926844650END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 13 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_739313740START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_739313740END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_514194272START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_514194272END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 13 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_602447394START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_602447394END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 13 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_948821938START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_948821938END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 13 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_300433538START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_300433538END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_599801545START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_599801545END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_955980703START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_955980703END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 13 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_397420116START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_397420116END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_977165207START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_977165207END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_813335983START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_813335983END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 11 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_327822371START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_327822371END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_979675412START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_979675412END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 11 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_613055843START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_613055843END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 10 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_336463699START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_336463699END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_651016628START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_651016628END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 11 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_562429494START==
+uniio
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_562429494END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : hostname
+STDOUT  : uniio
+STDERR  : 
+EXIT    : 0
+DURATION: 11 ms
+------------------------------------------------------------
+
+txt: CCTF2018:==/tmp/140567054472960_188443485START==
+Tue Feb  2 23:13:31 CST 2021
+==OUTEND==
+==ERREND==
+0
+==EXITEND==
+==/tmp/140567054472960_188443485END==
+
+[INFO][2021-02-02 23:13:31][test.py:command] 
+------------------------------------------------------------
+TARGET  : 192.168.103.253 - uniio
+COMMAND : date
+STDOUT  : Tue Feb  2 23:13:31 CST 2021
+STDERR  : 
+EXIT    : 0
+DURATION: 12 ms
+------------------------------------------------------------
+

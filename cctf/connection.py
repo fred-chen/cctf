@@ -56,7 +56,7 @@ class connection(common.common, common.lockable):
             
     def read(self, timeout=None):
         self.lock()
-        txt = None
+        txt = ""
         if timeout:
             r = select.select([self.pty_fd], [], [], timeout)
         else:
@@ -95,6 +95,8 @@ class connection(common.common, common.lockable):
         while True:
             t = self.read(1)
             if (not t is None): txt += t
+            else: 
+                return None   # child process ended
             m = reg.search(txt)
             if m:
                 break
@@ -134,10 +136,12 @@ class connection(common.common, common.lockable):
         self.waitfor("CCTF2018:", self.timeout)
         self.nl()
         t1 = self.waitfor("CCTF2018:", self.timeout)
+        if t1 is None: return False
 #         print "t1: \n'%s'\n" % t1
         self.write('date "+%D"')
         self.nl()
         t2 = self.waitfor("\d{2}/\d{2}/\d{2}", self.timeout)
+        if t2 is None: return False
 #         print "t2: \n'%s'\n" % t2
         self.nl()
         self.waitfor("CCTF2018:", self.timeout)

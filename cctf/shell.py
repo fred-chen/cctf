@@ -63,6 +63,7 @@ class shell(common.common, threading.Thread):
     
     def _sendcmd(self, cmdobj):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
+        cmdline = cmdobj.cmdline.replace("'", r"\'")
         cmd  = "FN=/tmp/%s;" % (cmdobj.reserve)
         cmd += 'eval "%s" > ${FN}.out 2>${FN}.err;echo $?>${FN}.exit;' % (cmdline)
         cmd += "echo ==${FN}START==;"
@@ -71,9 +72,9 @@ class shell(common.common, threading.Thread):
         cmd += "cat ${FN}.exit;echo ==EXITEND==;"
         cmd += "echo ==${FN}END==;"
         cmd += "rm -f ${FN}.out ${FN}.err ${FN}.exit"
+        # print (cmd)
         self.conn.write(cmd)
         self.conn.nl()
-        # print (cmd)
     
     def _getresults(self, cmdobj):
         txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve))

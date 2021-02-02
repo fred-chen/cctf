@@ -55,8 +55,9 @@ from widgets.widcpuloadgen import widcpuloadgen
 
 """ 定义多个目标设备的信息 """
 nodes = [
-    ('10.211.55.6', 'root', 'root', 'ssh'),
-    ('10.211.55.7', 'root', 'root', 'ssh'),
+    ('192.168.103.253', 'root', 'password', 'ssh'),
+    # ('10.211.55.6', 'root', 'root', 'ssh'),
+    # ('10.211.55.7', 'root', 'root', 'ssh'),
 #     ('192.168.100.166', 'root', 'admin', 'ssh'),
 #     ('192.168.100.102', 'ssh', 'root', 'cobbler'),
 #     ('192.168.100.103', 'ssh', 'root', 'cobbler'),
@@ -76,22 +77,22 @@ for node in nodes:
     """ 为每个目标设备创建一个target对象 """
     ts.append(gettarget(node[0],node[1],node[2],node[3], 3))
 
-wids = []
-for t in ts:
-    wid = widcpuloadgen(t)
-    wids.append(wid)
-    wid = widmemloadgen(t)
-    wids.append(wid)
+# wids = []
+# for t in ts:
+#     wid = widcpuloadgen(t)
+#     wids.append(wid)
+#     wid = widmemloadgen(t)
+#     wids.append(wid)
 
-time.sleep(30)
+# time.sleep(30)
 
-print "stopping..."
-for wid in wids:
-    wid.stop()
+# print "stopping..."
+# for wid in wids:
+#     wid.stop()
 
-print "stopped..."
-time.sleep(5)
-print "exit."
+# print "stopped..."
+# time.sleep(5)
+# print "exit."
 
 
 # for t in ts:
@@ -100,7 +101,7 @@ print "exit."
 #     print "pools: %s" % bdop.getpools()
 #     t.shutdown()
      
-exit()
+# exit()
 
 
 shs = []
@@ -110,19 +111,19 @@ for t in ts:
         shs.append(t.newshell())
 
 cos = []
-# for sh in shs:
-#     """
-#         在每个连接上执行一个“hostname”命令（共55条命令）
-#         wait=False 表示不等待执行结果，并发执行
-#     """
-#     for i in range(500):
-#         cos.append(sh.exe("hostname", wait=False)) 
-#         cos.append(sh.exe("date", wait=False)) 
+for sh in shs:
+    """
+        在每个连接上执行一个“hostname”命令（共55条命令）
+        wait=False 表示不等待执行结果，并发执行
+    """
+    for i in range(10):
+        cos.append(sh.exe("hostname", wait=False)) 
+        cos.append(sh.exe("date", wait=False)) 
 
-# print "waiting for results"
-# for co in cos:
-#     """ 逐个命令检查执行结果 """
-#     co.wait()
+print "waiting for results"
+for co in cos:
+    """ 逐个命令检查执行结果 """
+    co.wait()
 
 # for i in range(3):
 #     for t in ts:
