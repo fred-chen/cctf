@@ -48,8 +48,16 @@ class connection(common.common, common.lockable):
         
     def _spawn(self, args):
         (pid, fd) = pty.fork()
-        if(pid == 0):
-            os.execvp(args[0], args)
+        if(pid == 0):    # child
+            cpid = os.fork()
+            if(cpid == 0):  # child's child
+                os.execvp(args[0], args)
+            else:  
+                # the middle layer process monitors its parent
+                # kill's the bottom layer child process if top parent is dead
+                while os.getppid() != 1:
+                    time.sleep(1)
+                os.kill(cpid, 9)
         else:
             self.child_pid = pid
             self.pty_fd = fd
