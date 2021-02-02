@@ -45,10 +45,10 @@ class command(common, lockable):
             if dur_wait>=30 and int(dur_wait) % 30 == 0:  # print notification every 30s for long wait command
                 msg = "waited for %d secs. CMD : %s\n\n" % (dur_wait, self.cmdline)
                 if not self.start:
-                    msg = "cmd on target '%s' hasn't started yet. " % (self.shell.t.address) + msg
+                    msg = "on target '%s' cmd hasn't started yet. " % (self.shell.t.address) + msg
                 else:
                     dur = datetime.datetime.now() - self.start
-                    msg = "cmd on target '%s' has run for %d secs. " % (self.shell.t.address, dur.total_seconds()) + msg
+                    msg = "on target '%s' cmd has run for %d secs. " % (self.shell.t.address, dur.total_seconds()) + msg
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
