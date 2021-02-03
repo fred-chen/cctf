@@ -13,6 +13,6 @@ from cctf import gettarget
 """ 
     通过gettarget工厂函数，获取远端设备相应的target对象 
 """
-t = gettarget('nas.chenp.net', 'root', '', 'ssh', 10)
+t = gettarget('192.168.100.156', 'root', 'password', 'ssh', 10)
 sh = t.newshell()
-sh.exe("echo hello cctf!")
+sh.exe("echo 'hello cctf!'|xargs -n1 echo ")
