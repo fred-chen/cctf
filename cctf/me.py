@@ -146,7 +146,47 @@ def ls(path):
     return output.split()
 
 def exe(cmd):
-    return subprocess.call(cmd, shell=True)
+    """
+        run a local command.
+        return:
+            rt: return code
+            stdout: text of stdout
+            stderr: text of stderr
+    """
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    rt = p.wait()
+    stdout = p.stdout.read().strip()
+    stderr = p.stderr.read().strip()
+    return (rt, stdout, stderr)
+
+def getlist(cmd, splitter='\r\n'):
+    rt, stdout, stderr = exe(cmd)
+    return stdout.strip().split(splitter) if cp.stdout.strip() else []
+
+def getint(cmd):
+    rt, stdout, stderr = exe(cmd)
+    try:
+        r = int(stdout.strip())
+    except:
+        r = None
+    return r
+
+def getfloat(cmd):
+    rt, stdout, stderr = exe(cmd)
+    try:
+        r = float(stdout.strip())
+    except:
+        r = None
+    return r
+
+def succ(cmd):
+    rt, stdout, stderr = exe(cmd)
+    if rt == 0:
+        return True
+    return False
+
+def fail(cmd):
+    return not succ(cmd)
 
 def cp(src, dst):
     return copyfile(src, dst)
