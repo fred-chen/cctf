@@ -60,7 +60,9 @@ class target(common):
         self.timeout = timeout
         self.hostname = None 
         self.conn = conn
+        self.shs = []
         self.shell = self.newshell(self.conn)
+        self.shs.append(self.shell)
         self.inittarget()
     
     def inittarget(self):
@@ -73,6 +75,8 @@ class target(common):
             getshell is actually a factory method of shell objects.
         """ 
         sh = shell(self, conn)
+        if sh:
+            self.shs.append(sh)
         return sh
 
     def exe(self, cmdline, wait=True, log=True):
@@ -103,13 +107,13 @@ class target(common):
         raise "not implemented"
 
     def wait_alive(self, svc=None, timeout=None):
-        self.log("waiting %s:%s to be online..." % (self.address, str(svc)))
+        self.log("waiting %s:%s to be online..." % (self.address, str(svc) if svc else self.svc))
         start = time.time()
         while not self.alive(svc, 1):
             dur = time.time() - start
             if timeout and dur >= timeout:
                 return False
-        self.log("%s:%s is back online." % (self.address, str(svc)))
+        self.log("%s:%s is back online." % (self.address, str(svc) if svc else self.svc))
         return True
     
     def wait_down(self, svc=None, timeout=None):
@@ -118,12 +122,10 @@ class target(common):
             dur = time.time() - start
             if timeout and dur >= timeout:
                 return False
-        self.log("%s:%s is down." % (self.address, str(svc)))
+        self.log("%s:%s is down." % (self.address, str(svc) if svc else self.svc))
         return True
 
     def alive(self, svc=None, timeout=1):
-        service = svc
-        if not service:
-            service = self.svc
+        service = svc if svc else self.svc
         return is_server_svc_alive(host=self.address, svc=service, timeout=timeout)
     

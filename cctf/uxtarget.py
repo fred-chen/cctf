@@ -33,9 +33,10 @@ class uxtarget(target):
             self.log("rebooting %s" % self.address)
         self.shell.conn.write("reboot")
         self.shell.conn.nl()
+        # for sh in self.shs:
+        #     sh.disconnect()
+        self.wait_down()
         if wait:
-            while self.alive():
-                time.sleep(0.1)
             self.wait_alive()
     
     def shutdown(self, wait=True, log=True):
@@ -43,6 +44,8 @@ class uxtarget(target):
             self.log("shutting down %s" % self.address)
         self.shell.conn.write("shutdown -h now")
         self.shell.conn.nl()
+        # for sh in self.shs:
+        #     sh.disconnect()
         if wait:
             while self.alive():
                 time.sleep(1)

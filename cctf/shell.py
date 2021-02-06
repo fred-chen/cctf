@@ -11,7 +11,7 @@ import threading
 import random
 from command import command
 import re
-import datetime
+import datetime, time
 
 class shell(common.common, threading.Thread):
     def __init__(self, target, conn=None):
@@ -20,13 +20,13 @@ class shell(common.common, threading.Thread):
         self.t = target
         self.conn = conn
         self.connect()
-        self.setshell()
         self.setDaemon(True)
         self.start()
         
     def connect(self):
         if (self.conn is None):
             self.conn = connect(self.t.address, self.t.username, self.t.password, self.t.svc, self.t.timeout, self.t.newline)
+        if self.conn: self.setshell()
         return self.conn
     def setshell(self):
         self.conn.write("set +H")
@@ -57,10 +57,29 @@ class shell(common.common, threading.Thread):
             cmdobj = self.q.get()
             filename = "%s_%s" % (threading.current_thread().ident, random.randrange(1000000000))
             cmdobj.reserve = filename
-            self._sendcmd(cmdobj)
             start = datetime.datetime.now()
-            cmdobj.start = start
-            self._getresults(cmdobj)
+            for i in range(1, 6):
+                broken = False
+                if self._sendcmd(cmdobj) is None:
+                    broken = True
+                start = datetime.datetime.now()
+                cmdobj.start = start
+                if self._getresults(cmdobj) is None:  # connection broken
+                    broken = True
+                timeout = 1
+                if broken:
+                    self.log("connection broken. resending command '%s'. attempt %d, timeout 30secs ..." % (cmdobj.cmdline, i), 2)
+                    dur = 0; alive = False
+                    while True:
+                        if self.t.alive():
+                            alive = True
+                            break
+                        else:
+                            time.sleep(1)
+                            dur += 1
+                            if dur > timeout: break
+                    if alive: self.reconnect()
+                    continue
             diff = datetime.datetime.now() - start
             cmdobj.dur = diff.total_seconds() * 1000
             cmdobj.setdone()
@@ -75,14 +94,23 @@ class shell(common.common, threading.Thread):
         cmd += "cat ${FN}.exit;echo ==EXITEND==;"
         cmd += "echo ==${FN}END==;"
         cmd += "rm -f ${FN}.out ${FN}.err ${FN}.exit"
-        self.conn.write(cmd)
-        self.conn.nl()
+        if (not self.conn) or self.conn.write(cmd) is None:
+            return None
+        return self.conn.nl()
     
     def _getresults(self, cmdobj):
-        txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve))
+        txt = None
+        if self.conn:
+            txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve))
+        if txt is None:   # connection broken
+            cmdobj.stdout = None
+            cmdobj.stderr = None
+            cmdobj.exit = None
+            return txt
         reg = re.compile("==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
         m = reg.search(txt)
         cmdobj.stdout = m.group(1)
         cmdobj.stderr = m.group(2)
         cmdobj.exit = m.group(3)
+        return txt
         

@@ -6,7 +6,7 @@ Created on Aug 25, 2018
 
 import common
 import me
-import os, signal
+import os, signal, sys
 import pty
 import re
 import select
@@ -45,19 +45,21 @@ class connection(common.common, common.lockable):
             os.waitpid(self.child_pid, os.WNOHANG)
             self.child_pid = None
             self.pty_fd = None
+        self._connect = False
         
     def _spawn(self, args):
         (pid, fd) = pty.fork()
         if(pid == 0):    # child
-            cpid = os.fork()
-            if(cpid == 0):  # child's child
-                os.execvp(args[0], args)
-            else:  
-                # the middle layer process monitors its parent
-                # kill's the bottom layer child process if top layer parent is dead
-                while os.getppid() != 1:
-                    time.sleep(1)
-                os.kill(cpid, 9)
+            os.execvp(args[0], args)
+            # cpid = os.fork()
+            # if(cpid == 0):  # child's child
+            #     os.execvp(args[0], args)
+            # else:  
+            #     # the middle layer process monitors its parent
+            #     # kill's the bottom layer child process if top layer parent is dead
+            #     while os.getppid() != 1:
+            #         time.sleep(1)
+            #     os.kill(cpid, 9)
         else:
             self.child_pid = pid
             self.pty_fd = fd
@@ -73,7 +75,8 @@ class connection(common.common, common.lockable):
             try:
                 txt = os.read(self.pty_fd, 4096)
             except OSError as err:
-                print("oserror: %s" % (err))
+                self.unlock()
+                self.disconnect()
                 return None
             self.txt += txt
         self.unlock()
@@ -81,13 +84,19 @@ class connection(common.common, common.lockable):
         
     def write(self, txt):
         if not self.connected():
-            self.connect()            
+            self.connect()
         self.lock()
-        os.write(self.pty_fd, txt)
+        try:
+            ret = os.write(self.pty_fd, txt)
+        except OSError as err:   # child process ended
+            self.unlock()
+            print ("returning none in connection.write()")
+            return None
         self.unlock()
+        return ret
         
     def nl(self):
-        self.write(self.newline)
+        return self.write(self.newline)
     
     def waitfor(self, pattern, timeout=0):
         """
@@ -109,6 +118,7 @@ class connection(common.common, common.lockable):
             if m:
                 break
             dur = time.time() - start
+            # print ("txt='%s'" % (txt))
             if timeout and dur > timeout:
                 print ("timeout %ds:\n%s\n" % (timeout, txt))
                 break
@@ -166,14 +176,14 @@ class connection(common.common, common.lockable):
     def connected(self):
         if not self.svcalive():
             return False
+        if not me.check_pid(self.child_pid):
+            os.waitpid(self.child_pid, os.WNOHANG)
+            return False
         r = select.select([self.pty_fd], [self.pty_fd], [self.pty_fd])
         if not r[1] or r[2]:
             return False
         if r[0]:
             return True
-        if not me.check_pid(self.child_pid):
-            return False
-        os.waitpid(self.child_pid, os.WNOHANG)
         return True 
         
     def __del__(self):
