@@ -14,11 +14,12 @@ import re
 import datetime, time
 
 class shell(common.common, threading.Thread):
-    def __init__(self, target, conn=None):
+    def __init__(self, target, conn=None, timeout=300):
         threading.Thread.__init__(self)
         self.q = Queue()
         self.t = target
         self.conn = conn
+        self.timeout = timeout
         self.connect()
         self.setDaemon(True)
         self.start()
@@ -66,10 +67,10 @@ class shell(common.common, threading.Thread):
                 cmdobj.start = start
                 if self._getresults(cmdobj) is None:  # connection broken
                     broken = True
-                timeout = 1
                 if broken:
-                    self.log("connection broken. resending command '%s'. attempt %d, timeout 30secs ..." % (cmdobj.cmdline, i), 2)
+                    self.log("connection broken. resending command '%s'. timeout %d secs, attempt %d ..." % (cmdobj.cmdline, timeout, i), 2)
                     dur = 0; alive = False
+                    timeout = self.timeout if self.timeout else 300
                     while True:
                         if self.t.alive():
                             alive = True
