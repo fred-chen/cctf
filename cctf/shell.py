@@ -81,6 +81,8 @@ class shell(common.common, threading.Thread):
                             if dur > timeout: break
                     if alive: self.reconnect()
                     continue
+                else:
+                    break
             diff = datetime.datetime.now() - start
             cmdobj.dur = diff.total_seconds() * 1000
             cmdobj.setdone()
