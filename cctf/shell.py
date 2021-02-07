@@ -10,8 +10,7 @@ from connfactory import connect
 import threading
 import random
 from command import command
-import re
-import datetime, time
+import re, datetime, time, uuid
 
 class shell(common.common, threading.Thread):
     def __init__(self, target, conn=None, timeout=300):
@@ -20,6 +19,7 @@ class shell(common.common, threading.Thread):
         self.t = target
         self.conn = conn
         self.timeout = timeout
+        self.id = str(uuid.uuid4()).split('-')[0]
         self.connect()
         self.setDaemon(True)
         self.start()

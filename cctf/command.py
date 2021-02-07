@@ -56,10 +56,10 @@ class command(common, lockable):
     def __str__(self):
         cmd = self.cmdline.strip() if len(self.cmdline.strip().splitlines()) <= 1 else "\n" + self.cmdline.strip()
         if (self.exit is None):  # command failed to exec
-            return u"\n%s\nTARGET  : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, cmd, None, None, None, self.dur, '-'*60)
+            return u"\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, '-'*60)
         out = self.stdout.strip() if len(self.stdout.strip().splitlines()) <= 1 else "\n" + self.stdout.strip()
         err = self.stderr.strip() if len(self.stderr.strip().splitlines()) <= 1 else "\n" + self.stderr.strip()
-        return u"\n%s\nTARGET  : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, cmd, out.decode('utf-8').replace("\r", ""), err.decode('utf-8').replace("\r", ""), self.exit.strip().replace("\r", ""), self.dur, '-'*60)
+        return u"\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, out.decode('utf-8').replace("\r", ""), err.decode('utf-8').replace("\r", ""), self.exit.strip().replace("\r", ""), self.dur, '-'*60)
     
     def cmdlog(self):
         self.log("%s" % (self))
