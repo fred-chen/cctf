@@ -68,9 +68,9 @@ class shell(common.common, threading.Thread):
                 if self._getresults(cmdobj) is None:  # connection broken
                     broken = True
                 if broken:
-                    self.log("connection broken. resending command '%s'. timeout %d secs, attempt %d ..." % (cmdobj.cmdline, timeout, i), 2)
                     dur = 0; alive = False
                     timeout = self.timeout if self.timeout else 300
+                    self.log("connection broken. resending command '%s'. timeout %d secs, attempt %d ..." % (cmdobj.cmdline, timeout, i), 2)
                     while True:
                         if self.t.alive():
                             alive = True
