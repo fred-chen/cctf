@@ -38,10 +38,10 @@ def connect(host='127.0.0.1', username=None, password=None, svc="ssh", timeout=3
     return conn
 
 def createconn(host, svc, username, password, timeout, newline):
+    common.log("connecting %s with %s" % (host, svc))
     conn = None
     alive = is_server_svc_alive(host, svc, timeout)
     if alive:
-        common.log("connecting %s with %s" % (host, svc))
         try:
             if svc == 'shell':
                 conn = rshconnection(host, username, password, timeout, newline)

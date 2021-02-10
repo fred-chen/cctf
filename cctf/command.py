@@ -40,20 +40,19 @@ class command(common, lockable):
     def wait(self, timeout=None):
         start = time.time()
         while not self._done:
-            self.cv.acquire()
-            self.cv.wait(10)
-            self.cv.release()
             dur_wait = time.time() - start
             if dur_wait>=30 and int(dur_wait) % 30 == 0:  # print notification every 30s for long wait command
-                msg = "waited for %d secs. CMD : %s" % (dur_wait, self.cmdline)
                 if not self.start:
-                    msg = "on target '%s [%s]' cmd hasn't started yet. %s\n\n" % (self.shell.t.address, self.shell.id, msg)
+                    msg = "on target '%s [%s]' cmd hasn't started yet. waited for %d secs. CMD : %s\n\n" % (self.shell.t.address, self.shell.id, dur_wait, self.cmdline)
                 else:
                     dur = datetime.datetime.now() - self.start
-                    msg = "on target '%s [%s]' cmd has run for %d secs. %s\n%s SCREEN OUTPUT %s\n%s\n%s\n" % (self.shell.t.address, self.shell.id, dur.total_seconds(), msg, "="*40, "="*40, self.screentext.strip(), "="*95)
+                    msg = "waited for %d secs ... \n%s COMMAND RUNNING %s\nCMD    : %s\n\nSCREEN :\n%s\n\nTARGET : %s [%s]\nTIME   : %d secs.\n%s\n\n" % (dur_wait, "="*40, "="*40, self.cmdline, self.screentext.strip(), self.shell.t.address, self.shell.id, dur.total_seconds(), "="*97)
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
+            self.cv.acquire()
+            self.cv.wait(10)
+            self.cv.release()
     
     def __str__(self):
         cmd = self.cmdline.strip() if len(self.cmdline.strip().splitlines()) <= 1 else "\n" + self.cmdline.strip()

@@ -90,7 +90,7 @@ class shell(common.common, threading.Thread):
     def _sendcmd(self, cmdobj):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
         cmd  = "FN=/tmp/%s;" % (cmdobj.reserve)
-        cmd += 'eval "%s" > >(tee ${FN}.out) 2> >(tee ${FN}.err >&2); echo $?>${FN}.exit;' % (cmdline)
+        cmd += 'eval "%s" > >(tee ${FN}.out) 2> >(tee ${FN}.err >&2); echo $?>${FN}.exit; sync;' % (cmdline)
         cmd += "echo ==${FN}START==;"
         cmd += "cat ${FN}.out;echo ==OUTEND==;"
         cmd += "cat ${FN}.err;echo ==ERREND==;"
@@ -103,7 +103,7 @@ class shell(common.common, threading.Thread):
     
     def _getresults(self, cmdobj):
         txt = None
-        regScreen = re.compile("(.+)==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
+        regScreen = re.compile("(.*)==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
         if self.conn:
             while True:
                 txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve), 1)
