@@ -62,7 +62,7 @@ class command(common, lockable):
             return u"command hasn't started yet. target: '%s [shell: %s]'  CMD : %s\n\n" % (self.shell.t.address, self.shell.id, self.cmdline)
         else:
             dur = datetime.datetime.now() - self.start
-            return u"\n\n%s COMMAND RUNNING %s\nSCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nCMD     : %s\nRUNTIME : %d secs.\n%s\n\n" % ("."*40, "."*40, self.screentext.strip().decode('utf-8'), self.shell.t.address, self.shell.id, self.cmdline, dur.total_seconds(), "."*97)  
+            return u"\n\n%s COMMAND RUNNING %s\nSCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n%s\n\n" % ("."*40, "."*40, self.screentext.strip().decode('utf-8'), self.shell.t.address, self.shell.id, dur.total_seconds(), self.cmdline, "."*97)  
     
     def cmdlog(self):
         self.log("%s" % (self))
