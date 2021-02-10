@@ -103,10 +103,10 @@ class shell(common.common, threading.Thread):
     
     def _getresults(self, cmdobj):
         txt = None
-        regScreen = re.compile("(.*)==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
+        regScreen = re.compile("==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
         if self.conn:
             while True:
-                txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve), 1)
+                txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve), 3)
                 if txt is None:   # connection broken
                     cmdobj.stdout = None
                     cmdobj.stderr = None
@@ -117,9 +117,8 @@ class shell(common.common, threading.Thread):
                 if m:   # command finished
                     break
         m = regScreen.search(cmdobj.screentext)
-        cmdobj.screentext = m.group(1)
-        cmdobj.stdout     = m.group(2)
-        cmdobj.stderr     = m.group(3)
-        cmdobj.exit       = m.group(4)
+        cmdobj.stdout     = m.group(1)
+        cmdobj.stderr     = m.group(2)
+        cmdobj.exit       = m.group(3)
         return txt
         
