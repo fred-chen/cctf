@@ -90,7 +90,7 @@ class shell(common.common, threading.Thread):
     def _sendcmd(self, cmdobj):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
         cmd  = "FN=/tmp/%s;" % (cmdobj.reserve)
-        cmd += 'eval "%s" > ${FN}.out 2>${FN}.err;echo $?>${FN}.exit;' % (cmdline)
+        cmd += 'eval "%s" > >(tee ${FN}.out) 2> >(tee ${FN}.err >&2); echo $?>${FN}.exit;' % (cmdline)
         cmd += "echo ==${FN}START==;"
         cmd += "cat ${FN}.out;echo ==OUTEND==;"
         cmd += "cat ${FN}.err;echo ==ERREND==;"
@@ -103,17 +103,23 @@ class shell(common.common, threading.Thread):
     
     def _getresults(self, cmdobj):
         txt = None
+        regScreen = re.compile("(.+)==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
         if self.conn:
-            txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve))
-        if txt is None:   # connection broken
-            cmdobj.stdout = None
-            cmdobj.stderr = None
-            cmdobj.exit = None
-            return txt
-        reg = re.compile("==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
-        m = reg.search(txt)
-        cmdobj.stdout = m.group(1)
-        cmdobj.stderr = m.group(2)
-        cmdobj.exit = m.group(3)
+            while True:
+                txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve), 1)
+                if txt is None:   # connection broken
+                    cmdobj.stdout = None
+                    cmdobj.stderr = None
+                    cmdobj.exit = None
+                    return txt
+                cmdobj.screentext += re.sub(r"^\s*CCTF2018:", "", txt)
+                m = regScreen.search(cmdobj.screentext)
+                if m:   # command finished
+                    break
+        m = regScreen.search(cmdobj.screentext)
+        cmdobj.screentext = m.group(1)
+        cmdobj.stdout     = m.group(2)
+        cmdobj.stderr     = m.group(3)
+        cmdobj.exit       = m.group(4)
         return txt
         

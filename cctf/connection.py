@@ -120,7 +120,6 @@ class connection(common.common, common.lockable):
             dur = time.time() - start
             # print ("txt='%s'" % (txt))
             if timeout and dur > timeout:
-                print ("timeout %ds:\n%s\n" % (timeout, txt))
                 break
         return txt
     

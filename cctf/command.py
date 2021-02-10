@@ -10,17 +10,19 @@ import threading, time, datetime
 class command(common, lockable):
     def __init__(self, cmd, log=True):
         lockable.__init__(self)
-        self.stdout = None
-        self.stderr = None
-        self.exit = None
-        self.cmdline = cmd
-        self.reserve = ""
-        self._done = False
-        self.cv = threading.Condition()
-        self.shell = None   # command.shell will be assigned by shell object
-        self.start = None   # command.start will be filled when the shell actually starts executing it
-        self.dur = None     # command.dur will be filled by the shell when it finishes executing it
-        self.printlog = log
+        self.stdout     = None
+        self.stderr     = None
+        self.exit       = None
+        self.cmdline    = cmd
+        self.reserve    = ""
+        self.screentext = ""       # command.screentext is the stdout and stderr outputed on terminal screen. 
+                                   # will be captured every 1 second by shell object.
+        self.shell      = None     # command.shell will be assigned by shell object
+        self.start      = None     # command.start will be filled when the shell actually starts executing it
+        self.dur        = None     # command.dur will be filled by the shell when it finishes executing it
+        self.printlog   = log
+        self._done      = False
+        self.cv         = threading.Condition()
     
     def done(self):
         return self._done
@@ -43,12 +45,12 @@ class command(common, lockable):
             self.cv.release()
             dur_wait = time.time() - start
             if dur_wait>=30 and int(dur_wait) % 30 == 0:  # print notification every 30s for long wait command
-                msg = "waited for %d secs. CMD : %s\n\n" % (dur_wait, self.cmdline)
+                msg = "waited for %d secs. CMD : %s" % (dur_wait, self.cmdline)
                 if not self.start:
-                    msg = "on target '%s [%s]' cmd hasn't started yet. " % (self.shell.t.address, self.shell.id) + msg
+                    msg = "on target '%s [%s]' cmd hasn't started yet. %s\n\n" % (self.shell.t.address, self.shell.id, msg)
                 else:
                     dur = datetime.datetime.now() - self.start
-                    msg = "on target '%s [%s]' cmd has run for %d secs. " % (self.shell.t.address, self.shell.id, dur.total_seconds()) + msg
+                    msg = "on target '%s [%s]' cmd has run for %d secs. %s\n%s SCREEN OUTPUT %s\n%s\n%s\n" % (self.shell.t.address, self.shell.id, dur.total_seconds(), msg, "="*40, "="*40, self.screentext.strip(), "="*95)
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
