@@ -148,11 +148,11 @@ class connection(common.common, common.lockable):
         self.nl()
         self.write('stty -echo')
         self.nl()
-        self.write('PS1=CCTF2018:')
+        self.write('PS1='+self.UNIQIDENTIFIER)
         self.nl()
-        self.waitfor("CCTF2018:", self.timeout)
+        self.waitfor(self.UNIQIDENTIFIER, self.timeout)
         self.nl()
-        t1 = self.waitfor("CCTF2018:", self.timeout)
+        t1 = self.waitfor(self.UNIQIDENTIFIER, self.timeout)
         if t1 is None: return False
 #         print "t1: \n'%s'\n" % t1
         self.write('date "+%D"')
@@ -161,9 +161,9 @@ class connection(common.common, common.lockable):
         if t2 is None: return False
 #         print "t2: \n'%s'\n" % t2
         self.nl()
-        self.waitfor("CCTF2018:", self.timeout)
+        self.waitfor(self.UNIQIDENTIFIER, self.timeout)
         self.nl()
-        self.waitfor("CCTF2018:", self.timeout)
+        self.waitfor(self.UNIQIDENTIFIER, self.timeout)
         return True
     
     def printlog(self):

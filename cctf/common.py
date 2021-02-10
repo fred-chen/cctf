@@ -12,6 +12,7 @@ from threading import RLock
 g_printlck = RLock()
 
 class common():
+    UNIQIDENTIFIER = "CCTF2018_NO_WAY_OF_DUPLICATION:"
     @classmethod
     def log(cls, msg, level=3):
         g_printlck.acquire()

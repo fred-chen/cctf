@@ -112,7 +112,7 @@ class shell(common.common, threading.Thread):
                     cmdobj.stderr = None
                     cmdobj.exit = None
                     return txt
-                cmdobj.screentext += re.sub(r"^\s*CCTF2018:", "", txt)
+                cmdobj.screentext += txt.replace(self.UNIQIDENTIFIER, "")
                 m = regScreen.search(cmdobj.screentext)
                 if m:   # command finished
                     break
