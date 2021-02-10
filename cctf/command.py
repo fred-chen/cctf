@@ -60,7 +60,7 @@ class command(common, lockable):
                 return u"command failed to execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, '-'*60)
             out = self.stdout.strip() if len(self.stdout.strip().splitlines()) <= 1 else "\n" + self.stdout.strip()
             err = self.stderr.strip() if len(self.stderr.strip().splitlines()) <= 1 else "\n" + self.stderr.strip()
-            return u"command finished.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, out.decode('utf-8').replace("\r", ""), err.decode('utf-8').replace("\r", ""), self.exit.strip().replace("\r", ""), self.dur, '-'*60)
+            return u"command finished.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, out.decode('utf-8'), err.decode('utf-8'), self.exit.strip(), self.dur, '-'*60)
         else:
             dur = datetime.datetime.now() - self.start
             return u"\n\n%s COMMAND RUNNING %s\nCMD    : %s\n\nSCREEN :\n%s\n\nTARGET : %s [shell: %s]\nTIME   : %d secs.\n%s\n\n" % ("."*40, "."*40, self.cmdline, self.screentext.strip().decode('utf-8'), self.shell.t.address, self.shell.id, dur.total_seconds(), "."*97)  
