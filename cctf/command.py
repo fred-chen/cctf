@@ -46,7 +46,7 @@ class command(common, lockable):
                     msg = "on target '%s [%s]' cmd hasn't started yet. waited for %d secs. CMD : %s\n\n" % (self.shell.t.address, self.shell.id, dur_wait, self.cmdline)
                 else:
                     dur = datetime.datetime.now() - self.start
-                    msg = "waited for %d secs ... \n%s COMMAND RUNNING %s\nCMD    : %s\n\nSCREEN :\n%s\n\nTARGET : %s [shell: %s]\nTIME   : %d secs.\n%s\n\n" % (dur_wait, "="*40, "="*40, self.cmdline, self.screentext.strip(), self.shell.t.address, self.shell.id, dur.total_seconds(), "="*97)
+                    msg = "waited for %d secs ... \n%s COMMAND RUNNING %s\nCMD    : %s\n\nSCREEN :\n%s\n\nTARGET : %s [shell: %s]\nTIME   : %d secs.\n%s\n\n" % (dur_wait, "."*40, "."*40, self.cmdline, self.screentext.strip(), self.shell.t.address, self.shell.id, dur.total_seconds(), "."*97)
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
