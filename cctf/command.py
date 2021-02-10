@@ -45,8 +45,7 @@ class command(common, lockable):
                 if not self.start:
                     msg = "on target '%s [%s]' cmd hasn't started yet. waited for %d secs. CMD : %s\n\n" % (self.shell.t.address, self.shell.id, dur_wait, self.cmdline)
                 else:
-                    dur = datetime.datetime.now() - self.start
-                    msg = "waited for %d secs ... \n%s COMMAND RUNNING %s\nCMD    : %s\n\nSCREEN :\n%s\n\nTARGET : %s [shell: %s]\nTIME   : %d secs.\n%s\n\n" % (dur_wait, "."*40, "."*40, self.cmdline, self.screentext.strip(), self.shell.t.address, self.shell.id, dur.total_seconds(), "."*97)
+                    msg = "waited for %d secs ... %s" % (dur_wait, self.__str__())
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
@@ -55,12 +54,16 @@ class command(common, lockable):
             self.cv.release()
     
     def __str__(self):
-        cmd = self.cmdline.strip() if len(self.cmdline.strip().splitlines()) <= 1 else "\n" + self.cmdline.strip()
-        if (self.exit is None):  # command failed to exec
-            return u"\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, '-'*60)
-        out = self.stdout.strip() if len(self.stdout.strip().splitlines()) <= 1 else "\n" + self.stdout.strip()
-        err = self.stderr.strip() if len(self.stderr.strip().splitlines()) <= 1 else "\n" + self.stderr.strip()
-        return u"\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, out.decode('utf-8').replace("\r", ""), err.decode('utf-8').replace("\r", ""), self.exit.strip().replace("\r", ""), self.dur, '-'*60)
+        if self._done:
+            cmd = self.cmdline.strip() if len(self.cmdline.strip().splitlines()) <= 1 else "\n" + self.cmdline.strip()
+            if (self.exit is None):  # command failed to exec
+                return u"command failed to execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, '-'*60)
+            out = self.stdout.strip() if len(self.stdout.strip().splitlines()) <= 1 else "\n" + self.stdout.strip()
+            err = self.stderr.strip() if len(self.stderr.strip().splitlines()) <= 1 else "\n" + self.stderr.strip()
+            return u"command finished.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, out.decode('utf-8').replace("\r", ""), err.decode('utf-8').replace("\r", ""), self.exit.strip().replace("\r", ""), self.dur, '-'*60)
+        else:
+            dur = datetime.datetime.now() - self.start
+            return u"\n\n%s COMMAND RUNNING %s\nCMD    : %s\n\nSCREEN :\n%s\n\nTARGET : %s [shell: %s]\nTIME   : %d secs.\n%s\n\n" % ("."*40, "."*40, self.cmdline, self.screentext.strip().decode('utf-8'), self.shell.t.address, self.shell.id, dur.total_seconds(), "."*97)  
     
     def cmdlog(self):
         self.log("%s" % (self))
