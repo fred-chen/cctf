@@ -63,6 +63,7 @@ class target(common):
         self.shs = []
         self.shell = self.newshell(self.conn)
         self.shs.append(self.shell)
+        self.exe = self.shell.exe   # target.exe() is just a delegation of target.shell.exe()
         self.inittarget()
     
     def inittarget(self):
@@ -78,9 +79,6 @@ class target(common):
         if sh:
             self.shs.append(sh)
         return sh
-
-    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30):
-        return self.shell.exe(cmdline, wait, log, longrun_report, wait_report)
     
     def __str__(self):
         if self.hostname:
