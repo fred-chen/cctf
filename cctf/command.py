@@ -44,7 +44,7 @@ class command(common, lockable):
         while not self._done:
             dur_wait = time.time() - start
             if self.wait_report and dur_wait>=self.wait_report and int(dur_wait) % self.wait_report == 0:  # print notification every 30s by default for long wait command
-                msg = "waited for %d secs ... %s" % (dur_wait, self)
+                msg = "waited for %d secs ... %s\n\n" % (dur_wait, self)
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
@@ -56,15 +56,19 @@ class command(common, lockable):
         if self._done:
             cmd = self.cmdline.strip() if len(self.cmdline.strip().splitlines()) <= 1 else "\n" + self.cmdline.strip()
             if (self.exit is None):  # command failed to exec
-                return u"command failed to execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, '-'*60)
+                return u"command failed execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, '-'*60)
             out = self.stdout.strip() if len(self.stdout.strip().splitlines()) <= 1 else "\n" + self.stdout.strip()
             err = self.stderr.strip() if len(self.stderr.strip().splitlines()) <= 1 else "\n" + self.stderr.strip()
-            return u"command finished.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n" % ('-'*60, self.shell.t, self.shell.id, cmd, out.decode('utf-8'), err.decode('utf-8'), self.exit.strip(), self.dur, '-'*60)
+            return u"\n%s COMMAND FININSHED %s\n" % ("=" * 40, "=" * 40) + \
+                   u"TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n" % (self.shell.t, self.shell.id, cmd, out.decode('utf-8'), err.decode('utf-8'), self.exit.strip(), self.dur) + \
+                   u"=" * 99
         elif not self.start:
             return u"command hasn't started yet. target: '%s [shell: %s]'  CMD : %s\n\n" % (self.shell.t.address, self.shell.id, self.cmdline)
         else:
             dur = datetime.datetime.now() - self.start
-            return u"\n\n%s COMMAND RUNNING %s\nSCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n%s\n\n" % ("."*40, "."*40, self.screentext.strip().decode('utf-8'), self.shell.t.address, self.shell.id, dur.total_seconds(), self.cmdline, "."*97)  
+            return u"\n%s COMMAND RUNNING %s\n" % ("." * 40, "." * 40) + \
+                   u"SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n" % (self.screentext.strip().decode('utf-8'), self.shell.t, self.shell.id, dur.total_seconds(), self.cmdline) + \
+                   u"." * 97
     
     def cmdlog(self):
         self.log("%s" % (self))

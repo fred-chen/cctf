@@ -130,7 +130,7 @@ class shell(common.common, threading.Thread):
                 if cmdobj.longrun_report:
                     dur = datetime.datetime.now() - cmdobj.start
                     if dur.total_seconds() >= cmdobj.longrun_report and int(dur.total_seconds()) % cmdobj.longrun_report == 0:
-                        self.log("command has been running for %d seconds. %s" % (dur.total_seconds(), cmdobj))
+                        self.log("command has been running for %d seconds. %s\n\n" % (dur.total_seconds(), cmdobj))
         else:   # connection broken
             cmdobj.stdout = None
             cmdobj.stderr = None
