@@ -8,8 +8,11 @@ from common import common, lockable
 import threading, time, datetime
 
 class command(common, lockable):
-    def __init__(self, cmd, log=True):
+    def __init__(self, cmd, log=True, longrun_report=1800, wait_report=30):
         lockable.__init__(self)
+        self.printlog       = log
+        self.longrun_report = longrun_report
+        self.wait_report    = wait_report
         self.stdout     = None
         self.stderr     = None
         self.exit       = None
@@ -20,7 +23,6 @@ class command(common, lockable):
         self.shell      = None     # command.shell will be assigned by shell object
         self.start      = None     # command.start will be filled when the shell actually starts executing it
         self.dur        = None     # command.dur will be filled by the shell when it finishes executing it
-        self.printlog   = log
         self._done      = False
         self.cv         = threading.Condition()
     
@@ -41,7 +43,7 @@ class command(common, lockable):
         start = time.time()
         while not self._done:
             dur_wait = time.time() - start
-            if dur_wait>=30 and int(dur_wait) % 30 == 0:  # print notification every 30s for long wait command
+            if self.wait_report and dur_wait>=self.wait_report and int(dur_wait) % self.wait_report == 0:  # print notification every 30s by default for long wait command
                 msg = "waited for %d secs ... %s" % (dur_wait, self)
                 self.log(msg)
             if timeout and dur_wait > timeout:

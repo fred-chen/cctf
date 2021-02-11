@@ -40,11 +40,21 @@ class shell(common.common, threading.Thread):
             self.conn.disconnect()
         self.conn = None
     
-    def exe(self, cmdline, wait=True, log=True):
-#         if not self.conn.connected():
-#             self.connect()
-        cmdobj = command(cmdline, log)
-        cmdobj.shell = self
+    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30):
+        """put a command into q, wait to be executed by the shelll thread
+
+        Args:
+            cmdline (str): the command line to be run in shell
+            wait (bool, optional): if not wait, return immediately, else wait until the command is finished. Defaults to True.
+            log (bool, optional): print result when finish. Defaults to True.
+            longrun_report (int, optional): time to report progress if no one is watching, but a command is talking every long. Defaults to 1800.
+            wait_report (int, optional): time to report progress when someone is watching (calling command.wait()). Defaults to 30.
+
+        Returns:
+            command object: the command object
+        """
+        cmdobj                = command(cmdline, log, longrun_report, wait_report)
+        cmdobj.shell          = self
         self.q.put(cmdobj)
         if wait:
             cmdobj.wait()
@@ -104,18 +114,28 @@ class shell(common.common, threading.Thread):
     def _getresults(self, cmdobj):
         txt = None
         regScreen = re.compile("==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==" % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
+        cmdobj.screentext = ""
         if self.conn:
             while True:
                 txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve), 3)
                 if txt is None:   # connection broken
-                    cmdobj.stdout = None
-                    cmdobj.stderr = None
-                    cmdobj.exit = None
+                    cmdobj.stdout     = None
+                    cmdobj.stderr     = None
+                    cmdobj.exit       = None
                     return txt
                 cmdobj.screentext += txt.replace(self.UNIQIDENTIFIER, "")
                 m = regScreen.search(cmdobj.screentext)
                 if m:   # command finished
                     break
+                if cmdobj.longrun_report:
+                    dur = time.time() - cmdobj.start
+                    if dur >= cmdobj.longrun_report and int(dur) % cmdobj.longrun_report == 0:
+                        self.log("command has been running for %d seconds. %s" % (dur, cmdobj))
+        else:   # connection broken
+            cmdobj.stdout = None
+            cmdobj.stderr = None
+            cmdobj.exit = None
+            return txt
         m = regScreen.search(cmdobj.screentext)
         cmdobj.stdout     = m.group(1)
         cmdobj.stderr     = m.group(2)
