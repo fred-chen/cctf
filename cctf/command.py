@@ -43,13 +43,14 @@ class command(common, lockable):
         start = time.time()
         while not self._done:
             dur_wait = time.time() - start
+            print ("dur_wait = %d, self.wait_report = %d" % (dur_wait, self.wait_report))
             if self.wait_report and dur_wait>=self.wait_report and int(dur_wait) % self.wait_report == 0:  # print notification every 30s by default for long wait command
                 msg = "waited for %d secs ... %s" % (dur_wait, self)
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
             self.cv.acquire()
-            self.cv.wait(10)
+            self.cv.wait(1)
             self.cv.release()
     
     def __str__(self):
