@@ -117,7 +117,7 @@ class shell(common.common, threading.Thread):
         cmdobj.screentext = ""
         if self.conn:
             while True:
-                txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve), 3)
+                txt = self.conn.waitfor("==/tmp/%sEND==" % (cmdobj.reserve), 1)
                 if txt is None:   # connection broken
                     cmdobj.stdout     = None
                     cmdobj.stderr     = None
@@ -128,9 +128,9 @@ class shell(common.common, threading.Thread):
                 if m:   # command finished
                     break
                 if cmdobj.longrun_report:
-                    dur = time.time() - cmdobj.start
-                    if dur >= cmdobj.longrun_report and int(dur) % cmdobj.longrun_report == 0:
-                        self.log("command has been running for %d seconds. %s" % (dur, cmdobj))
+                    dur = datetime.datetime.now() - cmdobj.start
+                    if dur.total_seconds() >= cmdobj.longrun_report and int(dur.total_seconds()) % cmdobj.longrun_report == 0:
+                        self.log("command has been running for %d seconds. %s" % (dur.total_seconds(), cmdobj))
         else:   # connection broken
             cmdobj.stdout = None
             cmdobj.stderr = None

@@ -79,8 +79,8 @@ class target(common):
             self.shs.append(sh)
         return sh
 
-    def exe(self, cmdline, wait=True, log=True):
-        return self.shell.exe(cmdline, wait, log)
+    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30):
+        return self.shell.exe(cmdline, wait, log, longrun_report, wait_report)
     
     def __str__(self):
         if self.hostname:
