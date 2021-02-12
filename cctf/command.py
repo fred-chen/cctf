@@ -71,7 +71,7 @@ class command(common, lockable):
                    u"." * 97
     
     def cmdlog(self):
-        self.log("%s" % (self))
+        self.log("%s\n" % (self))
     
     def succ(self):
         self.wait()
