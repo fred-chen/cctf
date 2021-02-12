@@ -29,6 +29,22 @@ class common():
         print ("[" + pri + "]" + "[" + tstr + "]" + "[" + os.path.basename(sys.argv[0]) + ":" + cls.__name__ + "] " + msg.encode('utf-8'))
         sys.stdout.flush()
         g_printlck.release()
+    
+    @classmethod
+    def warn(cls, msg):
+        cls.log(msg, 2)
+
+    @classmethod
+    def info(cls, msg):
+        cls.log(msg, 3)
+
+    @classmethod
+    def error(cls, msg):
+        cls.log(msg, 1)
+
+    @classmethod
+    def critical(cls, msg):
+        cls.log(msg, 0)
 
 class lockable():
     def __init__(self):
