@@ -32,6 +32,8 @@ class shell(common.common, threading.Thread):
     def setshell(self):
         self.conn.write("set +H")
         self.conn.nl()
+        self.conn.write("trap ctrl_c INT && function ctrl_c() { echo \"Trapped CTRL-C\"; }")
+        self.conn.nl()
     def reconnect(self):
         self.disconnect()
         return self.connect()
@@ -141,4 +143,12 @@ class shell(common.common, threading.Thread):
         cmdobj.stderr     = m.group(2)
         cmdobj.exit       = m.group(3)
         return txt
-        
+    
+    def interrupt(self, send='\x03'):
+        """terminate the current command with 'ctrl-c' ('\x03')
+
+        Args:
+            send (str, optional): the control character to terminate the current forground process. Defaults to '\x03'.
+        """
+        self.conn.write(send)
+
