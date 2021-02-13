@@ -13,6 +13,7 @@ g_printlck = RLock()
 
 class common():
     UNIQIDENTIFIER = "CCTF2018_NO_WAY_OF_DUPLICATION:"
+    STEP = 0
     @classmethod
     def log(cls, msg, level=3):
         g_printlck.acquire()
@@ -22,11 +23,18 @@ class common():
             pri = "ERROR"
         elif level == 2:
             pri = "WARN"
-        else:
+        elif level == 3:
             pri = "INFO"
+        elif level == 99:
+            pri = "STEP"
+        else:
+            pri = "UNKNOWN"
         t = time.localtime()
-        tstr = '%4d-%02d-%02d %02d:%02d:%02d' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
-        print ("[" + pri + "]" + "[" + tstr + "]" + "[" + os.path.basename(sys.argv[0]) + ":" + cls.__name__ + "] " + msg.encode('utf-8'))
+        if pri == "STEP":
+            print ("\n\nSTEP %d: %s\n\n" % (cls.STEP, msg))
+        else:
+            tstr = '%4d-%02d-%02d %02d:%02d:%02d' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
+            print ("[" + pri + "]" + "[" + tstr + "]" + "[" + os.path.basename(sys.argv[0]) + ":" + cls.__name__ + "] " + msg.encode('utf-8'))
         sys.stdout.flush()
         g_printlck.release()
     
@@ -45,6 +53,11 @@ class common():
     @classmethod
     def critical(cls, msg):
         cls.log(msg, 0)
+
+    @classmethod
+    def step(cls, msg):
+        common.STEP += 1
+        cls.log(msg, 99)
 
 class lockable():
     def __init__(self):
