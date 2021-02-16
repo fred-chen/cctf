@@ -129,8 +129,10 @@ class shell(common.common, threading.Thread):
                 m = regScreen.search(cmdobj.screentext)
                 if m:   # command finished
                     break
+                dur = datetime.datetime.now() - cmdobj.start
+                if int(dur.total_seconds()) == 1:  # report command running for one time
+                    self.log("running '%s'" % (cmdobj.cmdline))
                 if cmdobj.longrun_report:
-                    dur = datetime.datetime.now() - cmdobj.start
                     if dur.total_seconds() >= cmdobj.longrun_report and int(dur.total_seconds()) % cmdobj.longrun_report == 0:
                         self.log("command has been running for %d seconds. %s\n\n" % (dur.total_seconds(), cmdobj))
         else:   # connection broken
@@ -152,3 +154,5 @@ class shell(common.common, threading.Thread):
         """
         self.conn.write(send)
 
+    def log(self, msg, level=3):
+        common.common.log("[%s(%s)]: %s" % (self.t, self.id, msg), level)

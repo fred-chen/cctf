@@ -105,7 +105,7 @@ class target(common):
         raise "not implemented"
 
     def wait_alive(self, svc=None, timeout=None):
-        self.log("waiting %s:%s to be online..." % (self.address, str(svc) if svc else self.svc))
+        self.log("waiting on %s:%s to be online..." % (self.address, str(svc) if svc else self.svc))
         start = time.time()
         while not self.alive(svc, 1):
             dur = time.time() - start
