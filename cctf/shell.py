@@ -102,7 +102,7 @@ class shell(common.common, threading.Thread):
     def _sendcmd(self, cmdobj):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
         cmd  = "FN=/tmp/%s;" % (cmdobj.reserve)
-        cmd += 'eval "%s" > >(tee ${FN}.out) 2> >(tee ${FN}.err >&2); echo $?>${FN}.exit; sync;' % (cmdline)
+        cmd += 'eval "%s" > >(stdbuf -o0 tee ${FN}.out) 2> >(stdbuf -o0 tee ${FN}.err >&2); echo $?>${FN}.exit;' % (cmdline)
         cmd += "echo ==${FN}START==;"
         cmd += "cat ${FN}.out;echo ==OUTEND==;"
         cmd += "cat ${FN}.err;echo ==ERREND==;"
