@@ -84,7 +84,7 @@ class target(common):
         if self.hostname:
             return "%s - %s" % (self.address, self.hostname)
         else:
-            return "%s - %s" % (self.address, self.gethostname())
+            return "%s" % (self.address)
         
     def gethostname(self):
         raise "not implemented"
