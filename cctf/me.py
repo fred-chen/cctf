@@ -6,7 +6,12 @@ Created on Aug 25, 2018
 
 import os, socket, re, time, pty, select, subprocess
 from shutil import copyfile
-import commands
+import subprocess
+
+def get_status_output(*args, **kwargs):
+    p = subprocess.Popen(*args, **kwargs)
+    stdout, stderr = p.communicate()
+    return p.returncode, stdout, stderr
 
 def is_path_executable(path):
     """
@@ -23,7 +28,7 @@ def is_command_existed(cmd):
         if command doesn't not exist return None
         if command exists return a string object containing the path of command
     """
-    status, output = commands.getstatusoutput('which %s' % cmd)
+    status, output = get_status_output('which %s' % cmd)
     if status != 0:
         return None
     else:
@@ -140,7 +145,7 @@ def ls(path):
         expand a wildcard filenames
         return a list of absolute paths of filenames
     '''
-    status, output = commands.getstatusoutput('ls -d %s' % path)
+    status, output = get_status_output('ls -d %s' % path)
     if status != 0:
         return None
     return output.split()
