@@ -34,7 +34,7 @@ class common():
             print ("\n\nSTEP %d: %s\n\n" % (cls.STEP, msg))
         else:
             tstr = '%4d-%02d-%02d %02d:%02d:%02d' % (t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
-            print ("[" + pri + "]" + "[" + tstr + "]" + "[" + os.path.basename(sys.argv[0]) + ":" + cls.__name__ + "] " + msg.encode('utf-8'))
+            print ("[" + pri + "]" + "[" + tstr + "]" + "[" + os.path.basename(sys.argv[0]) + ":" + cls.__name__ + "] " + msg)
         sys.stdout.flush()
         g_printlck.release()
     

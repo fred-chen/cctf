@@ -4,9 +4,9 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from target import target
+from .target import target
 import time, os, pty
-import me
+from . import me
 
 class uxtarget(target):
     """

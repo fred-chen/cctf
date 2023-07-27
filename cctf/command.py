@@ -4,7 +4,7 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from common import common, lockable
+from .common import common, lockable
 import threading, time, datetime
 
 class command(common, lockable):
@@ -60,7 +60,7 @@ class command(common, lockable):
             out = self.stdout.strip() if len(self.stdout.strip().splitlines()) <= 1 else "\n" + self.stdout.strip()
             err = self.stderr.strip() if len(self.stderr.strip().splitlines()) <= 1 else "\n" + self.stderr.strip()
             return u"\n%s COMMAND FININSHED %s\n" % ("=" * 40, "=" * 40) + \
-                   u"TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n" % (self.shell.t, self.shell.id, cmd, out.decode('utf-8'), err.decode('utf-8'), self.exit.strip(), self.dur) + \
+                   u"TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n" % (self.shell.t, self.shell.id, cmd, out, err, self.exit.strip(), self.dur) + \
                    u"=" * 99
         elif not self.start:
             return u"command hasn't started yet. target: '%s [shell: %s]'  CMD : %s\n\n" % (self.shell.t.address, self.shell.id, self.cmdline)

@@ -4,7 +4,7 @@ Created on Oct 29, 2018
 @author: fred
 '''
 
-from common import common, lockable
+from .common import common, lockable
 import threading
 
 class logicunit(common, lockable, threading.Thread):

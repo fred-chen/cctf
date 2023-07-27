@@ -4,7 +4,7 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from common import common
+from .common import common
 import time, getopt, sys, re
 
 class case(common):

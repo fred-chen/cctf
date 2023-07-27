@@ -4,8 +4,8 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-import common
-import me
+from . import common
+from . import me
 import os, signal, sys
 import pty
 import re
@@ -30,7 +30,7 @@ class connection(common.common, common.lockable):
         self.newline = newline
         self.txt = ""
         if not self.connect():
-            raise connError, BaseException("Failed to connect to %s" % (host))
+            raise connError(BaseException("Failed to connect to %s" % (host)))
             
     def connect(self):
         raise NotImplementedError( "Should have implemented this" )
@@ -73,7 +73,7 @@ class connection(common.common, common.lockable):
             r = select.select([self.pty_fd], [], [])
         if r[0]:
             try:
-                txt = os.read(self.pty_fd, 4096)
+                txt = os.read(self.pty_fd, 4096).decode('utf-8')
             except OSError as err:
                 self.unlock()
                 self.disconnect()
@@ -87,7 +87,7 @@ class connection(common.common, common.lockable):
             self.connect()
         self.lock()
         try:
-            ret = os.write(self.pty_fd, txt)
+            ret = os.write(self.pty_fd, txt.encode('utf-8'))
         except OSError as err:   # child process ended
             self.unlock()
             print ("returning none in connection.write()")

@@ -4,8 +4,9 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-import connection, os
-from me import is_server_svc_alive, is_command_executable
+from . import connection
+from .me import is_server_svc_alive, is_command_executable
+import os
 
 class sshconnection(connection.connection):
     def __init__(self, host, username=None, password=None, timeout=30, newline='\n'):
@@ -13,6 +14,8 @@ class sshconnection(connection.connection):
             self.log( "ssh is NOT there." )
             return None
         connection.connection.__init__(self, host, username, password, timeout, newline)
+        self.log(f"host={host}")
+        self.log(f"self.host={self.host}")
                 
     def connect(self):
         if (self.password and os.path.exists(self.password)):  # the password is an IdentityFile for ssh authentication

@@ -4,8 +4,8 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-import connection
-import me
+from . import connection
+from . import me
 
 class telnetconnection(connection.connection):
     def __init__(self, host, username, password, timeout, newline):

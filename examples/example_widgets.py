@@ -43,9 +43,9 @@ for t in ts:
 """
 time.sleep(30)
 for wid in wids:
-    print "Stopping %s" % (wid)
+    print( "Stopping %s" % (wid))
     wid.stop()
-print "All widgets are stopped."
+print("All widgets are stopped.")
 
 time.sleep(5)
-print "exit."
+print ("exit.")

@@ -4,7 +4,7 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from uxtarget import uxtarget
+from .uxtarget import uxtarget
 import time
 
 class linuxtarget(uxtarget):

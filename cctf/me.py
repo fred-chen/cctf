@@ -9,7 +9,7 @@ from shutil import copyfile
 import subprocess
 
 def get_status_output(*args, **kwargs):
-    p = subprocess.Popen(*args, **kwargs)
+    p = subprocess.Popen(*args, **kwargs, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     return p.returncode, stdout, stderr
 
@@ -17,6 +17,7 @@ def is_path_executable(path):
     """
         check whether a path is existed and executable. return boolean.
     """
+    print(f'is_path_executable: {path}')
     if os.access(path, os.F_OK|os.X_OK): return True
     
     return False
@@ -28,11 +29,11 @@ def is_command_existed(cmd):
         if command doesn't not exist return None
         if command exists return a string object containing the path of command
     """
-    status, output = get_status_output('which %s' % cmd)
+    status, output, err = get_status_output(f'which {cmd}')
     if status != 0:
         return None
     else:
-        return output
+        return output.decode('utf-8').strip()
     
 def is_command_executable(cmd):
     """

@@ -4,10 +4,10 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from common import common
-from connfactory import connect
-from me import is_server_svc_alive
-from shell import shell
+from .common import common
+from .connfactory import connect
+from .me import is_server_svc_alive
+from .shell import shell
 import time
 
 def gettarget(host, username=None, password=None, svc="ssh", timeout=60):
@@ -23,13 +23,9 @@ def gettarget(host, username=None, password=None, svc="ssh", timeout=60):
     txt = execmd(conn, "uname -s", timeout)
     t = None
     if txt and txt.find("Linux") >= 0:
-        from orcabd import bdtarget
-        from linuxtarget import linuxtarget
+        from .linuxtarget import linuxtarget
         txt = execmd(conn, "ceph -s", timeout)
-        if txt and txt.find("cluster:") >= 0: # ceph cluster node
-            t = bdtarget(host, svc, username, password, conn, timeout)
-        else:
-            t = linuxtarget(host, svc, username, password, conn, timeout)
+        t = linuxtarget(host, svc, username, password, conn, timeout)
     else:
         conn.printlog()
         common.log("unsupported target type.")

@@ -4,12 +4,12 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-import common
-from Queue import Queue
-from connfactory import connect
+from . import common
+from queue import Queue
+from .connfactory import connect
 import threading
 import random
-from command import command
+from .command import command
 import re, datetime, time, uuid
 
 class shell(common.common, threading.Thread):

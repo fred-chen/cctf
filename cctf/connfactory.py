@@ -4,12 +4,12 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-import connection
-from sshconnection import sshconnection
-from telnetconnection import telnetconnection
-from rshconnection import rshconnection 
-from common import common
-from me import is_server_svc_alive
+from . import connection
+from .sshconnection import sshconnection
+from .telnetconnection import telnetconnection
+from .rshconnection import rshconnection 
+from .common import common
+from .me import is_server_svc_alive
 
 svclist = {
            'ssh':22,    # ssh
@@ -46,6 +46,7 @@ def createconn(host, svc, username, password, timeout, newline):
             if svc == 'shell':
                 conn = rshconnection(host, username, password, timeout, newline)
             elif svc == 'ssh':
+                common.log(f"self.host={host}")
                 conn = sshconnection(host, username, password, timeout, newline)
             elif svc == 'telnet':
                 conn = telnetconnection(host, username, password, timeout, newline)

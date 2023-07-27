@@ -4,7 +4,7 @@ Created on Nov 2, 2018
 @author: fred
 '''
 
-from logicunit import logicunit
+from .logicunit import logicunit
 
 class caseunit(logicunit):
     SUCC = True
