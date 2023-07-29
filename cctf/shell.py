@@ -64,6 +64,9 @@ class shell(common.common, threading.Thread):
     
     def getconn(self):
         return self.conn
+
+    def gettarget(self):
+        return self.t
     
     def run(self):
         while True:

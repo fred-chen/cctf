@@ -11,13 +11,12 @@ import subprocess
 def get_status_output(*args, **kwargs):
     p = subprocess.Popen(*args, **kwargs, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
-    return p.returncode, stdout, stderr
+    return p.returncode, stdout.decode("utf-8"), stderr.decode("utf-8") 
 
 def is_path_executable(path):
     """
         check whether a path is existed and executable. return boolean.
     """
-    print(f'is_path_executable: {path}')
     if os.access(path, os.F_OK|os.X_OK): return True
     
     return False
@@ -33,7 +32,7 @@ def is_command_existed(cmd):
     if status != 0:
         return None
     else:
-        return output.decode('utf-8').strip()
+        return output.strip()
     
 def is_command_executable(cmd):
     """
@@ -124,7 +123,7 @@ def expect(cmd, patterns=(), ignorecase=False, timeout=0):
         try:
             r = select.select([pty_fd], [], [], 1)
             if r[0]:
-                line = os.read(pty_fd, 4096)
+                line = os.read(pty_fd, 4096).decode('utf-8')
                 txt += line
                 for reg in regs:
                     r, resp = reg
@@ -146,7 +145,7 @@ def ls(path):
         expand a wildcard filenames
         return a list of absolute paths of filenames
     '''
-    status, output = get_status_output('ls -d %s' % path)
+    status, output, err = get_status_output('ls -d %s' % path)
     if status != 0:
         return None
     return output.split()
