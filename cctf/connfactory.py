@@ -46,7 +46,6 @@ def createconn(host, svc, username, password, timeout, newline):
             if svc == 'shell':
                 conn = rshconnection(host, username, password, timeout, newline)
             elif svc == 'ssh':
-                common.log(f"self.host={host}")
                 conn = sshconnection(host, username, password, timeout, newline)
             elif svc == 'telnet':
                 conn = telnetconnection(host, username, password, timeout, newline)

@@ -14,8 +14,6 @@ class sshconnection(connection.connection):
             self.log( "ssh is NOT there." )
             return None
         connection.connection.__init__(self, host, username, password, timeout, newline)
-        self.log(f"host={host}")
-        self.log(f"self.host={self.host}")
                 
     def connect(self):
         if (self.password and os.path.exists(self.password)):  # the password is an IdentityFile for ssh authentication
