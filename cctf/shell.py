@@ -71,7 +71,7 @@ class shell(common.common, threading.Thread):
     def run(self):
         while True:
             cmdobj = self.q.get()
-            filename = "%s_%s" % (threading.current_thread().ident, random.randrange(1000000000))
+            filename = "CCTF_%s_%s" % (threading.current_thread().ident, random.randrange(1000000000))
             cmdobj.reserve = filename
             start = datetime.datetime.now()
             for i in range(1, 6):

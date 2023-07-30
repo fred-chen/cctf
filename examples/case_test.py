@@ -7,8 +7,8 @@ import sys
 
 # 创建一个case对象
 tc = case(sys.argv[0])
-print tc.params
-print tc.targets
+print(tc.params)
+print(tc.targets)
 
 # 通过case对象的参数创建target列表
 ts = []

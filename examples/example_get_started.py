@@ -1,8 +1,8 @@
 #coding=utf-8
 
 '''
-内容：演示CCTF最基本的功能：通过一个target对象的newshell()方法获取目标设备的“shell”对象，
-     并通过“shell”对象的exe()方法在远端设备上执行一条命令
+内容: 演示CCTF最基本的功能: 通过一个target对象的newshell()方法获取目标设备的“shell”对象，
+     并通过“shell”对象的 exe() 方法在远端设备上执行一条命令
 
 Created on Mar 17, 2019
 @author: fred

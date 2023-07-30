@@ -51,6 +51,7 @@ class command(common, lockable):
             self.cv.acquire()
             self.cv.wait(1)
             self.cv.release()
+        return self.exit.strip() if self._done else None
     
     def __str__(self):
         if self._done:
@@ -79,7 +80,7 @@ class command(common, lockable):
         return exitcode and exitcode.isdigit() and int(exitcode) == 0
     
     def fail(self):
-        return not self.succeed()
+        return not self.succ()
 
     def getint(self):
         self.wait()
