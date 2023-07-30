@@ -68,7 +68,7 @@ class command(common, lockable):
         else:
             dur = datetime.datetime.now() - self.start
             return u"\n%s COMMAND RUNNING %s\n" % ("." * 40, "." * 40) + \
-                   u"SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n" % (self.screentext.strip().decode('utf-8'), self.shell.t, self.shell.id, dur.total_seconds(), self.cmdline) + \
+                   u"SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n" % (self.screentext.strip(), self.shell.t, self.shell.id, dur.total_seconds(), self.cmdline) + \
                    u"." * 97
     
     def cmdlog(self):

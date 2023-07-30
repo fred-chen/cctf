@@ -42,7 +42,7 @@ class shell(common.common, threading.Thread):
             self.conn.disconnect()
         self.conn = None
     
-    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30):
+    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) -> command:
         """put a command into q, wait to be executed by the shelll thread
 
         Args:
