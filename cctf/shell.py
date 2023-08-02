@@ -149,7 +149,7 @@ class shell(common.common, threading.Thread):
         cmdobj.stdout     = m.group(1)
         cmdobj.stderr     = m.group(2)
         cmdobj.exit       = m.group(3)
-        print("screen:\n%s" % cmdobj.screentext)
+        # print("screen:\n%s" % cmdobj.screentext)  # for debug
         return txt
     
     def interrupt(self, send='\x03'):
