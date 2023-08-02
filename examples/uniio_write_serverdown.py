@@ -9,7 +9,7 @@ Created on Mar 17, 2019
 import time
 from cctf import gettarget
 import random
-from cctf import command
+from cctf import Command
 
 
 ts = []

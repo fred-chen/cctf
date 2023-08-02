@@ -102,10 +102,12 @@ class shell(common.common, threading.Thread):
             cmdobj.dur = diff.total_seconds() * 1000
             cmdobj.setdone()
     
-    def _sendcmd(self, cmdobj):
+    def _sendcmd(self, cmdobj: command):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
-        cmd  = "FN=/tmp/%s;" % (cmdobj.reserve)
+        cmd  = f"FN=/tmp/{cmdobj.reserve};"
         cmd += 'eval "%s" > >(tee ${FN}.out) 2> >(tee ${FN}.err >&2); echo $?>${FN}.exit; stdbuf -o0 echo -ne " ";' % (cmdline)
+        # cmd += f'eval "{cmdline}" > $FN.out 2>$FN.err; echo $?>$FN.exit; stdbuf -o0 echo -ne " ";'
+        cmd += "while [ ! -e ${FN}.out ]; do continue; done; sync ${FN}.out;" # wait for output files to be generated
         cmd += "echo ==${FN}START==;"
         cmd += "cat ${FN}.out;echo ==OUTEND==;"
         cmd += "cat ${FN}.err;echo ==ERREND==;"
@@ -147,6 +149,7 @@ class shell(common.common, threading.Thread):
         cmdobj.stdout     = m.group(1)
         cmdobj.stderr     = m.group(2)
         cmdobj.exit       = m.group(3)
+        print("screen:\n%s" % cmdobj.screentext)
         return txt
     
     def interrupt(self, send='\x03'):
