@@ -5,7 +5,9 @@ import os, sys
 
 
 if __name__ == '__main__':
-    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+    cur_path = os.path.dirname(__file__)
+    sys.path.append(cur_path)
+    sys.path.append(os.path.join(cur_path, ".."))
 
     # discover all tests
     loader = unittest.TestLoader()

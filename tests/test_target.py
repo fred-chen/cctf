@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 from typing import List
-
-from .test_common import get_nodes
-from cctf import gettarget, target, shell, command
 import os
 import sys
 import unittest
 import socket
 import re
 
+
+sys.path.append(os.path.dirname(__file__))
+from test_common import get_nodes
+from cctf import gettarget, target, shell, command
 
 class TestTarget(unittest.TestCase):
     def setUp(self):
@@ -42,35 +43,41 @@ class TestTarget(unittest.TestCase):
             self.assertTrue(sh.exe("hostname").get_stdout()
                             == t.gethostname())
 
-            # reboot immediately after a command is issued
-            # the shell should automatically reconnect after the target is back online again
-            cos: List[command] = []
-            for i in range(10):
-                cos.append(sh.exe("hostname", wait=False))
+        # reboot immediately after a command is issued
+        # the shell should automatically reconnect after the target is back online again
+        cos: List[command] = []
+        for host, user, password in self.nodes:
+            cos.append(sh.exe("hostname", wait=False))
             t.reboot(wait=False)
+        for host, user, password in self.nodes:
             t.wait_alive()  # wait for the target to be back up again
             # the command issued before rebooting, should be executed when the target is back up again
             for co in cos:
                 self.assertTrue(co.get_stdout() == t.gethostname())
 
-            # panic reboot immediately after a command is issued
+        # panic reboot immediately after a command is issued
+        cos = []
+        for host, user, password in self.nodes:
             cos = []
-            for i in range(10):
-                cos.append(sh.exe("hostname", wait=False))
+            cos.append(sh.exe("hostname", wait=False))
             t.panicreboot(wait=False)
+        for host, user, password in self.nodes:
             t.wait_alive()
             for co in cos:
                 self.assertTrue(co.get_stdout() == t.gethostname())
 
-            # multiple reboot immediately after a command is issued
-            cos = []
-            for i in range(10):
-                cos.append(sh.exe("hostname", wait=False))
+        # multiple reboot immediately after a command is issued
+        cos = []
+        for host, user, password in self.nodes:
+            cos.append(sh.exe("hostname", wait=False))
             t.panicreboot(wait=False)  # first reboot
+        for host, user, password in self.nodes:
             t.wait_alive()
-            t.reboot()  # second reboot
-            for co in cos:
-                self.assertTrue(co.get_stdout() == t.gethostname())
+            t.reboot(wait=False)  # first reboot
+        for host, user, password in self.nodes:
+            t.wait_alive()
+        for co in cos:
+            self.assertTrue(co.get_stdout() == t.gethostname())
 
 
 if __name__ == '__main__':

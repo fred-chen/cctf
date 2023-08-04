@@ -84,7 +84,7 @@ class shell(common.common, threading.Thread):
                     broken = True
                 if broken:
                     dur = 0; alive = False
-                    timeout = self.timeout if self.timeout else 300
+                    timeout = self.timeout if self.timeout else 900 # default timeout is 15 minutes
                     self.log("connection broken. resending command '%s'. timeout %d secs, attempt %d ..." % (cmdobj.cmdline, timeout, i), 2)
                     while True:
                         if self.t.alive():
@@ -105,6 +105,7 @@ class shell(common.common, threading.Thread):
     def _sendcmd(self, cmdobj: command):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
         cmd  = f"FN=/tmp/{cmdobj.reserve};"
+        # we use 'tee' because we also want to capture the terminal screen of the command, so we can monitor the long running commands
         cmd += 'eval "%s" > >(tee ${FN}.out) 2> >(tee ${FN}.err >&2); echo $?>${FN}.exit; stdbuf -o0 echo -ne " ";' % (cmdline)
         # cmd += f'eval "{cmdline}" > $FN.out 2>$FN.err; echo $?>$FN.exit; stdbuf -o0 echo -ne " ";'
         cmd += "while [ ! -e ${FN}.out ]; do continue; done; sync ${FN}.out;" # wait for output files to be generated
