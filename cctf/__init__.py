@@ -12,3 +12,4 @@ from .caseunit import caseunit
 from .linuxtarget import linuxtarget
 from .target import target
 from .shell import shell
+from .scanner import Scanner

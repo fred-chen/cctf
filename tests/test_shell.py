@@ -7,8 +7,7 @@ import unittest
 import sys
 
 
-sys.path.append(os.path.dirname(__file__))
-from test_common import get_nodes
+from .test_common import get_nodes
 from cctf import gettarget, target, shell, command
 
 class TestShell(unittest.TestCase):
