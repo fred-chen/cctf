@@ -10,27 +10,6 @@ from .me import is_server_svc_alive
 from .shell import shell
 import time
 
-def gettarget(host, username=None, password=None, svc="ssh", timeout=60):
-    """
-        factory function of target
-        creating connection to the target address
-        and issue simple command to detect target type
-        then create target object respectively
-    """
-    conn = connect(host, username, password, svc, timeout)
-    if not conn:
-        return None
-    txt = execmd(conn, "uname -s", timeout)
-    t = None
-    if txt and txt.find("Linux") >= 0:
-        from .linuxtarget import linuxtarget
-        txt = execmd(conn, "ceph -s", timeout)
-        t = linuxtarget(host, svc, username, password, conn, timeout)
-    else:
-        conn.printlog()
-        common.log("unsupported target type.")
-    return t
-
 def execmd(conn, cmd, timeout=60):
     conn.write('ECHO="line_of_cctf2018"')
     conn.nl()
@@ -123,3 +102,23 @@ class target(common):
         service = svc if svc else self.svc
         return is_server_svc_alive(host=self.address, svc=service, timeout=timeout)
     
+def gettarget(host, username=None, password=None, svc="ssh", timeout=60) -> target:
+    """
+        factory function of target
+        creating connection to the target address
+        and issue simple command to detect target type
+        then create target object respectively
+    """
+    conn = connect(host, username, password, svc, timeout)
+    if not conn:
+        return None
+    txt = execmd(conn, "uname -s", timeout)
+    t = None
+    if txt and txt.find("Linux") >= 0:
+        from .linuxtarget import linuxtarget
+        txt = execmd(conn, "ceph -s", timeout)
+        t = linuxtarget(host, svc, username, password, conn, timeout)
+    else:
+        conn.printlog()
+        common.log("unsupported target type.")
+    return t
