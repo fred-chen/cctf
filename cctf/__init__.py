@@ -5,11 +5,11 @@ Created on Aug 25, 2018
 '''
 
 from .target import gettarget
-from .case import case
-from .common import common
-from .command import command
-from .caseunit import caseunit
-from .linuxtarget import linuxtarget
-from .target import target
-from .shell import shell
+from .case import Case
+from .common import Common
+from .command import Command
+from .caseunit import Caseunit
+from .linuxtarget import LinuxTarget
+from .target import Target
+from .shell import Shell
 from .scanner import Scanner

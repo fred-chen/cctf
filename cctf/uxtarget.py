@@ -4,11 +4,11 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from .target import target
+from .target import Target
 import time, os, pty
 from . import me
 
-class uxtarget(target):
+class uxtarget(Target):
     """
         unix, linux like targets
         this kind of targets share similar commands
@@ -16,7 +16,7 @@ class uxtarget(target):
     """
     def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
         self.newline = '\n'
-        target.__init__(self, address, svc, username, password, conn, timeout)
+        Target.__init__(self, address, svc, username, password, conn, timeout)
 
     def gethostname(self):
         if self.hostname:

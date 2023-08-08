@@ -4,10 +4,10 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from .common import common
+from .common import Common
 import time, getopt, sys, re
 
-class case(common):
+class Case(Common):
     def __init__(self, casename):
 #         self.args = args
         self.casename = casename
@@ -28,7 +28,7 @@ class case(common):
         exit(exitcode)
     
     def log(self, msg, level=3):
-        common.log("CASE "+ self.casename + ": " + msg, level)
+        Common.log("CASE "+ self.casename + ": " + msg, level)
         
     def _parse_params(self):
         """

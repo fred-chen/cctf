@@ -5,14 +5,15 @@ Created on Aug 25, 2018
 '''
 
 from . import common
+from .common import Common
 from queue import Queue
 from .connfactory import connect
 import threading
 import random
-from .command import command
+from .command import Command
 import re, datetime, time, uuid
 
-class shell(common.common, threading.Thread):
+class Shell(Common, threading.Thread):
     def __init__(self, target, conn=None, timeout=300):
         threading.Thread.__init__(self)
         self.q = Queue()
@@ -42,7 +43,7 @@ class shell(common.common, threading.Thread):
             self.conn.disconnect()
         self.conn = None
     
-    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) -> command:
+    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) -> Command:
         """put a command into q, wait to be executed by the shelll thread
 
         Args:
@@ -53,9 +54,9 @@ class shell(common.common, threading.Thread):
             wait_report (int, optional): time to report progress when someone is watching (calling command.wait()). Defaults to 30.
 
         Returns:
-            command object: the command object
+            Command object: the command object
         """
-        cmdobj                = command(cmdline, log, longrun_report, wait_report)
+        cmdobj                = Command(cmdline, log, longrun_report, wait_report)
         cmdobj.shell          = self
         self.q.put(cmdobj)
         if wait:
@@ -102,7 +103,7 @@ class shell(common.common, threading.Thread):
             cmdobj.dur = diff.total_seconds() * 1000
             cmdobj.setdone()
     
-    def _sendcmd(self, cmdobj: command):
+    def _sendcmd(self, cmdobj: Command):
         cmdline = cmdobj.cmdline.replace('"', r'\"')
         cmd  = f"FN=/tmp/{cmdobj.reserve};"
         # we use 'tee' because we also want to capture the terminal screen of the command, so we can monitor the long running commands
@@ -162,4 +163,4 @@ class shell(common.common, threading.Thread):
         self.conn.write(send)
 
     def log(self, msg, level=3):
-        common.common.log("[%s(%s)]: %s" % (self.t, self.id, msg), level)
+        Common.log("[%s(%s)]: %s" % (self.t, self.id, msg), level)

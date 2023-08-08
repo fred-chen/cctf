@@ -4,8 +4,8 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from . import common
-from . import me
+from . import me, common
+from .common import Common
 import os, signal, sys
 import pty
 import re
@@ -14,7 +14,7 @@ import time
 
 class connError(BaseException): pass
 
-class connection(common.common, common.lockable):
+class connection(Common, common.lockable):
     """
         common interface of a connection object.
         all specific connection types should implement this interface.

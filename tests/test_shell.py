@@ -8,11 +8,11 @@ import sys
 
 
 from .test_common import get_nodes
-from cctf import gettarget, target, shell, command
+from cctf import gettarget, Target, Shell, Command
 
 class TestShell(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        self.targets: List[target] = []
+        self.targets: List[Target] = []
         unittest.TestCase.__init__(self, *args, **kwargs)
 
     def setUp(self):
@@ -28,7 +28,7 @@ class TestShell(unittest.TestCase):
         pass
 
     def test_newshell(self):
-        shs: List[shell] = []
+        shs: List[Shell] = []
         for t in self.targets:
             for i in range(20):
                 sh = t.newshell()

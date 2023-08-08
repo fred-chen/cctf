@@ -1,11 +1,11 @@
 import sys
 import nmap
-from .common import common
+from .common import Common
 
 
-class Scanner(common):
+class Scanner(Common):
     def __init__(self, *args, **kwargs):
-        common.__init__(self, *args, **kwargs)
+        Common.__init__(self, *args, **kwargs)
         self.nm = nmap.PortScanner()
         self.ports = '22'
         self.hosts = 'localhost'

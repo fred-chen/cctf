@@ -4,11 +4,10 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from . import connection
-from .sshconnection import sshconnection
-from .telnetconnection import telnetconnection
-from .rshconnection import rshconnection 
-from .common import common
+from .sshconnection import SshConnection
+from .telnetconnection import TelnetConnection
+from .rshconnection import RshConnection 
+from .common import Common
 from .me import is_server_svc_alive
 
 svclist = {
@@ -38,24 +37,24 @@ def connect(host='127.0.0.1', username=None, password=None, svc="ssh", timeout=3
     return conn
 
 def createconn(host, svc, username, password, timeout, newline):
-    common.log("connecting %s with %s" % (host, svc))
+    Common.log("connecting %s with %s" % (host, svc))
     conn = None
     alive = is_server_svc_alive(host, svc, timeout)
     if alive:
         try:
             if svc == 'shell':
-                conn = rshconnection(host, username, password, timeout, newline)
+                conn = RshConnection(host, username, password, timeout, newline)
             elif svc == 'ssh':
-                conn = sshconnection(host, username, password, timeout, newline)
+                conn = SshConnection(host, username, password, timeout, newline)
             elif svc == 'telnet':
-                conn = telnetconnection(host, username, password, timeout, newline)
+                conn = TelnetConnection(host, username, password, timeout, newline)
             else:
                 return None
         except connection.connError as err:
             conn = None
-            common.log("couldn't connect %s with %s. (%s)" % (host, svc, err))    
+            Common.log("couldn't connect %s with %s. (%s)" % (host, svc, err))    
     else:
-        common.log("couldn't connect %s with %s. (%s)" % (host, svc, "service is not available."))   
+        Common.log("couldn't connect %s with %s. (%s)" % (host, svc, "service is not available."))   
         conn = None
     
     return conn

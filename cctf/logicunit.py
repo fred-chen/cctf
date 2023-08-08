@@ -4,10 +4,10 @@ Created on Oct 29, 2018
 @author: fred
 '''
 
-from .common import common, lockable
+from .common import Common, lockable
 import threading
 
-class logicunit(common, lockable, threading.Thread):
+class logicunit(Common, lockable, threading.Thread):
     def __init__(self, repeat=1):
         threading.Thread.__init__(self)
         lockable.__init__(self)

@@ -4,13 +4,13 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from .common import common, lockable
+from .common import Common, lockable
 import threading
 import time
 import datetime
 
 
-class command(common, lockable):
+class Command(Common, lockable):
     """command object is created by shell object, and put into shell's queue to be executed.
     """
 

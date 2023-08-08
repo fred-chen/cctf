@@ -11,7 +11,7 @@ from threading import RLock
 
 g_printlck = RLock()
 
-class common():
+class Common():
     UNIQIDENTIFIER = "CCTF2018_NO_WAY_OF_DUPLICATION:"
     STEP = 0
     @classmethod
@@ -56,7 +56,7 @@ class common():
 
     @classmethod
     def step(cls, msg):
-        common.STEP += 1
+        Common.STEP += 1
         cls.log(msg, 99)
 
 class lockable():

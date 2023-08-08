@@ -10,7 +10,7 @@ import re
 
 sys.path.append(os.path.dirname(__file__))
 from test_common import get_nodes
-from cctf import gettarget, target, shell, command
+from cctf import gettarget, Target, Shell, Command
 
 class TestTarget(unittest.TestCase):
     def setUp(self):
@@ -24,7 +24,7 @@ class TestTarget(unittest.TestCase):
     def test_gettarget(self):
         for i in range(10):
             for host, user, password in self.nodes:
-                t: target = gettarget(host, user, password)
+                t: Target = gettarget(host, user, password)
                 self.assertTrue(t)
                 self.assertTrue(re.match(r'^\S+(\.\S+)*$', t.gethostname()),
                                 f"hostname '{t.gethostname()}' is not valid.\nhost: {host}\nuser: {user}\npassword: {password}")
@@ -34,9 +34,9 @@ class TestTarget(unittest.TestCase):
 
     def test_reboot_target(self):
         for host, user, password in self.nodes:
-            t: target = gettarget(host, user, password)
+            t: Target = gettarget(host, user, password)
             self.assertTrue(t)
-            sh: shell = t.newshell()
+            sh: Shell = t.newshell()
 
             t.reboot(wait=True)  # wait for the target to be down and up
             # the command should be executed when the target is back up again
@@ -45,7 +45,7 @@ class TestTarget(unittest.TestCase):
 
         # reboot immediately after a command is issued
         # the shell should automatically reconnect after the target is back online again
-        cos: List[command] = []
+        cos: List[Command] = []
         for host, user, password in self.nodes:
             cos.append(sh.exe("hostname", wait=False))
             t.reboot(wait=False)

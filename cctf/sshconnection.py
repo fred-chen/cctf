@@ -8,7 +8,7 @@ from . import connection
 from .me import is_server_svc_alive, is_command_executable
 import os
 
-class sshconnection(connection.connection):
+class SshConnection(connection.connection):
     def __init__(self, host, username=None, password=None, timeout=30, newline='\n'):
         if not is_command_executable('ssh'):
             self.log( "ssh is NOT there." )

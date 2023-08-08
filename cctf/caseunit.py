@@ -6,7 +6,7 @@ Created on Nov 2, 2018
 
 from .logicunit import logicunit
 
-class caseunit(logicunit):
+class Caseunit(logicunit):
     SUCC = True
     FAIL = False
     def __init__(self):

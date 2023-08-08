@@ -1,12 +1,12 @@
 #coding=utf-8
 
-from cctf import case, gettarget
+from cctf import Case, gettarget
 
 import sys
 
 
 # 创建一个case对象
-tc = case(sys.argv[0])
+tc = Case(sys.argv[0])
 print(tc.params)
 print(tc.targets)
 

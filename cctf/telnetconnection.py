@@ -4,10 +4,9 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from . import connection
-from . import me
+from . import connection, me
 
-class telnetconnection(connection.connection):
+class TelnetConnection(connection.connection):
     def __init__(self, host, username, password, timeout, newline):
         if not me.is_command_executable('telnet'):
             self.log( "telnet is NOT there." )
