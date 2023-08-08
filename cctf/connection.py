@@ -13,13 +13,14 @@ import time
 from . import me, common
 from .common import Common
 
-class connError(BaseException): pass
+class ConnError(BaseException):
+    """ the exception class for connection """
 
-class connection(Common, common.lockable):
+class Connection(Common, common.lockable):
     """
         common interface of a connection object.
         all specific connection types should implement this interface.
-    """    
+    """
     def __init__(self, host='127.0.0.1', username=None, password=None, timeout=30, newline='\n'):
         common.lockable.__init__(self)
         self.pty_fd = None
@@ -31,7 +32,7 @@ class connection(Common, common.lockable):
         self.newline = newline
         self.txt = ""
         if not self.connect():
-            raise connError(BaseException("Failed to connect to %s" % (host)))
+            raise ConnError(BaseException("Failed to connect to %s" % (host)))
             
     def connect(self):
         raise NotImplementedError( "Should have implemented this" )
@@ -171,7 +172,7 @@ class connection(Common, common.lockable):
         print (self.txt)
     
     def svcalive(self):
-        raise "need implementation..."
+        raise NotImplementedError
     
     def connected(self):
         if not self.svcalive():

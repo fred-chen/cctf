@@ -1,0 +1,38 @@
+'''
+Created on Aug 25, 2018
+
+@author: fred
+'''
+
+from .connfactory import connect
+from .target import Target, __execmd
+from .linuxtarget import LinuxTarget
+from .common import Common
+
+
+def gettarget(host, username=None, password=None, svc="ssh", timeout=60) -> Target:
+    """
+    factory function of target. creating connection to the target address 
+    and issue simple command to detect target type then create target object respectively.
+
+    Args:
+        host (str): hostname or ip address.
+        username (str, optional): user name to login. Defaults to None.
+        password (str, optional): password of the user. Defaults to None.
+        svc (str, optional): service to connect. Defaults to "ssh".
+        timeout (int, optional): timeout. Defaults to 60.
+
+    Returns:
+        target: a target object.
+    """
+    conn = connect(host, username, password, svc, timeout)
+    if not conn:
+        return None
+    txt = __execmd(conn, "uname -s", timeout)
+    target = None
+    if txt and txt.find("Linux") >= 0:
+        target = LinuxTarget(host, svc, username, password, conn, timeout)
+    else:
+        conn.printlog()
+        Common.log("unsupported target type.")
+    return target

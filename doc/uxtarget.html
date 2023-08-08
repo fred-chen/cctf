@@ -34,16 +34,19 @@ Created on Aug 25, 2018
 @author: fred
 &#39;&#39;&#39;
 
-from cctf.target import Target
-from cctf import me
-import time, os, pty
+import time
+import os
+from .target import Target
+from . import me
 
-class uxtarget(Target):
+
+class UxTarget(Target):
     &#34;&#34;&#34;
         unix, linux like targets
         this kind of targets share similar commands
         so it makes sense for them to share a same parent class
     &#34;&#34;&#34;
+
     def __init__(self, address, svc=&#39;ssh&#39;, username=&#39;root&#39;, password=None, conn=None, timeout=60):
         self.newline = &#39;\n&#39;
         Target.__init__(self, address, svc, username, password, conn, timeout)
@@ -57,7 +60,7 @@ class uxtarget(Target):
         else:
             self.hostname = self.address
         return self.hostname
-    
+
     def reboot(self, wait=True, log=True):
         if log:
             self.log(&#34;rebooting %s&#34; % self.address)
@@ -68,7 +71,7 @@ class uxtarget(Target):
         self.wait_down()
         if wait:
             self.wait_alive()
-    
+
     def shutdown(self, wait=True, log=True):
         if log:
             self.log(&#34;shutting down %s&#34; % self.address)
@@ -87,16 +90,19 @@ class uxtarget(Target):
         &#39;&#39;&#39;
         child_pid = 0
         pty_fd = 0
-        if log: self.log(&#34;copying %s to %s&#34; % (src, tgt))
+        if log:
+            self.log(&#34;copying %s to %s&#34; % (src, tgt))
 
         if (os.path.exists(self.password)):  # the password is an IdentityFile for ssh authentication
-            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;IdentityFile=%s&#34;%(self.password), &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;, &#34;-o&#34;, &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34;%(src),&#34;%s&#34;%(tgt))
+            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;IdentityFile=%s&#34; % (self.password), &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;,
+                    &#34;-o&#34;, &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34; % (src), &#34;%s&#34; % (tgt))
         else:
-            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;, &#34;-o&#34;, &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34;%(src), &#34;%s&#34;%(tgt))
+            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;, &#34;-o&#34;,
+                    &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34; % (src), &#34;%s&#34; % (tgt))
         cmd = &#34; &#34;.join(args)
         output, status = me.expect(cmd, [(&#34;password:&#34;, self.password)])
         if (status != 0):
-            self.log(&#34;error: scp returned %d:\n%s&#34; % (status, output) ,1)
+            self.log(&#34;error: scp returned %d:\n%s&#34; % (status, output), 1)
             return False
         return True
 
@@ -107,7 +113,8 @@ class uxtarget(Target):
 
     def download(self, local_path, remote_path, log=True):
         co = self.exe(&#34;ls -d %s&#34; % (remote_path))
-        path_str = &#39; &#39;.join([ &#39;%s@%s:%s&#39; % ( self.username, self.address, path ) for path in co.getlist()])
+        path_str = &#39; &#39;.join(
+            [&#39;%s@%s:%s&#39; % (self.username, self.address, path) for path in co.getlist()])
         return self._scp(path_str, local_path)</code></pre>
 </details>
 </section>
@@ -120,8 +127,8 @@ class uxtarget(Target):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="cctf.uxtarget.uxtarget"><code class="flex name class">
-<span>class <span class="ident">uxtarget</span></span>
+<dt id="cctf.uxtarget.UxTarget"><code class="flex name class">
+<span>class <span class="ident">UxTarget</span></span>
 <span>(</span><span>address, svc='ssh', username='root', password=None, conn=None, timeout=60)</span>
 </code></dt>
 <dd>
@@ -132,12 +139,13 @@ so it makes sense for them to share a same parent class</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class uxtarget(Target):
+<pre><code class="python">class UxTarget(Target):
     &#34;&#34;&#34;
         unix, linux like targets
         this kind of targets share similar commands
         so it makes sense for them to share a same parent class
     &#34;&#34;&#34;
+
     def __init__(self, address, svc=&#39;ssh&#39;, username=&#39;root&#39;, password=None, conn=None, timeout=60):
         self.newline = &#39;\n&#39;
         Target.__init__(self, address, svc, username, password, conn, timeout)
@@ -151,7 +159,7 @@ so it makes sense for them to share a same parent class</p></div>
         else:
             self.hostname = self.address
         return self.hostname
-    
+
     def reboot(self, wait=True, log=True):
         if log:
             self.log(&#34;rebooting %s&#34; % self.address)
@@ -162,7 +170,7 @@ so it makes sense for them to share a same parent class</p></div>
         self.wait_down()
         if wait:
             self.wait_alive()
-    
+
     def shutdown(self, wait=True, log=True):
         if log:
             self.log(&#34;shutting down %s&#34; % self.address)
@@ -181,16 +189,19 @@ so it makes sense for them to share a same parent class</p></div>
         &#39;&#39;&#39;
         child_pid = 0
         pty_fd = 0
-        if log: self.log(&#34;copying %s to %s&#34; % (src, tgt))
+        if log:
+            self.log(&#34;copying %s to %s&#34; % (src, tgt))
 
         if (os.path.exists(self.password)):  # the password is an IdentityFile for ssh authentication
-            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;IdentityFile=%s&#34;%(self.password), &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;, &#34;-o&#34;, &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34;%(src),&#34;%s&#34;%(tgt))
+            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;IdentityFile=%s&#34; % (self.password), &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;,
+                    &#34;-o&#34;, &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34; % (src), &#34;%s&#34; % (tgt))
         else:
-            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;, &#34;-o&#34;, &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34;%(src), &#34;%s&#34;%(tgt))
+            args = (&#34;scp&#34;, &#34;-q&#34;, &#34;-r&#34;, &#34;-p&#34;, &#34;-o&#34;, &#34;StrictHostKeyChecking=no&#34;, &#34;-o&#34;, &#34;ServerAliveInterval=60&#34;, &#34;-o&#34;,
+                    &#34;ServerAliveCountMax=3&#34;, &#34;-o&#34;, &#34;TCPKeepAlive=yes&#34;, &#34;-o&#34;, &#34;UserKnownHostsFile=/dev/null&#34;, &#34;%s&#34; % (src), &#34;%s&#34; % (tgt))
         cmd = &#34; &#34;.join(args)
         output, status = me.expect(cmd, [(&#34;password:&#34;, self.password)])
         if (status != 0):
-            self.log(&#34;error: scp returned %d:\n%s&#34; % (status, output) ,1)
+            self.log(&#34;error: scp returned %d:\n%s&#34; % (status, output), 1)
             return False
         return True
 
@@ -201,7 +212,8 @@ so it makes sense for them to share a same parent class</p></div>
 
     def download(self, local_path, remote_path, log=True):
         co = self.exe(&#34;ls -d %s&#34; % (remote_path))
-        path_str = &#39; &#39;.join([ &#39;%s@%s:%s&#39; % ( self.username, self.address, path ) for path in co.getlist()])
+        path_str = &#39; &#39;.join(
+            [&#39;%s@%s:%s&#39; % (self.username, self.address, path) for path in co.getlist()])
         return self._scp(path_str, local_path)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -218,63 +230,7 @@ so it makes sense for them to share a same parent class</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="cctf.uxtarget.uxtarget.download"><code class="name flex">
-<span>def <span class="ident">download</span></span>(<span>self, local_path, remote_path, log=True)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def download(self, local_path, remote_path, log=True):
-    co = self.exe(&#34;ls -d %s&#34; % (remote_path))
-    path_str = &#39; &#39;.join([ &#39;%s@%s:%s&#39; % ( self.username, self.address, path ) for path in co.getlist()])
-    return self._scp(path_str, local_path)</code></pre>
-</details>
-</dd>
-<dt id="cctf.uxtarget.uxtarget.gethostname"><code class="name flex">
-<span>def <span class="ident">gethostname</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def gethostname(self):
-    if self.hostname:
-        return self.hostname
-    co = self.shell.exe(&#34;hostname&#34;, wait=True, log=False)
-    if co.succ():
-        self.hostname = co.stdout.strip()
-    else:
-        self.hostname = self.address
-    return self.hostname</code></pre>
-</details>
-</dd>
-<dt id="cctf.uxtarget.uxtarget.reboot"><code class="name flex">
-<span>def <span class="ident">reboot</span></span>(<span>self, wait=True, log=True)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def reboot(self, wait=True, log=True):
-    if log:
-        self.log(&#34;rebooting %s&#34; % self.address)
-    self.shell.conn.write(&#34;reboot&#34;)
-    self.shell.conn.nl()
-    # for sh in self.shs:
-    #     sh.disconnect()
-    self.wait_down()
-    if wait:
-        self.wait_alive()</code></pre>
-</details>
-</dd>
-<dt id="cctf.uxtarget.uxtarget.shutdown"><code class="name flex">
+<dt id="cctf.uxtarget.UxTarget.shutdown"><code class="name flex">
 <span>def <span class="ident">shutdown</span></span>(<span>self, wait=True, log=True)</span>
 </code></dt>
 <dd>
@@ -296,27 +252,21 @@ so it makes sense for them to share a same parent class</p></div>
         self.log(&#34;%s has been shut down.&#34; % self.address)</code></pre>
 </details>
 </dd>
-<dt id="cctf.uxtarget.uxtarget.upload"><code class="name flex">
-<span>def <span class="ident">upload</span></span>(<span>self, local_path, remote_path, log=True)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def upload(self, local_path, remote_path, log=True):
-    flist = me.ls(local_path)
-    src_str = &#39; &#39;.join(flist)
-    return self._scp(src_str, &#34;%s@%s:%s&#34; % (self.username, self.address, remote_path))</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="cctf.target.Target" href="target.html#cctf.target.Target">Target</a></b></code>:
 <ul class="hlist">
+<li><code><a title="cctf.target.Target.alive" href="target.html#cctf.target.Target.alive">alive</a></code></li>
+<li><code><a title="cctf.target.Target.download" href="target.html#cctf.target.Target.download">download</a></code></li>
+<li><code><a title="cctf.target.Target.gethostname" href="target.html#cctf.target.Target.gethostname">gethostname</a></code></li>
 <li><code><a title="cctf.target.Target.newshell" href="target.html#cctf.target.Target.newshell">newshell</a></code></li>
+<li><code><a title="cctf.target.Target.panic" href="target.html#cctf.target.Target.panic">panic</a></code></li>
+<li><code><a title="cctf.target.Target.panicreboot" href="target.html#cctf.target.Target.panicreboot">panicreboot</a></code></li>
+<li><code><a title="cctf.target.Target.reboot" href="target.html#cctf.target.Target.reboot">reboot</a></code></li>
+<li><code><a title="cctf.target.Target.upload" href="target.html#cctf.target.Target.upload">upload</a></code></li>
+<li><code><a title="cctf.target.Target.wait_alive" href="target.html#cctf.target.Target.wait_alive">wait_alive</a></code></li>
+<li><code><a title="cctf.target.Target.wait_down" href="target.html#cctf.target.Target.wait_down">wait_down</a></code></li>
 </ul>
 </li>
 </ul>
@@ -338,13 +288,9 @@ so it makes sense for them to share a same parent class</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="cctf.uxtarget.uxtarget" href="#cctf.uxtarget.uxtarget">uxtarget</a></code></h4>
+<h4><code><a title="cctf.uxtarget.UxTarget" href="#cctf.uxtarget.UxTarget">UxTarget</a></code></h4>
 <ul class="">
-<li><code><a title="cctf.uxtarget.uxtarget.download" href="#cctf.uxtarget.uxtarget.download">download</a></code></li>
-<li><code><a title="cctf.uxtarget.uxtarget.gethostname" href="#cctf.uxtarget.uxtarget.gethostname">gethostname</a></code></li>
-<li><code><a title="cctf.uxtarget.uxtarget.reboot" href="#cctf.uxtarget.uxtarget.reboot">reboot</a></code></li>
-<li><code><a title="cctf.uxtarget.uxtarget.shutdown" href="#cctf.uxtarget.uxtarget.shutdown">shutdown</a></code></li>
-<li><code><a title="cctf.uxtarget.uxtarget.upload" href="#cctf.uxtarget.uxtarget.upload">upload</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.shutdown" href="#cctf.uxtarget.UxTarget.shutdown">shutdown</a></code></li>
 </ul>
 </li>
 </ul>

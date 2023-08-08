@@ -7,7 +7,7 @@ import unittest
 import sys
 
 
-from tests.test_common import get_nodes
+from .test_common import get_nodes
 from cctf import gettarget, Target, Shell, Command
 
 class TestShell(unittest.TestCase):

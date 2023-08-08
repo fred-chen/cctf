@@ -2,5 +2,5 @@
 
 doc:
 	mkdir -p doc
-	python -m pydoc -w cctf/*.py
-	mv -f *.html doc/
+	pdoc3 --force --html -o doc cctf
+	mv -f doc/cctf/*.html doc/ && rmdir doc/cctf

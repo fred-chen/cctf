@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>cctf.connfactory API documentation</title>
+<title>cctf.aixtarget API documentation</title>
 <meta name="description" content="Created on Aug 25, 2018 …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>cctf.connfactory</code></h1>
+<h1 class="title">Module <code>cctf.aixtarget</code></h1>
 </header>
 <section id="section-intro">
 <p>Created on Aug 25, 2018</p>
@@ -34,60 +34,10 @@ Created on Aug 25, 2018
 @author: fred
 &#39;&#39;&#39;
 
-from cctf.sshconnection import SshConnection
-from cctf.telnetconnection import TelnetConnection
-from cctf.rshconnection import RshConnection 
-from cctf.common import Common
-from cctf.me import is_server_svc_alive
+from .uxtarget import UxTarget
 
-svclist = {
-           &#39;ssh&#39;:22,    # ssh
-           &#39;shell&#39;:514, # rsh
-           &#39;telnet&#39;:23  # telnet
-#           &#39;exec&#39;:512,  # rexec
-#           &#39;login&#39;:513, # rlogin
-          }
-
-def connect(host=&#39;127.0.0.1&#39;, username=None, password=None, svc=&#34;ssh&#34;, timeout=30, newline=&#39;\n&#39;):
-    &#34;&#34;&#34;
-        connect is a factory method of connection objects.
-        connect detect available connection method ( ssh/rsh/telnet ) and create connection object respectively
-        connect will return a connection object ( a child-class object which implements connection interface )
-        svc can be any one of: shell(rsh-remote shell), ssh or telnet
-    &#34;&#34;&#34;
-    conn = None
-    if svc != None:
-        conn = createconn(host, svc, username, password, timeout, newline)
-    if svc == None and conn ==None:
-        for key in svclist.keys():
-            if key == svc: continue
-            conn = createconn(host, key, username, password, timeout, newline)
-            if conn:
-                break
-    return conn
-
-def createconn(host, svc, username, password, timeout, newline):
-    Common.log(&#34;connecting %s with %s&#34; % (host, svc))
-    conn = None
-    alive = is_server_svc_alive(host, svc, timeout)
-    if alive:
-        try:
-            if svc == &#39;shell&#39;:
-                conn = RshConnection(host, username, password, timeout, newline)
-            elif svc == &#39;ssh&#39;:
-                conn = SshConnection(host, username, password, timeout, newline)
-            elif svc == &#39;telnet&#39;:
-                conn = TelnetConnection(host, username, password, timeout, newline)
-            else:
-                return None
-        except connection.connError as err:
-            conn = None
-            Common.log(&#34;couldn&#39;t connect %s with %s. (%s)&#34; % (host, svc, err))    
-    else:
-        Common.log(&#34;couldn&#39;t connect %s with %s. (%s)&#34; % (host, svc, &#34;service is not available.&#34;))   
-        conn = None
-    
-    return conn
+class aixtarget(UxTarget):
+    pass
         </code></pre>
 </details>
 </section>
@@ -96,75 +46,50 @@ def createconn(host, svc, username, password, timeout, newline):
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="cctf.connfactory.connect"><code class="name flex">
-<span>def <span class="ident">connect</span></span>(<span>host='127.0.0.1', username=None, password=None, svc='ssh', timeout=30, newline='\n')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>connect is a factory method of connection objects.
-connect detect available connection method ( ssh/rsh/telnet ) and create connection object respectively
-connect will return a connection object ( a child-class object which implements connection interface )
-svc can be any one of: shell(rsh-remote shell), ssh or telnet</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def connect(host=&#39;127.0.0.1&#39;, username=None, password=None, svc=&#34;ssh&#34;, timeout=30, newline=&#39;\n&#39;):
-    &#34;&#34;&#34;
-        connect is a factory method of connection objects.
-        connect detect available connection method ( ssh/rsh/telnet ) and create connection object respectively
-        connect will return a connection object ( a child-class object which implements connection interface )
-        svc can be any one of: shell(rsh-remote shell), ssh or telnet
-    &#34;&#34;&#34;
-    conn = None
-    if svc != None:
-        conn = createconn(host, svc, username, password, timeout, newline)
-    if svc == None and conn ==None:
-        for key in svclist.keys():
-            if key == svc: continue
-            conn = createconn(host, key, username, password, timeout, newline)
-            if conn:
-                break
-    return conn</code></pre>
-</details>
-</dd>
-<dt id="cctf.connfactory.createconn"><code class="name flex">
-<span>def <span class="ident">createconn</span></span>(<span>host, svc, username, password, timeout, newline)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def createconn(host, svc, username, password, timeout, newline):
-    Common.log(&#34;connecting %s with %s&#34; % (host, svc))
-    conn = None
-    alive = is_server_svc_alive(host, svc, timeout)
-    if alive:
-        try:
-            if svc == &#39;shell&#39;:
-                conn = RshConnection(host, username, password, timeout, newline)
-            elif svc == &#39;ssh&#39;:
-                conn = SshConnection(host, username, password, timeout, newline)
-            elif svc == &#39;telnet&#39;:
-                conn = TelnetConnection(host, username, password, timeout, newline)
-            else:
-                return None
-        except connection.connError as err:
-            conn = None
-            Common.log(&#34;couldn&#39;t connect %s with %s. (%s)&#34; % (host, svc, err))    
-    else:
-        Common.log(&#34;couldn&#39;t connect %s with %s. (%s)&#34; % (host, svc, &#34;service is not available.&#34;))   
-        conn = None
-    
-    return conn</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="cctf.aixtarget.aixtarget"><code class="flex name class">
+<span>class <span class="ident">aixtarget</span></span>
+<span>(</span><span>address, svc='ssh', username='root', password=None, conn=None, timeout=60)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>unix, linux like targets
+this kind of targets share similar commands
+so it makes sense for them to share a same parent class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class aixtarget(UxTarget):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="cctf.uxtarget.UxTarget" href="uxtarget.html#cctf.uxtarget.UxTarget">UxTarget</a></li>
+<li><a title="cctf.target.Target" href="target.html#cctf.target.Target">Target</a></li>
+<li><a title="cctf.common.Common" href="common.html#cctf.common.Common">Common</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="cctf.uxtarget.UxTarget" href="uxtarget.html#cctf.uxtarget.UxTarget">UxTarget</a></b></code>:
+<ul class="hlist">
+<li><code><a title="cctf.uxtarget.UxTarget.alive" href="target.html#cctf.target.Target.alive">alive</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.download" href="target.html#cctf.target.Target.download">download</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.gethostname" href="target.html#cctf.target.Target.gethostname">gethostname</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.newshell" href="target.html#cctf.target.Target.newshell">newshell</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.panic" href="target.html#cctf.target.Target.panic">panic</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.panicreboot" href="target.html#cctf.target.Target.panicreboot">panicreboot</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.reboot" href="target.html#cctf.target.Target.reboot">reboot</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.upload" href="target.html#cctf.target.Target.upload">upload</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.wait_alive" href="target.html#cctf.target.Target.wait_alive">wait_alive</a></code></li>
+<li><code><a title="cctf.uxtarget.UxTarget.wait_down" href="target.html#cctf.target.Target.wait_down">wait_down</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -178,10 +103,11 @@ svc can be any one of: shell(rsh-remote shell), ssh or telnet</p></div>
 <li><code><a title="cctf" href="index.html">cctf</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="cctf.connfactory.connect" href="#cctf.connfactory.connect">connect</a></code></li>
-<li><code><a title="cctf.connfactory.createconn" href="#cctf.connfactory.createconn">createconn</a></code></li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="cctf.aixtarget.aixtarget" href="#cctf.aixtarget.aixtarget">aixtarget</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>

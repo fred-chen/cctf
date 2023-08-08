@@ -34,14 +34,14 @@ Created on Aug 25, 2018
 @author: fred
 &#39;&#39;&#39;
 
-from cctf import common
-from cctf.common import Common
-from cctf.connfactory import connect
-from cctf.command import Command
 from queue import Queue
 import threading
 import random
 import re, datetime, time, uuid
+from . import common
+from .common import Common
+from .connfactory import connect
+from .command import Command
 
 class Shell(Common, threading.Thread):
     def __init__(self, target, conn=None, timeout=300):

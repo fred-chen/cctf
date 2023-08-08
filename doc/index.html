@@ -1,0 +1,1585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>cctf API documentation</title>
+<meta name="description" content="the CCTF package" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Package <code>cctf</code></h1>
+</header>
+<section id="section-intro">
+<p>the CCTF package</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;the CCTF package&#34;&#34;&#34;
+
+from .target import Target
+from .targetfactory import gettarget
+from .shell import Shell
+from .command import Command
+
+__all__ = [&#39;Target&#39;, &#39;gettarget&#39;, &#39;Shell&#39;, &#39;Command&#39;]</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="cctf.aixtarget" href="aixtarget.html">cctf.aixtarget</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.case" href="case.html">cctf.case</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.caseunit" href="caseunit.html">cctf.caseunit</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Nov 2, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.command" href="command.html">cctf.command</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.common" href="common.html">cctf.common</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.connection" href="connection.html">cctf.connection</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.connfactory" href="connfactory.html">cctf.connfactory</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.hpuxtarget" href="hpuxtarget.html">cctf.hpuxtarget</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.linuxtarget" href="linuxtarget.html">cctf.linuxtarget</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.logicunit" href="logicunit.html">cctf.logicunit</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Oct 29, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.me" href="me.html">cctf.me</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.rshconnection" href="rshconnection.html">cctf.rshconnection</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.scanner" href="scanner.html">cctf.scanner</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="cctf.shell" href="shell.html">cctf.shell</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.sshconnection" href="sshconnection.html">cctf.sshconnection</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.sunostarget" href="sunostarget.html">cctf.sunostarget</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.target" href="target.html">cctf.target</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.targetfactory" href="targetfactory.html">cctf.targetfactory</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.telnetconnection" href="telnetconnection.html">cctf.telnetconnection</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+<dt><code class="name"><a title="cctf.uxtarget" href="uxtarget.html">cctf.uxtarget</a></code></dt>
+<dd>
+<div class="desc"><p>Created on Aug 25, 2018 …</p></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="cctf.gettarget"><code class="name flex">
+<span>def <span class="ident">gettarget</span></span>(<span>host, username=None, password=None, svc='ssh', timeout=60) ‑> <a title="cctf.target.Target" href="target.html#cctf.target.Target">Target</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>factory function of target. creating connection to the target address
+and issue simple command to detect target type then create target object respectively.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>host</code></strong> :&ensp;<code>str</code></dt>
+<dd>hostname or ip address.</dd>
+<dt><strong><code>username</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>user name to login. Defaults to None.</dd>
+<dt><strong><code>password</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>password of the user. Defaults to None.</dd>
+<dt><strong><code>svc</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>service to connect. Defaults to "ssh".</dd>
+<dt><strong><code>timeout</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>timeout. Defaults to 60.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="cctf.target" href="target.html">cctf.target</a></code></dt>
+<dd>a target object.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gettarget(host, username=None, password=None, svc=&#34;ssh&#34;, timeout=60) -&gt; Target:
+    &#34;&#34;&#34;
+    factory function of target. creating connection to the target address 
+    and issue simple command to detect target type then create target object respectively.
+
+    Args:
+        host (str): hostname or ip address.
+        username (str, optional): user name to login. Defaults to None.
+        password (str, optional): password of the user. Defaults to None.
+        svc (str, optional): service to connect. Defaults to &#34;ssh&#34;.
+        timeout (int, optional): timeout. Defaults to 60.
+
+    Returns:
+        target: a target object.
+    &#34;&#34;&#34;
+    conn = connect(host, username, password, svc, timeout)
+    if not conn:
+        return None
+    txt = __execmd(conn, &#34;uname -s&#34;, timeout)
+    target = None
+    if txt and txt.find(&#34;Linux&#34;) &gt;= 0:
+        target = LinuxTarget(host, svc, username, password, conn, timeout)
+    else:
+        conn.printlog()
+        Common.log(&#34;unsupported target type.&#34;)
+    return target</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="cctf.Command"><code class="flex name class">
+<span>class <span class="ident">Command</span></span>
+<span>(</span><span>cmd, log=True, longrun_report=1800, wait_report=30)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>command object is created by shell object, and put into shell's queue to be executed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Command(Common, lockable):
+    &#34;&#34;&#34;command object is created by shell object, and put into shell&#39;s queue to be executed.
+    &#34;&#34;&#34;
+
+    def __init__(self, cmd, log=True, longrun_report=1800, wait_report=30):
+        lockable.__init__(self)
+        self.printlog = log
+        self.longrun_report = longrun_report
+        self.wait_report = wait_report
+        self.stdout = None
+        self.stderr = None
+        self.exit = None
+        self.cmdline = cmd
+        self.reserve = &#34;&#34;
+        # command.screentext is the stdout and stderr outputed on terminal screen.
+        self.screentext = &#34;&#34;
+        # will be captured every 1 second by shell object.
+        self.shell = None     # command.shell will be assigned by shell object
+        # command.start will be filled when the shell actually starts executing it
+        self.start = None
+        self.dur = None     # command.dur will be filled by the shell when it finishes executing it
+        self._done = False
+        self.cv = threading.Condition()
+
+    def done(self):
+        return self._done
+
+    def setdone(self):
+        self.cv.acquire()
+        self.lock()
+        self._done = True
+        self.unlock()
+        self.cv.notifyAll()
+        if self.printlog:
+            self.cmdlog()
+        self.cv.release()
+
+    def wait(self, timeout=None) -&gt; int:
+        start = time.time()
+        while not self._done:
+            dur_wait = time.time() - start
+            # print notification every 30s by default for long wait command
+            if self.wait_report and dur_wait &gt;= self.wait_report and int(dur_wait) % self.wait_report == 0:
+                msg = &#34;waited for %d secs ... %s\n\n&#34; % (dur_wait, self)
+                self.log(msg)
+            if timeout and dur_wait &gt; timeout:
+                break
+            self.cv.acquire()
+            self.cv.wait(1)
+            self.cv.release()
+        return int(self.exit.strip()) if self._done else None
+
+    def __str__(self):
+        if self._done:
+            cmd = self.cmdline.strip() if len(self.cmdline.strip().splitlines()
+                                              ) &lt;= 1 else &#34;\n&#34; + self.cmdline.strip()
+            if (self.exit is None):  # command failed to exec
+                return u&#34;command failed execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n&#34; % (&#39;-&#39;*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, &#39;-&#39;*60)
+            out = self.stdout.strip() if len(self.stdout.strip().splitlines()
+                                             ) &lt;= 1 else &#34;\n&#34; + self.stdout.strip()
+            err = self.stderr.strip() if len(self.stderr.strip().splitlines()
+                                             ) &lt;= 1 else &#34;\n&#34; + self.stderr.strip()
+            return u&#34;\n%s COMMAND FININSHED %s\n&#34; % (&#34;=&#34; * 40, &#34;=&#34; * 40) + \
+                   u&#34;TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n&#34; % (self.shell.t, self.shell.id, cmd, out, err, self.exit.strip(), self.dur) + \
+                   u&#34;=&#34; * 99
+        if not self.start:
+            return u&#34;command hasn&#39;t started yet. target: &#39;%s [shell: %s]&#39;  CMD : %s\n\n&#34; % (self.shell.t.address, self.shell.id, self.cmdline)
+        else:
+            dur = datetime.datetime.now() - self.start
+            return u&#34;\n%s COMMAND RUNNING %s\n&#34; % (&#34;.&#34; * 40, &#34;.&#34; * 40) + \
+                   u&#34;SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n&#34; % (self.screentext.strip(), self.shell.t, self.shell.id, dur.total_seconds(), self.cmdline) + \
+                   u&#34;.&#34; * 97
+
+    def cmdlog(self):
+        self.log(&#34;%s\n&#34; % (self))
+
+    def succ(self) -&gt; bool:
+        self.wait()
+        exitcode = self.exit.strip()
+        return exitcode and exitcode.isdigit() and int(exitcode) == 0
+
+    def fail(self) -&gt; bool:
+        return not self.succ()
+
+    def getint(self) -&gt; int:
+        self.wait()
+        r = None
+        try:
+            r = int(self.stdout.strip())
+        except:
+            r = None
+        return r
+
+    def getfloat(self) -&gt; float:
+        self.wait()
+        r = None
+        try:
+            r = float(self.stdout.strip())
+        except:
+            r = None
+        return r
+
+    def getlist(self, splitter=&#39;\r\n&#39;) -&gt; list:
+        self.wait()
+        r = []
+        try:
+            r = self.stdout.strip().split(splitter) if self.stdout.strip() else []
+        except:
+            r = []
+        return r
+
+    def get_stdout(self) -&gt; str:
+        self.wait()
+        return self.stdout.strip()
+
+    def get_stderr(self) -&gt; str:
+        self.wait()
+        return self.stderr.strip()
+
+    def get_exitcode(self) -&gt; int:
+        self.wait()
+        return int(self.exit.strip())</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="cctf.common.Common" href="common.html#cctf.common.Common">Common</a></li>
+<li><a title="cctf.common.lockable" href="common.html#cctf.common.lockable">lockable</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cctf.Command.cmdlog"><code class="name flex">
+<span>def <span class="ident">cmdlog</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cmdlog(self):
+    self.log(&#34;%s\n&#34; % (self))</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.done"><code class="name flex">
+<span>def <span class="ident">done</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def done(self):
+    return self._done</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.fail"><code class="name flex">
+<span>def <span class="ident">fail</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fail(self) -&gt; bool:
+    return not self.succ()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.get_exitcode"><code class="name flex">
+<span>def <span class="ident">get_exitcode</span></span>(<span>self) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_exitcode(self) -&gt; int:
+    self.wait()
+    return int(self.exit.strip())</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.get_stderr"><code class="name flex">
+<span>def <span class="ident">get_stderr</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_stderr(self) -&gt; str:
+    self.wait()
+    return self.stderr.strip()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.get_stdout"><code class="name flex">
+<span>def <span class="ident">get_stdout</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_stdout(self) -&gt; str:
+    self.wait()
+    return self.stdout.strip()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.getfloat"><code class="name flex">
+<span>def <span class="ident">getfloat</span></span>(<span>self) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getfloat(self) -&gt; float:
+    self.wait()
+    r = None
+    try:
+        r = float(self.stdout.strip())
+    except:
+        r = None
+    return r</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.getint"><code class="name flex">
+<span>def <span class="ident">getint</span></span>(<span>self) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getint(self) -&gt; int:
+    self.wait()
+    r = None
+    try:
+        r = int(self.stdout.strip())
+    except:
+        r = None
+    return r</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.getlist"><code class="name flex">
+<span>def <span class="ident">getlist</span></span>(<span>self, splitter='\r\n') ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getlist(self, splitter=&#39;\r\n&#39;) -&gt; list:
+    self.wait()
+    r = []
+    try:
+        r = self.stdout.strip().split(splitter) if self.stdout.strip() else []
+    except:
+        r = []
+    return r</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.setdone"><code class="name flex">
+<span>def <span class="ident">setdone</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setdone(self):
+    self.cv.acquire()
+    self.lock()
+    self._done = True
+    self.unlock()
+    self.cv.notifyAll()
+    if self.printlog:
+        self.cmdlog()
+    self.cv.release()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.succ"><code class="name flex">
+<span>def <span class="ident">succ</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def succ(self) -&gt; bool:
+    self.wait()
+    exitcode = self.exit.strip()
+    return exitcode and exitcode.isdigit() and int(exitcode) == 0</code></pre>
+</details>
+</dd>
+<dt id="cctf.Command.wait"><code class="name flex">
+<span>def <span class="ident">wait</span></span>(<span>self, timeout=None) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wait(self, timeout=None) -&gt; int:
+    start = time.time()
+    while not self._done:
+        dur_wait = time.time() - start
+        # print notification every 30s by default for long wait command
+        if self.wait_report and dur_wait &gt;= self.wait_report and int(dur_wait) % self.wait_report == 0:
+            msg = &#34;waited for %d secs ... %s\n\n&#34; % (dur_wait, self)
+            self.log(msg)
+        if timeout and dur_wait &gt; timeout:
+            break
+        self.cv.acquire()
+        self.cv.wait(1)
+        self.cv.release()
+    return int(self.exit.strip()) if self._done else None</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cctf.Shell"><code class="flex name class">
+<span>class <span class="ident">Shell</span></span>
+<span>(</span><span>target, conn=None, timeout=300)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A class that represents a thread of control.</p>
+<p>This class can be safely subclassed in a limited fashion. There are two ways
+to specify the activity: by passing a callable object to the constructor, or
+by overriding the run() method in a subclass.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Shell(Common, threading.Thread):
+    def __init__(self, target, conn=None, timeout=300):
+        threading.Thread.__init__(self)
+        self.q = Queue()
+        self.t = target
+        self.conn = conn
+        self.timeout = timeout
+        self.id = str(uuid.uuid4()).split(&#39;-&#39;)[0]
+        self.connect()
+        self.setDaemon(True)
+        self.start()
+        
+    def connect(self):
+        if (self.conn is None):
+            self.conn = connect(self.t.address, self.t.username, self.t.password, self.t.svc, self.t.timeout, self.t.newline)
+        if self.conn: self.setshell()
+        return self.conn
+    def setshell(self):
+        self.conn.write(&#34;set +H&#34;)
+        self.conn.nl()
+        self.conn.write(&#34;trap ctrl_c INT &amp;&amp; function ctrl_c() { echo \&#34;Trapped CTRL-C\&#34;; }&#34;)
+        self.conn.nl()
+    def reconnect(self):
+        self.disconnect()
+        return self.connect()
+    def disconnect(self):
+        if self.conn:
+            self.conn.disconnect()
+        self.conn = None
+    
+    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) -&gt; Command:
+        &#34;&#34;&#34;put a command into q, wait to be executed by the shelll thread
+
+        Args:
+            cmdline (str): the command line to be run in shell
+            wait (bool, optional): if not wait, return immediately, else wait until the command is finished. Defaults to True.
+            log (bool, optional): print result when finish. Defaults to True.
+            longrun_report (int, optional): time to report progress if no one is watching, but a command is talking every long. Defaults to 1800.
+            wait_report (int, optional): time to report progress when someone is watching (calling command.wait()). Defaults to 30.
+
+        Returns:
+            Command object: the command object
+        &#34;&#34;&#34;
+        cmdobj                = Command(cmdline, log, longrun_report, wait_report)
+        cmdobj.shell          = self
+        self.q.put(cmdobj)
+        if wait:
+            cmdobj.wait()
+        return cmdobj
+    
+    def getconn(self):
+        return self.conn
+
+    def gettarget(self):
+        return self.t
+    
+    def run(self):
+        while True:
+            cmdobj = self.q.get()
+            filename = &#34;CCTF_%s_%s&#34; % (threading.current_thread().ident, random.randrange(1000000000))
+            cmdobj.reserve = filename
+            start = datetime.datetime.now()
+            for i in range(1, 6):
+                broken = False
+                if self._sendcmd(cmdobj) is None:
+                    broken = True
+                start = datetime.datetime.now()
+                cmdobj.start = start
+                if self._getresults(cmdobj) is None:  # connection broken
+                    broken = True
+                if broken:
+                    dur = 0; alive = False
+                    timeout = self.timeout if self.timeout else 900 # default timeout is 15 minutes
+                    self.log(&#34;connection broken. resending command &#39;%s&#39;. timeout %d secs, attempt %d ...&#34; % (cmdobj.cmdline, timeout, i), 2)
+                    while True:
+                        if self.t.alive():
+                            alive = True
+                            break
+                        else:
+                            time.sleep(1)
+                            dur += 1
+                            if dur &gt; timeout: break
+                    if alive: self.reconnect()
+                    continue
+                else:
+                    break
+            diff = datetime.datetime.now() - start
+            cmdobj.dur = diff.total_seconds() * 1000
+            cmdobj.setdone()
+    
+    def _sendcmd(self, cmdobj: Command):
+        cmdline = cmdobj.cmdline.replace(&#39;&#34;&#39;, r&#39;\&#34;&#39;)
+        cmd  = f&#34;FN=/tmp/{cmdobj.reserve};&#34;
+        # we use &#39;tee&#39; because we also want to capture the terminal screen of the command, so we can monitor the long running commands
+        cmd += &#39;eval &#34;%s&#34; &gt; &gt;(tee ${FN}.out) 2&gt; &gt;(tee ${FN}.err &gt;&amp;2); echo $?&gt;${FN}.exit; stdbuf -o0 echo -ne &#34; &#34;;&#39; % (cmdline)
+        # cmd += f&#39;eval &#34;{cmdline}&#34; &gt; $FN.out 2&gt;$FN.err; echo $?&gt;$FN.exit; stdbuf -o0 echo -ne &#34; &#34;;&#39;
+        cmd += &#34;while [ ! -e ${FN}.out ]; do continue; done; sync ${FN}.out;&#34; # wait for output files to be generated
+        cmd += &#34;echo ==${FN}START==;&#34;
+        cmd += &#34;cat ${FN}.out;echo ==OUTEND==;&#34;
+        cmd += &#34;cat ${FN}.err;echo ==ERREND==;&#34;
+        cmd += &#34;cat ${FN}.exit;echo ==EXITEND==;&#34;
+        cmd += &#34;echo ==${FN}END==;&#34;
+        cmd += &#34;rm -f ${FN}.out ${FN}.err ${FN}.exit&#34;
+        if (not self.conn) or self.conn.write(cmd) is None:
+            return None
+        return self.conn.nl()
+    
+    def _getresults(self, cmdobj):
+        txt = None
+        regScreen = re.compile(&#34;==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==&#34; % (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
+        cmdobj.screentext = &#34;&#34;
+        if self.conn:
+            while True:
+                txt = self.conn.waitfor(&#34;==/tmp/%sEND==&#34; % (cmdobj.reserve), 1)
+                if txt is None:   # connection broken
+                    cmdobj.stdout     = None
+                    cmdobj.stderr     = None
+                    cmdobj.exit       = None
+                    return txt
+                cmdobj.screentext += txt.replace(self.UNIQIDENTIFIER, &#34;&#34;)
+                m = regScreen.search(cmdobj.screentext)
+                if m:   # command finished
+                    break
+                dur = datetime.datetime.now() - cmdobj.start
+                if int(dur.total_seconds()) == 1:  # report command running for one time
+                    self.log(&#34;running &#39;%s&#39;&#34; % (cmdobj.cmdline))
+                if cmdobj.longrun_report:
+                    if dur.total_seconds() &gt;= cmdobj.longrun_report and int(dur.total_seconds()) % cmdobj.longrun_report == 0:
+                        self.log(&#34;command has been running for %d seconds. %s\n\n&#34; % (dur.total_seconds(), cmdobj))
+        else:   # connection broken
+            cmdobj.stdout = None
+            cmdobj.stderr = None
+            cmdobj.exit = None
+            return txt
+        m = regScreen.search(cmdobj.screentext)
+        cmdobj.stdout     = m.group(1)
+        cmdobj.stderr     = m.group(2)
+        cmdobj.exit       = m.group(3)
+        # print(&#34;screen:\n%s&#34; % cmdobj.screentext)  # for debug
+        return txt
+    
+    def interrupt(self, send=&#39;\x03&#39;):
+        &#34;&#34;&#34;terminate the current command with &#39;ctrl-c&#39; (&#39;\x03&#39;)
+
+        Args:
+            send (str, optional): the control character to terminate the current forground process. Defaults to &#39;\x03&#39;.
+        &#34;&#34;&#34;
+        self.conn.write(send)
+
+    def log(self, msg, level=3):
+        Common.log(&#34;[%s(%s)]: %s&#34; % (self.t, self.id, msg), level)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="cctf.common.Common" href="common.html#cctf.common.Common">Common</a></li>
+<li>threading.Thread</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cctf.Shell.connect"><code class="name flex">
+<span>def <span class="ident">connect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def connect(self):
+    if (self.conn is None):
+        self.conn = connect(self.t.address, self.t.username, self.t.password, self.t.svc, self.t.timeout, self.t.newline)
+    if self.conn: self.setshell()
+    return self.conn</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.disconnect"><code class="name flex">
+<span>def <span class="ident">disconnect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disconnect(self):
+    if self.conn:
+        self.conn.disconnect()
+    self.conn = None</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.exe"><code class="name flex">
+<span>def <span class="ident">exe</span></span>(<span>self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) ‑> <a title="cctf.command.Command" href="command.html#cctf.command.Command">Command</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>put a command into q, wait to be executed by the shelll thread</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cmdline</code></strong> :&ensp;<code>str</code></dt>
+<dd>the command line to be run in shell</dd>
+<dt><strong><code>wait</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>if not wait, return immediately, else wait until the command is finished. Defaults to True.</dd>
+<dt><strong><code>log</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>print result when finish. Defaults to True.</dd>
+<dt><strong><code>longrun_report</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>time to report progress if no one is watching, but a command is talking every long. Defaults to 1800.</dd>
+<dt><strong><code>wait_report</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>time to report progress when someone is watching (calling command.wait()). Defaults to 30.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="cctf.Command" href="#cctf.Command">Command</a> object</code></dt>
+<dd>the command object</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) -&gt; Command:
+    &#34;&#34;&#34;put a command into q, wait to be executed by the shelll thread
+
+    Args:
+        cmdline (str): the command line to be run in shell
+        wait (bool, optional): if not wait, return immediately, else wait until the command is finished. Defaults to True.
+        log (bool, optional): print result when finish. Defaults to True.
+        longrun_report (int, optional): time to report progress if no one is watching, but a command is talking every long. Defaults to 1800.
+        wait_report (int, optional): time to report progress when someone is watching (calling command.wait()). Defaults to 30.
+
+    Returns:
+        Command object: the command object
+    &#34;&#34;&#34;
+    cmdobj                = Command(cmdline, log, longrun_report, wait_report)
+    cmdobj.shell          = self
+    self.q.put(cmdobj)
+    if wait:
+        cmdobj.wait()
+    return cmdobj</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.getconn"><code class="name flex">
+<span>def <span class="ident">getconn</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getconn(self):
+    return self.conn</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.gettarget"><code class="name flex">
+<span>def <span class="ident">gettarget</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gettarget(self):
+    return self.t</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.interrupt"><code class="name flex">
+<span>def <span class="ident">interrupt</span></span>(<span>self, send='\x03')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>terminate the current command with 'ctrl-c' ('')</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>send</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>the control character to terminate the current forground process. Defaults to ''.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def interrupt(self, send=&#39;\x03&#39;):
+    &#34;&#34;&#34;terminate the current command with &#39;ctrl-c&#39; (&#39;\x03&#39;)
+
+    Args:
+        send (str, optional): the control character to terminate the current forground process. Defaults to &#39;\x03&#39;.
+    &#34;&#34;&#34;
+    self.conn.write(send)</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.log"><code class="name flex">
+<span>def <span class="ident">log</span></span>(<span>self, msg, level=3)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log(self, msg, level=3):
+    Common.log(&#34;[%s(%s)]: %s&#34; % (self.t, self.id, msg), level)</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.reconnect"><code class="name flex">
+<span>def <span class="ident">reconnect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reconnect(self):
+    self.disconnect()
+    return self.connect()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Method representing the thread's activity.</p>
+<p>You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object's constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    while True:
+        cmdobj = self.q.get()
+        filename = &#34;CCTF_%s_%s&#34; % (threading.current_thread().ident, random.randrange(1000000000))
+        cmdobj.reserve = filename
+        start = datetime.datetime.now()
+        for i in range(1, 6):
+            broken = False
+            if self._sendcmd(cmdobj) is None:
+                broken = True
+            start = datetime.datetime.now()
+            cmdobj.start = start
+            if self._getresults(cmdobj) is None:  # connection broken
+                broken = True
+            if broken:
+                dur = 0; alive = False
+                timeout = self.timeout if self.timeout else 900 # default timeout is 15 minutes
+                self.log(&#34;connection broken. resending command &#39;%s&#39;. timeout %d secs, attempt %d ...&#34; % (cmdobj.cmdline, timeout, i), 2)
+                while True:
+                    if self.t.alive():
+                        alive = True
+                        break
+                    else:
+                        time.sleep(1)
+                        dur += 1
+                        if dur &gt; timeout: break
+                if alive: self.reconnect()
+                continue
+            else:
+                break
+        diff = datetime.datetime.now() - start
+        cmdobj.dur = diff.total_seconds() * 1000
+        cmdobj.setdone()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Shell.setshell"><code class="name flex">
+<span>def <span class="ident">setshell</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setshell(self):
+    self.conn.write(&#34;set +H&#34;)
+    self.conn.nl()
+    self.conn.write(&#34;trap ctrl_c INT &amp;&amp; function ctrl_c() { echo \&#34;Trapped CTRL-C\&#34;; }&#34;)
+    self.conn.nl()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cctf.Target"><code class="flex name class">
+<span>class <span class="ident">Target</span></span>
+<span>(</span><span>address, svc='ssh', username='root', password=None, conn=None, timeout=60)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>The target class. </p>
+<p>A target object represents a remote host or any device that can be connected or logged in.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Target(Common):
+    &#34;&#34;&#34;
+        The target class. 
+
+        A target object represents a remote host or any device that can be connected or logged in.
+    &#34;&#34;&#34;
+
+    def __init__(self, address, svc=&#39;ssh&#39;, username=&#39;root&#39;, password=None, conn=None, timeout=60):
+        self.address = address
+        self.svc = svc
+        self.username = username
+        self.password = password
+        self.timeout = timeout
+        self.hostname = None
+        self.conn = conn
+        self.shs = []
+        self.shell = self.newshell(self.conn)
+        self.shs.append(self.shell)
+        self.exe = self.shell.exe   # target.exe() is just a delegation of target.shell.exe()
+        self.__inittarget()
+
+    def __inittarget(self):
+        self.gethostname()
+
+    def newshell(self, conn: Connection = None) -&gt; Shell:
+        &#34;&#34;&#34;
+            Create and return a new shell object associated with this target.
+
+            newshell() returns a shell object. Users use shell object to operate on this target. A
+            target object can have multiple shell objects associated on it. newshell() is actually a
+            factory method of shell objects.
+
+            Args:
+                conn (Connection, optional): a connection object this shell reuses. Defaults to
+                None. if conn is None, a new connection will be created.
+
+            Returns:
+                Shell: a shell object.
+        &#34;&#34;&#34;
+        shell = Shell(self, conn)
+        if shell:
+            self.shs.append(shell)
+        return shell
+
+    def __str__(self):
+        if self.hostname:
+            return f&#34;{self.address} - {self.hostname}&#34;
+        else:
+            return f&#34;{self.address}&#34;
+
+    def gethostname(self) -&gt; str:
+        &#34;&#34;&#34;Return the hostname of this target.&#34;&#34;&#34;
+
+        raise NotImplementedError()
+
+    def reboot(self, wait=True, log=True):
+        &#34;&#34;&#34;Reboot the target. 
+
+        Reboot the target gracefully, the target gets a chance to shutdown all services and then
+        reboot.
+
+        Args:
+            wait (bool, optional): wait until the target is back online. Defaults to True. 
+            log (bool, optional): log the reboot event. Defaults to True.
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    def panic(self, log=True):
+        &#34;&#34;&#34; Panic the target.
+
+        Panic the target immediately, the target hangs immediately without any chance to shutdown.
+        Caution: The server will never come back online unless it is manually rebooted.
+
+        Args:
+            log (bool, optional): log the panic event. Defaults to True.
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    def panicreboot(self, wait=True, log=True):
+        &#34;&#34;&#34; Panic the target and reboot it. 
+
+        Panic the target immediately and reboot it. The target hangs immediately without any chance
+        to shutdown, but it will reboot automatically. 
+
+        Args:
+            wait (bool, optional): wait until the target is back online. Defaults to True.
+            log (bool, optional): log the panic event. Defaults to True.
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    def upload(self, local_path, remote_path, log=True) -&gt; bool:
+        &#34;&#34;&#34; Upload a file to the target.
+
+        Upload a file from local_path to remote_path on the target.
+
+        Args:
+            local_path (str): local file path, can be a file or a directory or a wildcard.
+            remote_path (str): remote file path, can be a file or a directory.
+
+        Returns:
+            bool: True if success, False if failed.
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    def download(self, local_path, remote_path, log=True) -&gt; bool:
+        &#34;&#34;&#34; Download a file from the target. 
+
+        Download a file from remote_path on the target to local_path.
+
+        Args:
+            local_path (str): local file path, can be a file or a directory.
+            remote_path (str): remote file path, can be a file or a directory or a wildcard.
+
+        Returns:
+            bool: True if success, False if failed. 
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
+    def wait_alive(self, svc=None, timeout=None) -&gt; bool:
+        &#34;&#34;&#34; Wait until the target is back online. 
+
+        Wait until the target is back online. If svc is specified, wait until the service is back
+        online. If timeout is specified, wait until the target is back online or timeout.
+
+        Args:
+            svc (str, optional): service name. Defaults to the service that was used to connect this
+            target. 
+            timeout (int, optional): timeout in seconds. Defaults to None, means wait forever.
+
+        Returns:
+            bool: True if the target is back online, False if timeout.
+        &#34;&#34;&#34;
+        self.log(
+            f&#34;waiting on {self.address}:{str(svc) if svc else self.svc} to be online...&#34;)
+        start = time.time()
+        while not self.alive(svc, 1):
+            dur = time.time() - start
+            if timeout and dur &gt;= timeout:
+                return False
+        self.log(f&#34;{self.address}:{str(svc) if svc else self.svc} is back online.&#34;)
+        return True
+
+    def wait_down(self, svc=None, timeout=None) -&gt; bool:
+        &#34;&#34;&#34; Wait until the target is down. 
+
+        Wait until the target is down. If svc is specified, wait until the service is down. If
+        timeout is specified, wait until the target is down or timeout.
+
+        Args:
+            svc (str, optional): service name. Defaults to the service that was used to connect this
+            target.
+            timeout (int, optional): timeout in seconds. Defaults to None, means wait forever.
+
+        Returns:
+            bool: True if the target is down, False if timeout.
+        &#34;&#34;&#34;
+        start = time.time()
+        while self.alive(svc, 1):
+            dur = time.time() - start
+            if timeout and dur &gt;= timeout:
+                return False
+        self.log(f&#34;{self.address}:{str(svc) if svc else self.svc} is down.&#34;)
+        return True
+
+    def alive(self, svc=None, timeout=1) -&gt; bool:
+        &#34;&#34;&#34; Check if the target is alive. 
+
+        Check if the target is alive. If svc is specified, check if the service is alive. If timeout
+        is specified, check if the target is alive or timeout.
+
+        Args:
+            svc (str, optional): service name. Defaults to the service that was used to connect this
+            target.
+            timeout (int, optional): timeout in seconds. Defaults to 1.
+
+        Returns:
+            bool: True if the target is alive, False if timeout.
+        &#34;&#34;&#34;
+        service = svc if svc else self.svc
+        return is_server_svc_alive(host=self.address, svc=service, timeout=timeout)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="cctf.common.Common" href="common.html#cctf.common.Common">Common</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="cctf.uxtarget.UxTarget" href="uxtarget.html#cctf.uxtarget.UxTarget">UxTarget</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cctf.Target.alive"><code class="name flex">
+<span>def <span class="ident">alive</span></span>(<span>self, svc=None, timeout=1) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if the target is alive. </p>
+<p>Check if the target is alive. If svc is specified, check if the service is alive. If timeout
+is specified, check if the target is alive or timeout.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>svc</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>service name. Defaults to the service that was used to connect this</dd>
+<dt>target.</dt>
+<dt><strong><code>timeout</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>timeout in seconds. Defaults to 1.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if the target is alive, False if timeout.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def alive(self, svc=None, timeout=1) -&gt; bool:
+    &#34;&#34;&#34; Check if the target is alive. 
+
+    Check if the target is alive. If svc is specified, check if the service is alive. If timeout
+    is specified, check if the target is alive or timeout.
+
+    Args:
+        svc (str, optional): service name. Defaults to the service that was used to connect this
+        target.
+        timeout (int, optional): timeout in seconds. Defaults to 1.
+
+    Returns:
+        bool: True if the target is alive, False if timeout.
+    &#34;&#34;&#34;
+    service = svc if svc else self.svc
+    return is_server_svc_alive(host=self.address, svc=service, timeout=timeout)</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.download"><code class="name flex">
+<span>def <span class="ident">download</span></span>(<span>self, local_path, remote_path, log=True) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download a file from the target. </p>
+<p>Download a file from remote_path on the target to local_path.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>local_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>local file path, can be a file or a directory.</dd>
+<dt><strong><code>remote_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>remote file path, can be a file or a directory or a wildcard.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if success, False if failed.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download(self, local_path, remote_path, log=True) -&gt; bool:
+    &#34;&#34;&#34; Download a file from the target. 
+
+    Download a file from remote_path on the target to local_path.
+
+    Args:
+        local_path (str): local file path, can be a file or a directory.
+        remote_path (str): remote file path, can be a file or a directory or a wildcard.
+
+    Returns:
+        bool: True if success, False if failed. 
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.gethostname"><code class="name flex">
+<span>def <span class="ident">gethostname</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the hostname of this target.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gethostname(self) -&gt; str:
+    &#34;&#34;&#34;Return the hostname of this target.&#34;&#34;&#34;
+
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.newshell"><code class="name flex">
+<span>def <span class="ident">newshell</span></span>(<span>self, conn: <a title="cctf.connection.Connection" href="connection.html#cctf.connection.Connection">Connection</a> = None) ‑> <a title="cctf.shell.Shell" href="shell.html#cctf.shell.Shell">Shell</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create and return a new shell object associated with this target.</p>
+<p>newshell() returns a shell object. Users use shell object to operate on this target. A
+target object can have multiple shell objects associated on it. newshell() is actually a
+factory method of shell objects.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>conn</code></strong> :&ensp;<code>Connection</code>, optional</dt>
+<dd>a connection object this shell reuses. Defaults to</dd>
+</dl>
+<p>None. if conn is None, a new connection will be created.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code><a title="cctf.Shell" href="#cctf.Shell">Shell</a></code></dt>
+<dd>a shell object.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def newshell(self, conn: Connection = None) -&gt; Shell:
+    &#34;&#34;&#34;
+        Create and return a new shell object associated with this target.
+
+        newshell() returns a shell object. Users use shell object to operate on this target. A
+        target object can have multiple shell objects associated on it. newshell() is actually a
+        factory method of shell objects.
+
+        Args:
+            conn (Connection, optional): a connection object this shell reuses. Defaults to
+            None. if conn is None, a new connection will be created.
+
+        Returns:
+            Shell: a shell object.
+    &#34;&#34;&#34;
+    shell = Shell(self, conn)
+    if shell:
+        self.shs.append(shell)
+    return shell</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.panic"><code class="name flex">
+<span>def <span class="ident">panic</span></span>(<span>self, log=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Panic the target.</p>
+<p>Panic the target immediately, the target hangs immediately without any chance to shutdown.
+Caution: The server will never come back online unless it is manually rebooted.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>log</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>log the panic event. Defaults to True.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def panic(self, log=True):
+    &#34;&#34;&#34; Panic the target.
+
+    Panic the target immediately, the target hangs immediately without any chance to shutdown.
+    Caution: The server will never come back online unless it is manually rebooted.
+
+    Args:
+        log (bool, optional): log the panic event. Defaults to True.
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.panicreboot"><code class="name flex">
+<span>def <span class="ident">panicreboot</span></span>(<span>self, wait=True, log=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Panic the target and reboot it. </p>
+<p>Panic the target immediately and reboot it. The target hangs immediately without any chance
+to shutdown, but it will reboot automatically. </p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>wait</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>wait until the target is back online. Defaults to True.</dd>
+<dt><strong><code>log</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>log the panic event. Defaults to True.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def panicreboot(self, wait=True, log=True):
+    &#34;&#34;&#34; Panic the target and reboot it. 
+
+    Panic the target immediately and reboot it. The target hangs immediately without any chance
+    to shutdown, but it will reboot automatically. 
+
+    Args:
+        wait (bool, optional): wait until the target is back online. Defaults to True.
+        log (bool, optional): log the panic event. Defaults to True.
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.reboot"><code class="name flex">
+<span>def <span class="ident">reboot</span></span>(<span>self, wait=True, log=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reboot the target. </p>
+<p>Reboot the target gracefully, the target gets a chance to shutdown all services and then
+reboot.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>wait</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>wait until the target is back online. Defaults to True. </dd>
+<dt><strong><code>log</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>log the reboot event. Defaults to True.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reboot(self, wait=True, log=True):
+    &#34;&#34;&#34;Reboot the target. 
+
+    Reboot the target gracefully, the target gets a chance to shutdown all services and then
+    reboot.
+
+    Args:
+        wait (bool, optional): wait until the target is back online. Defaults to True. 
+        log (bool, optional): log the reboot event. Defaults to True.
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.upload"><code class="name flex">
+<span>def <span class="ident">upload</span></span>(<span>self, local_path, remote_path, log=True) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Upload a file to the target.</p>
+<p>Upload a file from local_path to remote_path on the target.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>local_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>local file path, can be a file or a directory or a wildcard.</dd>
+<dt><strong><code>remote_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>remote file path, can be a file or a directory.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if success, False if failed.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def upload(self, local_path, remote_path, log=True) -&gt; bool:
+    &#34;&#34;&#34; Upload a file to the target.
+
+    Upload a file from local_path to remote_path on the target.
+
+    Args:
+        local_path (str): local file path, can be a file or a directory or a wildcard.
+        remote_path (str): remote file path, can be a file or a directory.
+
+    Returns:
+        bool: True if success, False if failed.
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.wait_alive"><code class="name flex">
+<span>def <span class="ident">wait_alive</span></span>(<span>self, svc=None, timeout=None) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wait until the target is back online. </p>
+<p>Wait until the target is back online. If svc is specified, wait until the service is back
+online. If timeout is specified, wait until the target is back online or timeout.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>svc</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>service name. Defaults to the service that was used to connect this</dd>
+<dt>target.</dt>
+<dt><strong><code>timeout</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>timeout in seconds. Defaults to None, means wait forever.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if the target is back online, False if timeout.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wait_alive(self, svc=None, timeout=None) -&gt; bool:
+    &#34;&#34;&#34; Wait until the target is back online. 
+
+    Wait until the target is back online. If svc is specified, wait until the service is back
+    online. If timeout is specified, wait until the target is back online or timeout.
+
+    Args:
+        svc (str, optional): service name. Defaults to the service that was used to connect this
+        target. 
+        timeout (int, optional): timeout in seconds. Defaults to None, means wait forever.
+
+    Returns:
+        bool: True if the target is back online, False if timeout.
+    &#34;&#34;&#34;
+    self.log(
+        f&#34;waiting on {self.address}:{str(svc) if svc else self.svc} to be online...&#34;)
+    start = time.time()
+    while not self.alive(svc, 1):
+        dur = time.time() - start
+        if timeout and dur &gt;= timeout:
+            return False
+    self.log(f&#34;{self.address}:{str(svc) if svc else self.svc} is back online.&#34;)
+    return True</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.wait_down"><code class="name flex">
+<span>def <span class="ident">wait_down</span></span>(<span>self, svc=None, timeout=None) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wait until the target is down. </p>
+<p>Wait until the target is down. If svc is specified, wait until the service is down. If
+timeout is specified, wait until the target is down or timeout.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>svc</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>service name. Defaults to the service that was used to connect this</dd>
+<dt>target.</dt>
+<dt><strong><code>timeout</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>timeout in seconds. Defaults to None, means wait forever.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if the target is down, False if timeout.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def wait_down(self, svc=None, timeout=None) -&gt; bool:
+    &#34;&#34;&#34; Wait until the target is down. 
+
+    Wait until the target is down. If svc is specified, wait until the service is down. If
+    timeout is specified, wait until the target is down or timeout.
+
+    Args:
+        svc (str, optional): service name. Defaults to the service that was used to connect this
+        target.
+        timeout (int, optional): timeout in seconds. Defaults to None, means wait forever.
+
+    Returns:
+        bool: True if the target is down, False if timeout.
+    &#34;&#34;&#34;
+    start = time.time()
+    while self.alive(svc, 1):
+        dur = time.time() - start
+        if timeout and dur &gt;= timeout:
+            return False
+    self.log(f&#34;{self.address}:{str(svc) if svc else self.svc} is down.&#34;)
+    return True</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="cctf.aixtarget" href="aixtarget.html">cctf.aixtarget</a></code></li>
+<li><code><a title="cctf.case" href="case.html">cctf.case</a></code></li>
+<li><code><a title="cctf.caseunit" href="caseunit.html">cctf.caseunit</a></code></li>
+<li><code><a title="cctf.command" href="command.html">cctf.command</a></code></li>
+<li><code><a title="cctf.common" href="common.html">cctf.common</a></code></li>
+<li><code><a title="cctf.connection" href="connection.html">cctf.connection</a></code></li>
+<li><code><a title="cctf.connfactory" href="connfactory.html">cctf.connfactory</a></code></li>
+<li><code><a title="cctf.hpuxtarget" href="hpuxtarget.html">cctf.hpuxtarget</a></code></li>
+<li><code><a title="cctf.linuxtarget" href="linuxtarget.html">cctf.linuxtarget</a></code></li>
+<li><code><a title="cctf.logicunit" href="logicunit.html">cctf.logicunit</a></code></li>
+<li><code><a title="cctf.me" href="me.html">cctf.me</a></code></li>
+<li><code><a title="cctf.rshconnection" href="rshconnection.html">cctf.rshconnection</a></code></li>
+<li><code><a title="cctf.scanner" href="scanner.html">cctf.scanner</a></code></li>
+<li><code><a title="cctf.shell" href="shell.html">cctf.shell</a></code></li>
+<li><code><a title="cctf.sshconnection" href="sshconnection.html">cctf.sshconnection</a></code></li>
+<li><code><a title="cctf.sunostarget" href="sunostarget.html">cctf.sunostarget</a></code></li>
+<li><code><a title="cctf.target" href="target.html">cctf.target</a></code></li>
+<li><code><a title="cctf.targetfactory" href="targetfactory.html">cctf.targetfactory</a></code></li>
+<li><code><a title="cctf.telnetconnection" href="telnetconnection.html">cctf.telnetconnection</a></code></li>
+<li><code><a title="cctf.uxtarget" href="uxtarget.html">cctf.uxtarget</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="cctf.gettarget" href="#cctf.gettarget">gettarget</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="cctf.Command" href="#cctf.Command">Command</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cctf.Command.cmdlog" href="#cctf.Command.cmdlog">cmdlog</a></code></li>
+<li><code><a title="cctf.Command.done" href="#cctf.Command.done">done</a></code></li>
+<li><code><a title="cctf.Command.fail" href="#cctf.Command.fail">fail</a></code></li>
+<li><code><a title="cctf.Command.get_exitcode" href="#cctf.Command.get_exitcode">get_exitcode</a></code></li>
+<li><code><a title="cctf.Command.get_stderr" href="#cctf.Command.get_stderr">get_stderr</a></code></li>
+<li><code><a title="cctf.Command.get_stdout" href="#cctf.Command.get_stdout">get_stdout</a></code></li>
+<li><code><a title="cctf.Command.getfloat" href="#cctf.Command.getfloat">getfloat</a></code></li>
+<li><code><a title="cctf.Command.getint" href="#cctf.Command.getint">getint</a></code></li>
+<li><code><a title="cctf.Command.getlist" href="#cctf.Command.getlist">getlist</a></code></li>
+<li><code><a title="cctf.Command.setdone" href="#cctf.Command.setdone">setdone</a></code></li>
+<li><code><a title="cctf.Command.succ" href="#cctf.Command.succ">succ</a></code></li>
+<li><code><a title="cctf.Command.wait" href="#cctf.Command.wait">wait</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cctf.Shell" href="#cctf.Shell">Shell</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cctf.Shell.connect" href="#cctf.Shell.connect">connect</a></code></li>
+<li><code><a title="cctf.Shell.disconnect" href="#cctf.Shell.disconnect">disconnect</a></code></li>
+<li><code><a title="cctf.Shell.exe" href="#cctf.Shell.exe">exe</a></code></li>
+<li><code><a title="cctf.Shell.getconn" href="#cctf.Shell.getconn">getconn</a></code></li>
+<li><code><a title="cctf.Shell.gettarget" href="#cctf.Shell.gettarget">gettarget</a></code></li>
+<li><code><a title="cctf.Shell.interrupt" href="#cctf.Shell.interrupt">interrupt</a></code></li>
+<li><code><a title="cctf.Shell.log" href="#cctf.Shell.log">log</a></code></li>
+<li><code><a title="cctf.Shell.reconnect" href="#cctf.Shell.reconnect">reconnect</a></code></li>
+<li><code><a title="cctf.Shell.run" href="#cctf.Shell.run">run</a></code></li>
+<li><code><a title="cctf.Shell.setshell" href="#cctf.Shell.setshell">setshell</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cctf.Target" href="#cctf.Target">Target</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cctf.Target.alive" href="#cctf.Target.alive">alive</a></code></li>
+<li><code><a title="cctf.Target.download" href="#cctf.Target.download">download</a></code></li>
+<li><code><a title="cctf.Target.gethostname" href="#cctf.Target.gethostname">gethostname</a></code></li>
+<li><code><a title="cctf.Target.newshell" href="#cctf.Target.newshell">newshell</a></code></li>
+<li><code><a title="cctf.Target.panic" href="#cctf.Target.panic">panic</a></code></li>
+<li><code><a title="cctf.Target.panicreboot" href="#cctf.Target.panicreboot">panicreboot</a></code></li>
+<li><code><a title="cctf.Target.reboot" href="#cctf.Target.reboot">reboot</a></code></li>
+<li><code><a title="cctf.Target.upload" href="#cctf.Target.upload">upload</a></code></li>
+<li><code><a title="cctf.Target.wait_alive" href="#cctf.Target.wait_alive">wait_alive</a></code></li>
+<li><code><a title="cctf.Target.wait_down" href="#cctf.Target.wait_down">wait_down</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

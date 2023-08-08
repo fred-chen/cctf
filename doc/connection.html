@@ -34,21 +34,23 @@ Created on Aug 25, 2018
 @author: fred
 &#39;&#39;&#39;
 
-from cctf import me, common
-from cctf.common import Common
-import os, signal, sys
+import os
+import signal
 import pty
 import re
 import select
 import time
+from . import me, common
+from .common import Common
 
-class connError(BaseException): pass
+class ConnError(BaseException):
+    &#34;&#34;&#34; the exception class for connection &#34;&#34;&#34;
 
-class connection(Common, common.lockable):
+class Connection(Common, common.lockable):
     &#34;&#34;&#34;
         common interface of a connection object.
         all specific connection types should implement this interface.
-    &#34;&#34;&#34;    
+    &#34;&#34;&#34;
     def __init__(self, host=&#39;127.0.0.1&#39;, username=None, password=None, timeout=30, newline=&#39;\n&#39;):
         common.lockable.__init__(self)
         self.pty_fd = None
@@ -60,7 +62,7 @@ class connection(Common, common.lockable):
         self.newline = newline
         self.txt = &#34;&#34;
         if not self.connect():
-            raise connError(BaseException(&#34;Failed to connect to %s&#34; % (host)))
+            raise ConnError(BaseException(&#34;Failed to connect to %s&#34; % (host)))
             
     def connect(self):
         raise NotImplementedError( &#34;Should have implemented this&#34; )
@@ -200,7 +202,7 @@ class connection(Common, common.lockable):
         print (self.txt)
     
     def svcalive(self):
-        raise &#34;need implementation...&#34;
+        raise NotImplementedError
     
     def connected(self):
         if not self.svcalive():
@@ -230,25 +232,26 @@ class connection(Common, common.lockable):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="cctf.connection.connError"><code class="flex name class">
-<span>class <span class="ident">connError</span></span>
+<dt id="cctf.connection.ConnError"><code class="flex name class">
+<span>class <span class="ident">ConnError</span></span>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Common base class for all exceptions</p></div>
+<div class="desc"><p>the exception class for connection</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class connError(BaseException): pass</code></pre>
+<pre><code class="python">class ConnError(BaseException):
+    &#34;&#34;&#34; the exception class for connection &#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>builtins.BaseException</li>
 </ul>
 </dd>
-<dt id="cctf.connection.connection"><code class="flex name class">
-<span>class <span class="ident">connection</span></span>
+<dt id="cctf.connection.Connection"><code class="flex name class">
+<span>class <span class="ident">Connection</span></span>
 <span>(</span><span>host='127.0.0.1', username=None, password=None, timeout=30, newline='\n')</span>
 </code></dt>
 <dd>
@@ -258,11 +261,11 @@ all specific connection types should implement this interface.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class connection(Common, common.lockable):
+<pre><code class="python">class Connection(Common, common.lockable):
     &#34;&#34;&#34;
         common interface of a connection object.
         all specific connection types should implement this interface.
-    &#34;&#34;&#34;    
+    &#34;&#34;&#34;
     def __init__(self, host=&#39;127.0.0.1&#39;, username=None, password=None, timeout=30, newline=&#39;\n&#39;):
         common.lockable.__init__(self)
         self.pty_fd = None
@@ -274,7 +277,7 @@ all specific connection types should implement this interface.</p></div>
         self.newline = newline
         self.txt = &#34;&#34;
         if not self.connect():
-            raise connError(BaseException(&#34;Failed to connect to %s&#34; % (host)))
+            raise ConnError(BaseException(&#34;Failed to connect to %s&#34; % (host)))
             
     def connect(self):
         raise NotImplementedError( &#34;Should have implemented this&#34; )
@@ -414,7 +417,7 @@ all specific connection types should implement this interface.</p></div>
         print (self.txt)
     
     def svcalive(self):
-        raise &#34;need implementation...&#34;
+        raise NotImplementedError
     
     def connected(self):
         if not self.svcalive():
@@ -447,7 +450,7 @@ all specific connection types should implement this interface.</p></div>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="cctf.connection.connection.connect"><code class="name flex">
+<dt id="cctf.connection.Connection.connect"><code class="name flex">
 <span>def <span class="ident">connect</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -460,7 +463,7 @@ all specific connection types should implement this interface.</p></div>
     raise NotImplementedError( &#34;Should have implemented this&#34; )</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.connected"><code class="name flex">
+<dt id="cctf.connection.Connection.connected"><code class="name flex">
 <span>def <span class="ident">connected</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -483,7 +486,7 @@ all specific connection types should implement this interface.</p></div>
     return True </code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.disconnect"><code class="name flex">
+<dt id="cctf.connection.Connection.disconnect"><code class="name flex">
 <span>def <span class="ident">disconnect</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -501,7 +504,7 @@ all specific connection types should implement this interface.</p></div>
     self._connect = False</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.inshell"><code class="name flex">
+<dt id="cctf.connection.Connection.inshell"><code class="name flex">
 <span>def <span class="ident">inshell</span></span>(<span>self, timeout=1)</span>
 </code></dt>
 <dd>
@@ -520,7 +523,7 @@ all specific connection types should implement this interface.</p></div>
     return True</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.login"><code class="name flex">
+<dt id="cctf.connection.Connection.login"><code class="name flex">
 <span>def <span class="ident">login</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -564,7 +567,7 @@ all specific connection types should implement this interface.</p></div>
         return True</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.nl"><code class="name flex">
+<dt id="cctf.connection.Connection.nl"><code class="name flex">
 <span>def <span class="ident">nl</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -577,7 +580,7 @@ all specific connection types should implement this interface.</p></div>
     return self.write(self.newline)</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.printlog"><code class="name flex">
+<dt id="cctf.connection.Connection.printlog"><code class="name flex">
 <span>def <span class="ident">printlog</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -590,7 +593,7 @@ all specific connection types should implement this interface.</p></div>
     print (self.txt)</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.read"><code class="name flex">
+<dt id="cctf.connection.Connection.read"><code class="name flex">
 <span>def <span class="ident">read</span></span>(<span>self, timeout=None)</span>
 </code></dt>
 <dd>
@@ -618,7 +621,7 @@ all specific connection types should implement this interface.</p></div>
     return txt</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.reconnect"><code class="name flex">
+<dt id="cctf.connection.Connection.reconnect"><code class="name flex">
 <span>def <span class="ident">reconnect</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -632,7 +635,7 @@ all specific connection types should implement this interface.</p></div>
     self.connect()</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.svcalive"><code class="name flex">
+<dt id="cctf.connection.Connection.svcalive"><code class="name flex">
 <span>def <span class="ident">svcalive</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -642,10 +645,10 @@ all specific connection types should implement this interface.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def svcalive(self):
-    raise &#34;need implementation...&#34;</code></pre>
+    raise NotImplementedError</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.waitfor"><code class="name flex">
+<dt id="cctf.connection.Connection.waitfor"><code class="name flex">
 <span>def <span class="ident">waitfor</span></span>(<span>self, pattern, timeout=0)</span>
 </code></dt>
 <dd>
@@ -683,7 +686,7 @@ None if timeout</p></div>
     return txt</code></pre>
 </details>
 </dd>
-<dt id="cctf.connection.connection.write"><code class="name flex">
+<dt id="cctf.connection.Connection.write"><code class="name flex">
 <span>def <span class="ident">write</span></span>(<span>self, txt)</span>
 </code></dt>
 <dd>
@@ -725,23 +728,23 @@ None if timeout</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="cctf.connection.connError" href="#cctf.connection.connError">connError</a></code></h4>
+<h4><code><a title="cctf.connection.ConnError" href="#cctf.connection.ConnError">ConnError</a></code></h4>
 </li>
 <li>
-<h4><code><a title="cctf.connection.connection" href="#cctf.connection.connection">connection</a></code></h4>
+<h4><code><a title="cctf.connection.Connection" href="#cctf.connection.Connection">Connection</a></code></h4>
 <ul class="two-column">
-<li><code><a title="cctf.connection.connection.connect" href="#cctf.connection.connection.connect">connect</a></code></li>
-<li><code><a title="cctf.connection.connection.connected" href="#cctf.connection.connection.connected">connected</a></code></li>
-<li><code><a title="cctf.connection.connection.disconnect" href="#cctf.connection.connection.disconnect">disconnect</a></code></li>
-<li><code><a title="cctf.connection.connection.inshell" href="#cctf.connection.connection.inshell">inshell</a></code></li>
-<li><code><a title="cctf.connection.connection.login" href="#cctf.connection.connection.login">login</a></code></li>
-<li><code><a title="cctf.connection.connection.nl" href="#cctf.connection.connection.nl">nl</a></code></li>
-<li><code><a title="cctf.connection.connection.printlog" href="#cctf.connection.connection.printlog">printlog</a></code></li>
-<li><code><a title="cctf.connection.connection.read" href="#cctf.connection.connection.read">read</a></code></li>
-<li><code><a title="cctf.connection.connection.reconnect" href="#cctf.connection.connection.reconnect">reconnect</a></code></li>
-<li><code><a title="cctf.connection.connection.svcalive" href="#cctf.connection.connection.svcalive">svcalive</a></code></li>
-<li><code><a title="cctf.connection.connection.waitfor" href="#cctf.connection.connection.waitfor">waitfor</a></code></li>
-<li><code><a title="cctf.connection.connection.write" href="#cctf.connection.connection.write">write</a></code></li>
+<li><code><a title="cctf.connection.Connection.connect" href="#cctf.connection.Connection.connect">connect</a></code></li>
+<li><code><a title="cctf.connection.Connection.connected" href="#cctf.connection.Connection.connected">connected</a></code></li>
+<li><code><a title="cctf.connection.Connection.disconnect" href="#cctf.connection.Connection.disconnect">disconnect</a></code></li>
+<li><code><a title="cctf.connection.Connection.inshell" href="#cctf.connection.Connection.inshell">inshell</a></code></li>
+<li><code><a title="cctf.connection.Connection.login" href="#cctf.connection.Connection.login">login</a></code></li>
+<li><code><a title="cctf.connection.Connection.nl" href="#cctf.connection.Connection.nl">nl</a></code></li>
+<li><code><a title="cctf.connection.Connection.printlog" href="#cctf.connection.Connection.printlog">printlog</a></code></li>
+<li><code><a title="cctf.connection.Connection.read" href="#cctf.connection.Connection.read">read</a></code></li>
+<li><code><a title="cctf.connection.Connection.reconnect" href="#cctf.connection.Connection.reconnect">reconnect</a></code></li>
+<li><code><a title="cctf.connection.Connection.svcalive" href="#cctf.connection.Connection.svcalive">svcalive</a></code></li>
+<li><code><a title="cctf.connection.Connection.waitfor" href="#cctf.connection.Connection.waitfor">waitfor</a></code></li>
+<li><code><a title="cctf.connection.Connection.write" href="#cctf.connection.Connection.write">write</a></code></li>
 </ul>
 </li>
 </ul>

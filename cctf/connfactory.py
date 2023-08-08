@@ -6,7 +6,7 @@ Created on Aug 25, 2018
 
 from .sshconnection import SshConnection
 from .telnetconnection import TelnetConnection
-from .rshconnection import RshConnection 
+from .rshconnection import RshConnection
 from .common import Common
 from .me import is_server_svc_alive
 
@@ -26,11 +26,12 @@ def connect(host='127.0.0.1', username=None, password=None, svc="ssh", timeout=3
         svc can be any one of: shell(rsh-remote shell), ssh or telnet
     """
     conn = None
-    if svc != None:
+    if svc is not None:
         conn = createconn(host, svc, username, password, timeout, newline)
-    if svc == None and conn ==None:
-        for key in svclist.keys():
-            if key == svc: continue
+    if svc is None and conn is None:
+        for key in svclist:
+            if key == svc:
+                continue
             conn = createconn(host, key, username, password, timeout, newline)
             if conn:
                 break
