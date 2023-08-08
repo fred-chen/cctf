@@ -4,8 +4,8 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from uxtarget import uxtarget
+from .uxtarget import UxTarget
 
-class hpuxtarget(uxtarget):
+class hpuxtarget(UxTarget):
     pass
         

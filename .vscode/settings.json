@@ -1,0 +1,21 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python"
+    },
+    "python.formatting.provider": "none",
+    "autopep8.path": [
+        "/usr/local/bin/autopep8"
+    ],
+    "autopep8.interpreter": [
+        "/usr/local/bin/python3.7"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "pylint.path": [
+        "/usr/local/bin/pylint"
+    ],
+    "pylint.interpreter": [
+        "/usr/local/bin/python3.7"
+    ],
+    "python.linting.flake8Enabled": false
+}

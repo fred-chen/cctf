@@ -7,8 +7,8 @@ import unittest
 import sys
 
 
-from .test_common import get_nodes
-from cctf import Scanner
+from tests.test_common import get_nodes
+from .scanner import Scanner
 
 class TestScanner(unittest.TestCase):
     def __init__(self, *args, **kwargs):

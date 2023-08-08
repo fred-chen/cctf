@@ -4,13 +4,14 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from . import me, common
-from .common import Common
-import os, signal, sys
+import os
+import signal
 import pty
 import re
 import select
 import time
+from . import me, common
+from .common import Common
 
 class connError(BaseException): pass
 

@@ -14,4 +14,4 @@ class RshConnection(connection.connection):
         connection.connection.__init__(self, host, username, password, timeout, newline)
                 
     def connect(self, host, svc, timeout):
-        raise "not implemented"
+        raise NotImplementedError()

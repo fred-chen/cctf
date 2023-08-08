@@ -1,15 +1,7 @@
-'''
-Created on Aug 25, 2018
+"""the CCTF package"""
 
-@author: fred
-'''
-
-from .target import gettarget
-from .case import Case
-from .common import Common
-from .command import Command
-from .caseunit import Caseunit
-from .linuxtarget import LinuxTarget
-from .target import Target
+from .target import Target, gettarget
 from .shell import Shell
-from .scanner import Scanner
+from .command import Command
+
+__all__ = ['Target', 'gettarget', 'Shell', 'Command']

@@ -4,8 +4,11 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
+import time
+import getopt
+import sys
+import re
 from .common import Common
-import time, getopt, sys, re
 
 class Case(Common):
     def __init__(self, casename):

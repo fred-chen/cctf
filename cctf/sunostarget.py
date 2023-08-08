@@ -4,8 +4,8 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from uxtarget import uxtarget
+from .uxtarget import UxTarget
 
-class sunostarget(uxtarget):
+class sunostarget(UxTarget):
     pass
         

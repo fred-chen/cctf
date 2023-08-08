@@ -1,3 +1,2 @@
-cur_dir=$(pwd)
-#export PYTHONPATH=$cur_dir:$PYTHONPATH
+export PYTHONPATH=${PWD}:${PWD}/tests:$PYTHONPATH
 python -m unittest $1

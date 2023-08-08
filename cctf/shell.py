@@ -4,14 +4,14 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from . import common
-from .common import Common
 from queue import Queue
-from .connfactory import connect
 import threading
 import random
-from .command import Command
 import re, datetime, time, uuid
+from . import common
+from .common import Common
+from .connfactory import connect
+from .command import Command
 
 class Shell(Common, threading.Thread):
     def __init__(self, target, conn=None, timeout=300):

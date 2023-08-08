@@ -4,12 +4,11 @@ from typing import List
 import os
 import sys
 import unittest
-import socket
 import re
 
 
 sys.path.append(os.path.dirname(__file__))
-from test_common import get_nodes
+from .test_common import get_nodes
 from cctf import gettarget, Target, Shell, Command
 
 class TestTarget(unittest.TestCase):

@@ -4,12 +4,12 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
-from .uxtarget import uxtarget
+from .uxtarget import UxTarget
 import time
 
-class LinuxTarget(uxtarget):
+class LinuxTarget(UxTarget):
     def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
-        uxtarget.__init__(self, address, svc, username, password, conn, timeout)
+        UxTarget.__init__(self, address, svc, username, password, conn, timeout)
         self.newline = '\n'
 
     def panic(self, log=True):

@@ -4,16 +4,19 @@ Created on Aug 25, 2018
 @author: fred
 '''
 
+import time
+import os
 from .target import Target
-import time, os, pty
 from . import me
 
-class uxtarget(Target):
+
+class UxTarget(Target):
     """
         unix, linux like targets
         this kind of targets share similar commands
         so it makes sense for them to share a same parent class
     """
+
     def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
         self.newline = '\n'
         Target.__init__(self, address, svc, username, password, conn, timeout)
@@ -27,7 +30,7 @@ class uxtarget(Target):
         else:
             self.hostname = self.address
         return self.hostname
-    
+
     def reboot(self, wait=True, log=True):
         if log:
             self.log("rebooting %s" % self.address)
@@ -38,7 +41,7 @@ class uxtarget(Target):
         self.wait_down()
         if wait:
             self.wait_alive()
-    
+
     def shutdown(self, wait=True, log=True):
         if log:
             self.log("shutting down %s" % self.address)
@@ -57,16 +60,19 @@ class uxtarget(Target):
         '''
         child_pid = 0
         pty_fd = 0
-        if log: self.log("copying %s to %s" % (src, tgt))
+        if log:
+            self.log("copying %s to %s" % (src, tgt))
 
         if (os.path.exists(self.password)):  # the password is an IdentityFile for ssh authentication
-            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "IdentityFile=%s"%(self.password), "-o", "ServerAliveInterval=60", "-o", "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s"%(src),"%s"%(tgt))
+            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "IdentityFile=%s" % (self.password), "-o", "ServerAliveInterval=60",
+                    "-o", "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s" % (src), "%s" % (tgt))
         else:
-            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "ServerAliveInterval=60", "-o", "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s"%(src), "%s"%(tgt))
+            args = ("scp", "-q", "-r", "-p", "-o", "StrictHostKeyChecking=no", "-o", "ServerAliveInterval=60", "-o",
+                    "ServerAliveCountMax=3", "-o", "TCPKeepAlive=yes", "-o", "UserKnownHostsFile=/dev/null", "%s" % (src), "%s" % (tgt))
         cmd = " ".join(args)
         output, status = me.expect(cmd, [("password:", self.password)])
         if (status != 0):
-            self.log("error: scp returned %d:\n%s" % (status, output) ,1)
+            self.log("error: scp returned %d:\n%s" % (status, output), 1)
             return False
         return True
 
@@ -77,6 +83,6 @@ class uxtarget(Target):
 
     def download(self, local_path, remote_path, log=True):
         co = self.exe("ls -d %s" % (remote_path))
-        path_str = ' '.join([ '%s@%s:%s' % ( self.username, self.address, path ) for path in co.getlist()])
+        path_str = ' '.join(
+            ['%s@%s:%s' % (self.username, self.address, path) for path in co.getlist()])
         return self._scp(path_str, local_path)
-
