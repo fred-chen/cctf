@@ -53,7 +53,7 @@ def gettarget(host, username=None, password=None, svc=&#34;ssh&#34;, timeout=60)
         timeout (int, optional): timeout. Defaults to 60.
 
     Returns:
-        target: a target object.
+        Target: a target object.
     &#34;&#34;&#34;
     conn = connect(host, username, password, svc, timeout)
     if not conn:
@@ -96,7 +96,7 @@ and issue simple command to detect target type then create target object respect
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
-<dt><code>target</code></dt>
+<dt><code>Target</code></dt>
 <dd>a target object.</dd>
 </dl></div>
 <details class="source">
@@ -116,7 +116,7 @@ and issue simple command to detect target type then create target object respect
         timeout (int, optional): timeout. Defaults to 60.
 
     Returns:
-        target: a target object.
+        Target: a target object.
     &#34;&#34;&#34;
     conn = connect(host, username, password, svc, timeout)
     if not conn:

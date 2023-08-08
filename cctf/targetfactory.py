@@ -23,7 +23,7 @@ def gettarget(host, username=None, password=None, svc="ssh", timeout=60) -> Targ
         timeout (int, optional): timeout. Defaults to 60.
 
     Returns:
-        target: a target object.
+        Target: a target object.
     """
     conn = connect(host, username, password, svc, timeout)
     if not conn:
