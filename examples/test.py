@@ -7,7 +7,7 @@ Created on Mar 17, 2019
 @author: fred
 '''
 
-from cctf import caseunit
+from cctf import Caseunit
 from widgets import *
 from cctf import gettarget
 from orcabd import bdoperator
