@@ -240,4 +240,4 @@ class Shell(Common, threading.Thread):
             msg (str): the message to be logged
             level (int, optional): the level of the message. Defaults to 3.
         """
-        Common.log(f"[{self.target}({self.shell_id})]: {msg}", level)
+        Common.log(self, f"[{self.target}({self.shell_id})]: {msg}", level)

@@ -156,5 +156,6 @@ from .target import Target
 from .targetfactory import gettarget
 from .shell import Shell
 from .command import Command
+from .case import Case
 
-__all__ = ["Target", "gettarget", "Shell", "Command"]
+__all__ = ["Target", "gettarget", "Shell", "Command", "Case"]

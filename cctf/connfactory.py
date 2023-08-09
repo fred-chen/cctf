@@ -40,7 +40,7 @@ def connect(host='127.0.0.1', username=None, password=None, svc="ssh", timeout=3
     return conn
 
 def createconn(host, svc, username, password, timeout, newline):
-    Common.log("connecting %s with %s" % (host, svc))
+    Common().log("connecting %s with %s" % (host, svc))
     conn = None
     alive = is_server_svc_alive(host, svc, timeout)
     if alive:

@@ -12,5 +12,6 @@ commands, and then use the output to determine if the test is passed or failed.
 from .cctf import Target, gettarget
 from .cctf import Shell
 from .cctf import Command
+from .cctf import Case
 
 __all__ = ['Target', 'gettarget', 'Shell', 'Command']
