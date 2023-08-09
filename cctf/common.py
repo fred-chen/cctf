@@ -20,9 +20,6 @@ class Common:
     UNIQIDENTIFIER = "CCTF2018_NO_WAY_OF_DUPLICATION:"
     step_number = 0
 
-    def __init__(self) -> None:
-        self.step_number = 0
-
     def log(self, msg, level=3):
         """Log a message to stdout."""
 
