@@ -2,6 +2,8 @@
 Created on Aug 25, 2018
 
 @author: fred
+
+===============================================================================
 '''
 
 from .connfactory import connect
@@ -12,7 +14,9 @@ from .common import Common
 
 def gettarget(host, username=None, password=None, svc="ssh", timeout=60) -> Target:
     """
-    factory function of target. creating connection to the target address 
+    Factory function of target. 
+    
+    Creating connection to the target address 
     and issue simple command to detect target type then create target object respectively.
 
     Args:

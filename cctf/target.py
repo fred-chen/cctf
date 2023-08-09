@@ -2,6 +2,44 @@
 Created on Aug 25, 2018
 
 @author: fred
+
+===============================================================================
+
+DESCRIPTION
+----------------
+This module provides a target object to represent a remote device. A target can
+be a server or any other connectable device. 
+
+A target object represents a remote host or any device that can be connected or
+logged in.  A target object is created by calling the factory method
+'gettarget()' of targetfactory module. A CCTF script can create multiple target
+objects to connect to multiple remote devices and run commands on them
+simultaneously.
+
+A target object can create multiple shell objects associated on it. A shell
+object is created by calling the target.newshell() method. A shell object
+represents a connected pseudo terminal (pty) on the target. The caller then
+invoke shell.exe() to run commands on the target. 
+        
+EXAMPLE
+----------------
+    # create a target object 
+    target = gettarget("10.1.0.96", "root", "password") 
+
+    # create a shell object associated on the target 
+    shell  = target.newshell()
+    
+    # run a command on the target 
+    shell.exe("banner Hello CCTF!")
+
+    # reboot the target then wait for it to be online 
+    target.reboot()
+
+    # upload a file to the target 
+    target.upload("local_file", "remote_file")
+    
+    # download a file from the target 
+    target.download("local_file", "remote_file")
 '''
 
 import time
@@ -30,7 +68,39 @@ class Target(Common):
     """
         The target class. 
 
-        A target object represents a remote host or any device that can be connected or logged in.
+        DESCRIPTION:
+        ----------------
+        A target object represents a remote host or any device that can be
+        connected or logged in.  
+        
+        A target object is created by calling the factory method 'gettarget()'
+        of targetfactory module. A CCTF script can create multiple target
+        objects to connect to multiple remote devices and run commands on them
+        simultaneously.
+    
+        A target object can create multiple shell objects associated on it. A
+        shell object is created by calling the target.newshell() method. A shell
+        object represents a connected pseudo terminal (pty) on the target. The
+        caller then invoke shell.exe() to run commands on the target. 
+
+        The target object itself has a internal shell object. The target object
+        provides some useful methods through the internal shell object:
+        
+        1. reboot: caller can reboot() or panicreboot() or panic() the target.
+        2. file transfer: caller can upload() or download() files to/from the
+           target.
+        3. wait for online or offline: caller can wait_alive() or wait_down()
+           the target.
+        4. checking avilibility: caller can check if the target is alive by
+           calling alive().
+        5. information: caller can get the hostname of the target by calling
+           gethostname().
+        
+        The 'Target class' is an abstract class. It is the base class of all
+        kinds of real devices. For example, a server with Linux OS is
+        represented by a 'LinuxTarget' object, a server with Windows OS is
+        represented by a 'WindowsTarget' object, a switch is represented by a
+        'SwitchTarget' object, etc.
     """
 
     def __init__(self, address, svc='ssh', username='root', password=None, conn=None, timeout=60):
