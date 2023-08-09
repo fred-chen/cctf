@@ -18,8 +18,6 @@ gettarget('192.168.96.79', 'root', 'password').newshell().exe("banner Hello CCTF
 gettarget('192.168.96.51', 'root', 'password').newshell().exe("banner Hello CCTF!")
 
 
-#.newshell().exe("banner Hello CCTF!")
-
 exit()
 
 
