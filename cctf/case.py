@@ -40,7 +40,21 @@ class Case(Common):
     2. load percentage: "-l 50"
     3. parameters: "param_name=value param_name=value ..."
 
-    Example: python script.py -t root@10.1.0.91,root@10.1.0.92 -l 50 param1=1 param2=2
+    Example:
+    ```python
+        # if the user runs the script with the following command line:
+        python script.py -t root@10.1.0.91,root@10.1.0.92 -l 50 param1=1 param2=2
+
+        # in script.py
+        tc = Case(casename = "script.py")
+
+        # then the script can get the target list, load percentage, and parameters from Case object:
+        # tc.targets = [('root', None, '10.1.0.91'), ('root', None, '10.1.0.92')]
+        # tc.load = 50
+        # tc.params = {'param1': '1', 'param2': '2'}
+
+    ```
+
     """
 
     def __init__(self, casename):

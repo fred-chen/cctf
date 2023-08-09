@@ -86,7 +86,7 @@ if the command is successful or not.</p>
     command.wait()  # wait for the command to finish, this is not really necessary 
                     # because the .succ() .fail() .get_exitcode() will wait 
                     # for the command to finish.
-    if command.succ():      
+    if command.succ():
         print(&quot;Command succeeded&quot;)
 
     # reboot the target then wait for it to be back online 
@@ -217,7 +217,7 @@ EXAMPLE
     command.wait()  # wait for the command to finish, this is not really necessary 
                     # because the .succ() .fail() .get_exitcode() will wait 
                     # for the command to finish.
-    if command.succ():      
+    if command.succ():
         print(&#34;Command succeeded&#34;)
 
     # reboot the target then wait for it to be back online 
@@ -298,8 +298,9 @@ from .target import Target
 from .targetfactory import gettarget
 from .shell import Shell
 from .command import Command
+from .case import Case
 
-__all__ = [&#34;Target&#34;, &#34;gettarget&#34;, &#34;Shell&#34;, &#34;Command&#34;]</code></pre>
+__all__ = [&#34;Target&#34;, &#34;gettarget&#34;, &#34;Shell&#34;, &#34;Command&#34;, &#34;Case&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -373,6 +374,205 @@ and issue simple command to detect target type then create target object respect
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="cctf.Case"><code class="flex name class">
+<span>class <span class="ident">Case</span></span>
+<span>(</span><span>casename)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Case object represents a test case.</p>
+<p>A Case object is created by calling the Case() constructor. It parses the
+sys.argv[1:] to get a target list and a load percentage for the case logic's
+reference. It also parses the sys.argv[1:] to get a list of parameters. The
+parameters are passed into the case object as a dictionary. The case object
+can use the parameters to configure itself.</p>
+<p>when running a script that uses the Case object, the user can pass in a list
+of targets, a load percentage, and a list of parameters. The list of targets
+is passed in by the "-t" option. The load percentage is passed in by the
+"-l" option. The list of parameters is passed in by the rest of the
+arguments. The format of the arguments is:</p>
+<ol>
+<li>target list: "-t user:password@address0, user:password@address1, &hellip;"</li>
+<li>load percentage: "-l 50"</li>
+<li>parameters: "param_name=value param_name=value &hellip;"</li>
+</ol>
+<p>Example:</p>
+<pre><code class="language-python">    # if the user runs the script with the following command line:
+    python script.py -t root@10.1.0.91,root@10.1.0.92 -l 50 param1=1 param2=2
+
+    # in script.py
+    tc = Case(casename = &quot;script.py&quot;)
+
+    # then the script can get the target list, load percentage, and parameters from Case object:
+    # tc.targets = [('root', None, '10.1.0.91'), ('root', None, '10.1.0.92')]
+    # tc.load = 50
+    # tc.params = {'param1': '1', 'param2': '2'}
+
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Case(Common):
+    &#34;&#34;&#34;Case object represents a test case.
+
+    A Case object is created by calling the Case() constructor. It parses the
+    sys.argv[1:] to get a target list and a load percentage for the case logic&#39;s
+    reference. It also parses the sys.argv[1:] to get a list of parameters. The
+    parameters are passed into the case object as a dictionary. The case object
+    can use the parameters to configure itself.
+
+    when running a script that uses the Case object, the user can pass in a list
+    of targets, a load percentage, and a list of parameters. The list of targets
+    is passed in by the &#34;-t&#34; option. The load percentage is passed in by the
+    &#34;-l&#34; option. The list of parameters is passed in by the rest of the
+    arguments. The format of the arguments is:
+
+    1. target list: &#34;-t user:password@address0, user:password@address1, ...&#34;
+    2. load percentage: &#34;-l 50&#34;
+    3. parameters: &#34;param_name=value param_name=value ...&#34;
+
+    Example:
+    ```python
+        # if the user runs the script with the following command line:
+        python script.py -t root@10.1.0.91,root@10.1.0.92 -l 50 param1=1 param2=2
+
+        # in script.py
+        tc = Case(casename = &#34;script.py&#34;)
+
+        # then the script can get the target list, load percentage, and parameters from Case object:
+        # tc.targets = [(&#39;root&#39;, None, &#39;10.1.0.91&#39;), (&#39;root&#39;, None, &#39;10.1.0.92&#39;)]
+        # tc.load = 50
+        # tc.params = {&#39;param1&#39;: &#39;1&#39;, &#39;param2&#39;: &#39;2&#39;}
+
+    ```
+
+    &#34;&#34;&#34;
+
+    def __init__(self, casename):
+        self.casename = casename
+        self.start = time.time()
+        self.end = None
+        self.targets = []  # list of target addresses: [(user, pass, addr), ...]
+        self.params = {}  # the customized parameters for the case
+        self.load = 50
+        self._parse_params()
+        self.log(&#34;Starting case %s...&#34; % (self.casename))
+
+    def succ(self):
+        &#34;&#34;&#34;Exit the program with exit code 0.&#34;&#34;&#34;
+        self.log(&#34;Case %s succeeds.&#34; % (self.casename))
+        exit(0)
+
+    def fail(self, exitcode=1):
+        &#34;&#34;&#34;Exit the program with errno. Default errno is 1.&#34;&#34;&#34;
+        self.log(&#34;Case %s failed.&#34; % (self.casename), 1)
+        exit(exitcode)
+
+    def log(self, msg, level=3):
+        &#34;&#34;&#34;Log a message to stdout.&#34;&#34;&#34;
+        super().log(&#34;CASE &#34; + self.casename + &#34;: &#34; + msg, level)
+
+    def _parse_params(self):
+        &#34;&#34;&#34;
+        standard parameters:
+            -t: a target list, format: user:password@address0, user:password@address1, ...
+            -l: a percentage from 0-100, indicating how big load should a case generates
+        other case-specific parameters:
+            format: param_name=value param_name=value ...
+            any parameter can be passed into a case, the case interprets them respectively
+        &#34;&#34;&#34;
+        s = &#34;-t:-l:&#34;
+        opts = []
+        args = []
+        try:
+            opts, args = getopt.gnu_getopt(sys.argv[1:], s)
+        except Exception as msg:
+            print(msg)
+        for opt in opts:
+            if opt[0] == &#34;-t&#34;:
+                # parse target addresses
+                addrs = opt[1].split(&#34;,&#34;)
+                reg = re.compile(&#34;(([^:,]+)(:(.+))?@([^,]+))&#34;)
+                for a in addrs:
+                    if not a:
+                        continue
+                    m = re.match(reg, a)
+                    if m:
+                        self.targets.append((m.group(2), m.group(4), m.group(5)))
+                    else:
+                        self.log(&#34;invalid address string: &#39;%s&#39;&#34; % (a))
+                        self.fail(1)
+            if opt[0] == &#34;-l&#34;:
+                if opt[1].isdigit():
+                    self.load = int(opt[1])
+                else:
+                    self.log(&#34;invalid load percent string: &#39;%s&#39;&#34; % (opt[1]))
+                    self.fail(1)
+
+        for arg in args:
+            reg = re.compile(&#34;(\S+)=(\S+)&#34;)
+            m = re.match(reg, arg)
+            if m:
+                self.params[m.group(1)] = m.group(2)
+            else:
+                self.log(&#34;invalid parameter string: &#39;%s&#39;&#34; % (arg))
+                self.fail(1)
+
+    def __str__(self):
+        return &#34;CASE &#34; + self.casename</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>cctf.common.Common</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cctf.Case.fail"><code class="name flex">
+<span>def <span class="ident">fail</span></span>(<span>self, exitcode=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Exit the program with errno. Default errno is 1.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fail(self, exitcode=1):
+    &#34;&#34;&#34;Exit the program with errno. Default errno is 1.&#34;&#34;&#34;
+    self.log(&#34;Case %s failed.&#34; % (self.casename), 1)
+    exit(exitcode)</code></pre>
+</details>
+</dd>
+<dt id="cctf.Case.log"><code class="name flex">
+<span>def <span class="ident">log</span></span>(<span>self, msg, level=3)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Log a message to stdout.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log(self, msg, level=3):
+    &#34;&#34;&#34;Log a message to stdout.&#34;&#34;&#34;
+    super().log(&#34;CASE &#34; + self.casename + &#34;: &#34; + msg, level)</code></pre>
+</details>
+</dd>
+<dt id="cctf.Case.succ"><code class="name flex">
+<span>def <span class="ident">succ</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Exit the program with exit code 0.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def succ(self):
+    &#34;&#34;&#34;Exit the program with exit code 0.&#34;&#34;&#34;
+    self.log(&#34;Case %s succeeds.&#34; % (self.casename))
+    exit(0)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="cctf.Command"><code class="flex name class">
 <span>class <span class="ident">Command</span></span>
 <span>(</span><span>cmd, log=True, longrun_report=1800, wait_report=30)</span>
@@ -410,19 +610,19 @@ associated command, or check the result of the command.</p></div>
         # command.screentext is the stdout and stderr outputed on terminal screen.
         self.screentext = &#34;&#34;
         # will be captured every 1 second by shell object.
-        self.shell = None     # command.shell will be assigned by shell object
+        self.shell = None  # command.shell will be assigned by shell object
         # command.start will be filled when the shell actually starts executing it
         self.start = None
-        self.dur = None     # command.dur will be filled by the shell when it finishes executing it
+        self.dur = None  # command.dur will be filled by the shell when it finishes executing it
         self._done = False
         self.cv = threading.Condition()
 
     def done(self):
-        &#34;&#34;&#34; Return True if the command is done, otherwise return False. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return True if the command is done, otherwise return False.&#34;&#34;&#34;
         return self._done
 
     def setdone(self):
-        &#34;&#34;&#34; Set the command status to done. &#34;&#34;&#34;
+        &#34;&#34;&#34;Set the command status to done.&#34;&#34;&#34;
         self.cv.acquire()
         self.lock()
         self._done = True
@@ -433,11 +633,11 @@ associated command, or check the result of the command.</p></div>
         self.cv.release()
 
     def wait(self, timeout=None) -&gt; int:
-        &#34;&#34;&#34; Wait for the command to be done. 
-        
+        &#34;&#34;&#34;Wait for the command to be done.
+
         Args:
             timeout (int, optional): timeout in seconds. Defaults to None.
-            
+
         Returns:
             int: the exit code of the command or None if timeout.
         &#34;&#34;&#34;
@@ -445,7 +645,11 @@ associated command, or check the result of the command.</p></div>
         while not self._done:
             dur_wait = time.time() - start
             # print notification every 30s by default for long wait command
-            if self.wait_report and dur_wait &gt;= self.wait_report and int(dur_wait) % self.wait_report == 0:
+            if (
+                self.wait_report
+                and dur_wait &gt;= self.wait_report
+                and int(dur_wait) % self.wait_report == 0
+            ):
                 msg = &#34;waited for %d secs ... %s\n\n&#34; % (dur_wait, self)
                 self.log(msg)
             if timeout and dur_wait &gt; timeout:
@@ -457,41 +661,86 @@ associated command, or check the result of the command.</p></div>
 
     def __str__(self):
         if self._done:
-            cmd = self.cmdline.strip() if len(self.cmdline.strip().splitlines()
-                                              ) &lt;= 1 else &#34;\n&#34; + self.cmdline.strip()
-            if (self.exit is None):  # command failed to exec
-                return u&#34;command failed execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n&#34; % (&#39;-&#39;*60, self.shell.t, self.shell.id, cmd, None, None, None, self.dur, &#39;-&#39;*60)
-            out = self.stdout.strip() if len(self.stdout.strip().splitlines()
-                                             ) &lt;= 1 else &#34;\n&#34; + self.stdout.strip()
-            err = self.stderr.strip() if len(self.stderr.strip().splitlines()
-                                             ) &lt;= 1 else &#34;\n&#34; + self.stderr.strip()
-            return u&#34;\n%s COMMAND FININSHED %s\n&#34; % (&#34;=&#34; * 40, &#34;=&#34; * 40) + \
-                   u&#34;TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n&#34; % (self.shell.t, self.shell.id, cmd, out, err, self.exit.strip(), self.dur) + \
-                   u&#34;=&#34; * 99
+            cmd = (
+                self.cmdline.strip()
+                if len(self.cmdline.strip().splitlines()) &lt;= 1
+                else &#34;\n&#34; + self.cmdline.strip()
+            )
+            if self.exit is None:  # command failed to exec
+                return (
+                    &#34;command failed execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n&#34;
+                    % (
+                        &#34;-&#34; * 60,
+                        self.shell.target,
+                        self.shell.shell_id,
+                        cmd,
+                        None,
+                        None,
+                        None,
+                        self.dur,
+                        &#34;-&#34; * 60,
+                    )
+                )
+            out = (
+                self.stdout.strip()
+                if len(self.stdout.strip().splitlines()) &lt;= 1
+                else &#34;\n&#34; + self.stdout.strip()
+            )
+            err = (
+                self.stderr.strip()
+                if len(self.stderr.strip().splitlines()) &lt;= 1
+                else &#34;\n&#34; + self.stderr.strip()
+            )
+            return (
+                &#34;\n%s COMMAND FININSHED %s\n&#34; % (&#34;=&#34; * 40, &#34;=&#34; * 40)
+                + &#34;TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n&#34;
+                % (
+                    self.shell.target,
+                    self.shell.shell_id,
+                    cmd,
+                    out,
+                    err,
+                    self.exit.strip(),
+                    self.dur,
+                )
+                + &#34;=&#34; * 99
+            )
         if not self.start:
-            return u&#34;command hasn&#39;t started yet. target: &#39;%s [shell: %s]&#39;  CMD : %s\n\n&#34; % (self.shell.t.address, self.shell.id, self.cmdline)
+            return (
+                &#34;command hasn&#39;t started yet. target: &#39;%s [shell: %s]&#39;  CMD : %s\n\n&#34;
+                % (self.shell.target.address, self.shell.shell_id, self.cmdline)
+            )
         else:
             dur = datetime.datetime.now() - self.start
-            return u&#34;\n%s COMMAND RUNNING %s\n&#34; % (&#34;.&#34; * 40, &#34;.&#34; * 40) + \
-                   u&#34;SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n&#34; % (self.screentext.strip(), self.shell.t, self.shell.id, dur.total_seconds(), self.cmdline) + \
-                   u&#34;.&#34; * 97
+            return (
+                &#34;\n%s COMMAND RUNNING %s\n&#34; % (&#34;.&#34; * 40, &#34;.&#34; * 40)
+                + &#34;SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n&#34;
+                % (
+                    self.screentext.strip(),
+                    self.shell.target,
+                    self.shell.shell_id,
+                    dur.total_seconds(),
+                    self.cmdline,
+                )
+                + &#34;.&#34; * 97
+            )
 
     def cmdlog(self):
-        &#34;&#34;&#34; Log the command object with cmdline, host, exit code, stdout, stderr etc. &#34;&#34;&#34;
+        &#34;&#34;&#34;Log the command object with cmdline, host, exit code, stdout, stderr etc.&#34;&#34;&#34;
         self.log(f&#34;{self}\n&#34;)
 
     def succ(self) -&gt; bool:
-        &#34;&#34;&#34; Return True if the command exit code is 0, otherwise return False. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return True if the command exit code is 0, otherwise return False.&#34;&#34;&#34;
         self.wait()
         exitcode = self.exit.strip()
         return exitcode and exitcode.isdigit() and int(exitcode) == 0
 
     def fail(self) -&gt; bool:
-        &#34;&#34;&#34; Return True if the command exit code is not 0, otherwise return False. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return True if the command exit code is not 0, otherwise return False.&#34;&#34;&#34;
         return not self.succ()
 
     def getint(self) -&gt; int:
-        &#34;&#34;&#34; Return the command stdout as an integer. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return the command stdout as an integer.&#34;&#34;&#34;
         self.wait()
         result = None
         try:
@@ -501,7 +750,7 @@ associated command, or check the result of the command.</p></div>
         return result
 
     def getfloat(self) -&gt; float:
-        &#34;&#34;&#34; Return the the command stdout as a Python float number. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return the the command stdout as a Python float number.&#34;&#34;&#34;
         self.wait()
         result = None
         try:
@@ -510,8 +759,8 @@ associated command, or check the result of the command.</p></div>
             result = None
         return result
 
-    def getlist(self, splitter=&#39;\r\n&#39;) -&gt; list:
-        &#34;&#34;&#34; Return the the command stdout in a Python list. &#34;&#34;&#34;
+    def getlist(self, splitter=&#34;\r\n&#34;) -&gt; list:
+        &#34;&#34;&#34;Return the the command stdout in a Python list.&#34;&#34;&#34;
         self.wait()
         result = []
         try:
@@ -521,22 +770,22 @@ associated command, or check the result of the command.</p></div>
         return result
 
     def get_stdout(self) -&gt; str:
-        &#34;&#34;&#34; Return the the command stdout as a string. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return the the command stdout as a string.&#34;&#34;&#34;
         self.wait()
         return self.stdout.strip()
 
     def get_stderr(self) -&gt; str:
-        &#34;&#34;&#34; Return the the command stderr as a string. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return the the command stderr as a string.&#34;&#34;&#34;
         self.wait()
         return self.stderr.strip()
 
     def get_exitcode(self) -&gt; int:
-        &#34;&#34;&#34; Return the the command exit code as an integer. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return the the command exit code as an integer.&#34;&#34;&#34;
         self.wait()
         return int(self.exit.strip())
 
     def get_cmdline(self) -&gt; str:
-        &#34;&#34;&#34; Return the the command line as a string. &#34;&#34;&#34;
+        &#34;&#34;&#34;Return the the command line as a string.&#34;&#34;&#34;
         return self.cmdline.strip()</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -556,7 +805,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def cmdlog(self):
-    &#34;&#34;&#34; Log the command object with cmdline, host, exit code, stdout, stderr etc. &#34;&#34;&#34;
+    &#34;&#34;&#34;Log the command object with cmdline, host, exit code, stdout, stderr etc.&#34;&#34;&#34;
     self.log(f&#34;{self}\n&#34;)</code></pre>
 </details>
 </dd>
@@ -570,7 +819,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def done(self):
-    &#34;&#34;&#34; Return True if the command is done, otherwise return False. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return True if the command is done, otherwise return False.&#34;&#34;&#34;
     return self._done</code></pre>
 </details>
 </dd>
@@ -584,7 +833,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def fail(self) -&gt; bool:
-    &#34;&#34;&#34; Return True if the command exit code is not 0, otherwise return False. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return True if the command exit code is not 0, otherwise return False.&#34;&#34;&#34;
     return not self.succ()</code></pre>
 </details>
 </dd>
@@ -598,7 +847,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_cmdline(self) -&gt; str:
-    &#34;&#34;&#34; Return the the command line as a string. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return the the command line as a string.&#34;&#34;&#34;
     return self.cmdline.strip()</code></pre>
 </details>
 </dd>
@@ -612,7 +861,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_exitcode(self) -&gt; int:
-    &#34;&#34;&#34; Return the the command exit code as an integer. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return the the command exit code as an integer.&#34;&#34;&#34;
     self.wait()
     return int(self.exit.strip())</code></pre>
 </details>
@@ -627,7 +876,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_stderr(self) -&gt; str:
-    &#34;&#34;&#34; Return the the command stderr as a string. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return the the command stderr as a string.&#34;&#34;&#34;
     self.wait()
     return self.stderr.strip()</code></pre>
 </details>
@@ -642,7 +891,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_stdout(self) -&gt; str:
-    &#34;&#34;&#34; Return the the command stdout as a string. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return the the command stdout as a string.&#34;&#34;&#34;
     self.wait()
     return self.stdout.strip()</code></pre>
 </details>
@@ -657,7 +906,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def getfloat(self) -&gt; float:
-    &#34;&#34;&#34; Return the the command stdout as a Python float number. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return the the command stdout as a Python float number.&#34;&#34;&#34;
     self.wait()
     result = None
     try:
@@ -677,7 +926,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def getint(self) -&gt; int:
-    &#34;&#34;&#34; Return the command stdout as an integer. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return the command stdout as an integer.&#34;&#34;&#34;
     self.wait()
     result = None
     try:
@@ -696,8 +945,8 @@ associated command, or check the result of the command.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getlist(self, splitter=&#39;\r\n&#39;) -&gt; list:
-    &#34;&#34;&#34; Return the the command stdout in a Python list. &#34;&#34;&#34;
+<pre><code class="python">def getlist(self, splitter=&#34;\r\n&#34;) -&gt; list:
+    &#34;&#34;&#34;Return the the command stdout in a Python list.&#34;&#34;&#34;
     self.wait()
     result = []
     try:
@@ -717,7 +966,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def setdone(self):
-    &#34;&#34;&#34; Set the command status to done. &#34;&#34;&#34;
+    &#34;&#34;&#34;Set the command status to done.&#34;&#34;&#34;
     self.cv.acquire()
     self.lock()
     self._done = True
@@ -738,7 +987,7 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def succ(self) -&gt; bool:
-    &#34;&#34;&#34; Return True if the command exit code is 0, otherwise return False. &#34;&#34;&#34;
+    &#34;&#34;&#34;Return True if the command exit code is 0, otherwise return False.&#34;&#34;&#34;
     self.wait()
     exitcode = self.exit.strip()
     return exitcode and exitcode.isdigit() and int(exitcode) == 0</code></pre>
@@ -748,7 +997,7 @@ associated command, or check the result of the command.</p></div>
 <span>def <span class="ident">wait</span></span>(<span>self, timeout=None) ‑> int</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wait for the command to be done. </p>
+<div class="desc"><p>Wait for the command to be done.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>timeout</code></strong> :&ensp;<code>int</code>, optional</dt>
@@ -764,11 +1013,11 @@ associated command, or check the result of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def wait(self, timeout=None) -&gt; int:
-    &#34;&#34;&#34; Wait for the command to be done. 
-    
+    &#34;&#34;&#34;Wait for the command to be done.
+
     Args:
         timeout (int, optional): timeout in seconds. Defaults to None.
-        
+
     Returns:
         int: the exit code of the command or None if timeout.
     &#34;&#34;&#34;
@@ -776,7 +1025,11 @@ associated command, or check the result of the command.</p></div>
     while not self._done:
         dur_wait = time.time() - start
         # print notification every 30s by default for long wait command
-        if self.wait_report and dur_wait &gt;= self.wait_report and int(dur_wait) % self.wait_report == 0:
+        if (
+            self.wait_report
+            and dur_wait &gt;= self.wait_report
+            and int(dur_wait) % self.wait_report == 0
+        ):
             msg = &#34;waited for %d secs ... %s\n\n&#34; % (dur_wait, self)
             self.log(msg)
         if timeout and dur_wait &gt; timeout:
@@ -799,7 +1052,20 @@ associated command, or check the result of the command.</p></div>
 a shell object, user can run commands on the target by calling shell.exe()
 method. The exe() method returns a Command object to the caller. The Command
 object contains the command line, the output, the error, the exit code, and
-the duration of the command.</p></div>
+the duration of the command.</p>
+<p>This constructor should always be called with keyword arguments. Arguments are:</p>
+<p><em>group</em> should be None; reserved for future extension when a ThreadGroup
+class is implemented.</p>
+<p><em>target</em> is the callable object to be invoked by the run()
+method. Defaults to None, meaning nothing is called.</p>
+<p><em>name</em> is the thread name. By default, a unique name is constructed of
+the form "Thread-N" where N is a small decimal number.</p>
+<p><em>args</em> is the argument tuple for the target invocation. Defaults to ().</p>
+<p><em>kwargs</em> is a dictionary of keyword arguments for the target
+invocation. Defaults to {}.</p>
+<p>If a subclass overrides the constructor, it must make sure to invoke
+the base class constructor (Thread.<strong>init</strong>()) before doing anything
+else to the thread.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -996,7 +1262,7 @@ the duration of the command.</p></div>
             msg (str): the message to be logged
             level (int, optional): the level of the message. Defaults to 3.
         &#34;&#34;&#34;
-        Common.log(f&#34;[{self.target}({self.shell_id})]: {msg}&#34;, level)</code></pre>
+        Common.log(self, f&#34;[{self.target}({self.shell_id})]: {msg}&#34;, level)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1132,7 +1398,7 @@ seconds.</p>
         msg (str): the message to be logged
         level (int, optional): the level of the message. Defaults to 3.
     &#34;&#34;&#34;
-    Common.log(f&#34;[{self.target}({self.shell_id})]: {msg}&#34;, level)</code></pre>
+    Common.log(self, f&#34;[{self.target}({self.shell_id})]: {msg}&#34;, level)</code></pre>
 </details>
 </dd>
 <dt id="cctf.Shell.run"><code class="name flex">
@@ -1196,81 +1462,84 @@ seconds.</p>
 <span>(</span><span>address, svc='ssh', username='root', password=None, conn=None, timeout=60)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>The target class. </p>
+<div class="desc"><p>The target class.</p>
 <h2 id="description">DESCRIPTION:</h2>
-<p>A target object represents a remote host or any device that can be
-connected or logged in.
-</p>
-<p>A target object is created by calling the factory method 'gettarget()'
-of targetfactory module. A CCTF script can create multiple target
-objects to connect to multiple remote devices and run commands on them
-simultaneously.</p>
-<p>A target object can create multiple shell objects associated on it. A
-shell object is created by calling the target.newshell() method. A shell
-object represents a connected pseudo terminal (pty) on the target. The
-caller then invoke shell.exe() to run commands on the target. </p>
+<p>A target object represents a remote host or any device that can be connected
+or logged in.</p>
+<p>A target object is created by calling the factory method 'gettarget()' of
+targetfactory module. A CCTF script can create multiple target objects to
+connect to multiple remote devices and run commands on them simultaneously.</p>
+<p>A target object can create multiple shell objects associated on it. A shell
+object is created by calling the target.newshell() method. A shell object
+represents a connected pseudo terminal (pty) on the target. The caller then
+invoke shell.exe() to run commands on the target.</p>
 <p>The target object itself has a internal shell object. The target object
 provides some useful methods through the internal shell object:</p>
 <ol>
 <li>reboot: caller can reboot() or panicreboot() or panic() the target.</li>
 <li>file transfer: caller can upload() or download() files to/from the
 target.</li>
-<li>wait for online or offline: caller can wait_alive() or wait_down()
-the target.</li>
-<li>checking avilibility: caller can check if the target is alive by
-calling alive().</li>
+<li>wait for online or offline: caller can wait_alive() or wait_down() the
+target.</li>
+<li>checking avilibility: caller can check if the target is alive by calling
+alive().</li>
 <li>information: caller can get the hostname of the target by calling
 gethostname().</li>
 </ol>
-<p>The 'Target class' is an abstract class. It is the base class of all
-kinds of real devices. For example, a server with Linux OS is
-represented by a 'LinuxTarget' object, a server with Windows OS is
-represented by a 'WindowsTarget' object, a switch is represented by a
-'SwitchTarget' object, etc.</p></div>
+<p>The 'Target class' is an abstract class which defines general operations and
+attributes of a target device, such like reboot, shutdown, gethostname etc.
+It is the base class of all kinds of real devices. For example, a server
+with Linux OS is represented by a 'LinuxTarget' object, a server with
+Windows OS is represented by a 'WindowsTarget' object, a switch is
+represented by a 'SwitchTarget' object, with proper connection method, you
+can even define a mobile phone has a target.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Target(Common):
     &#34;&#34;&#34;
-        The target class. 
+    The target class.
 
-        DESCRIPTION:
-        ----------------
-        A target object represents a remote host or any device that can be
-        connected or logged in.  
-        
-        A target object is created by calling the factory method &#39;gettarget()&#39;
-        of targetfactory module. A CCTF script can create multiple target
-        objects to connect to multiple remote devices and run commands on them
-        simultaneously.
-    
-        A target object can create multiple shell objects associated on it. A
-        shell object is created by calling the target.newshell() method. A shell
-        object represents a connected pseudo terminal (pty) on the target. The
-        caller then invoke shell.exe() to run commands on the target. 
+    DESCRIPTION:
+    ----------------
+    A target object represents a remote host or any device that can be connected
+    or logged in.
 
-        The target object itself has a internal shell object. The target object
-        provides some useful methods through the internal shell object:
-        
-        1. reboot: caller can reboot() or panicreboot() or panic() the target.
-        2. file transfer: caller can upload() or download() files to/from the
-           target.
-        3. wait for online or offline: caller can wait_alive() or wait_down()
-           the target.
-        4. checking avilibility: caller can check if the target is alive by
-           calling alive().
-        5. information: caller can get the hostname of the target by calling
-           gethostname().
-        
-        The &#39;Target class&#39; is an abstract class. It is the base class of all
-        kinds of real devices. For example, a server with Linux OS is
-        represented by a &#39;LinuxTarget&#39; object, a server with Windows OS is
-        represented by a &#39;WindowsTarget&#39; object, a switch is represented by a
-        &#39;SwitchTarget&#39; object, etc.
+    A target object is created by calling the factory method &#39;gettarget()&#39; of
+    targetfactory module. A CCTF script can create multiple target objects to
+    connect to multiple remote devices and run commands on them simultaneously.
+
+    A target object can create multiple shell objects associated on it. A shell
+    object is created by calling the target.newshell() method. A shell object
+    represents a connected pseudo terminal (pty) on the target. The caller then
+    invoke shell.exe() to run commands on the target.
+
+    The target object itself has a internal shell object. The target object
+    provides some useful methods through the internal shell object:
+
+    1. reboot: caller can reboot() or panicreboot() or panic() the target.
+    2. file transfer: caller can upload() or download() files to/from the
+       target.
+    3. wait for online or offline: caller can wait_alive() or wait_down() the
+       target.
+    4. checking avilibility: caller can check if the target is alive by calling
+       alive().
+    5. information: caller can get the hostname of the target by calling
+       gethostname().
+
+    The &#39;Target class&#39; is an abstract class which defines general operations and
+    attributes of a target device, such like reboot, shutdown, gethostname etc.
+    It is the base class of all kinds of real devices. For example, a server
+    with Linux OS is represented by a &#39;LinuxTarget&#39; object, a server with
+    Windows OS is represented by a &#39;WindowsTarget&#39; object, a switch is
+    represented by a &#39;SwitchTarget&#39; object, with proper connection method, you
+    can even define a mobile phone has a target.
     &#34;&#34;&#34;
 
-    def __init__(self, address, svc=&#39;ssh&#39;, username=&#39;root&#39;, password=None, conn=None, timeout=60):
+    def __init__(
+        self, address, svc=&#34;ssh&#34;, username=&#34;root&#34;, password=None, conn=None, timeout=60
+    ):
         self.address = address
         self.svc = svc
         self.username = username
@@ -1281,7 +1550,9 @@ represented by a 'WindowsTarget' object, a switch is represented by a
         self.shs = []
         self.shell = self.newshell(self.conn)
         self.shs.append(self.shell)
-        self.exe = self.shell.exe   # target.exe() is just a delegation of target.shell.exe()
+        self.exe = (
+            self.shell.exe
+        )  # target.exe() is just a delegation of target.shell.exe()
         self.__inittarget()
 
     def __inittarget(self):
@@ -1289,18 +1560,18 @@ represented by a 'WindowsTarget' object, a switch is represented by a
 
     def newshell(self, conn: Connection = None) -&gt; Shell:
         &#34;&#34;&#34;
-            Create and return a new shell object associated with this target.
+        Create and return a new shell object associated with this target.
 
-            newshell() returns a shell object. Users use shell object to operate on this target. A
-            target object can have multiple shell objects associated on it. newshell() is actually a
-            factory method of shell objects.
+        newshell() returns a shell object. Users use shell object to operate on this target. A
+        target object can have multiple shell objects associated on it. newshell() is actually a
+        factory method of shell objects.
 
-            Args:
-                conn (Connection, optional): a connection object this shell reuses. Defaults to
-                None. if conn is None, a new connection will be created.
+        Args:
+            conn (Connection, optional): a connection object this shell reuses. Defaults to
+            None. if conn is None, a new connection will be created.
 
-            Returns:
-                Shell: a shell object.
+        Returns:
+            Shell: a shell object.
         &#34;&#34;&#34;
         shell = Shell(self, conn)
         if shell:
@@ -1319,19 +1590,19 @@ represented by a 'WindowsTarget' object, a switch is represented by a
         raise NotImplementedError()
 
     def reboot(self, wait=True, log=True):
-        &#34;&#34;&#34;Reboot the target. 
+        &#34;&#34;&#34;Reboot the target.
 
         Reboot the target gracefully, the target gets a chance to shutdown all services and then
         reboot.
 
         Args:
-            wait (bool, optional): wait until the target is back online. Defaults to True. 
+            wait (bool, optional): wait until the target is back online. Defaults to True.
             log (bool, optional): log the reboot event. Defaults to True.
         &#34;&#34;&#34;
         raise NotImplementedError()
 
     def panic(self, log=True):
-        &#34;&#34;&#34; Panic the target.
+        &#34;&#34;&#34;Panic the target.
 
         Panic the target immediately, the target hangs immediately without any chance to shutdown.
         Caution: The server will never come back online unless it is manually rebooted.
@@ -1342,10 +1613,10 @@ represented by a 'WindowsTarget' object, a switch is represented by a
         raise NotImplementedError()
 
     def panicreboot(self, wait=True, log=True):
-        &#34;&#34;&#34; Panic the target and reboot it. 
+        &#34;&#34;&#34;Panic the target and reboot it.
 
         Panic the target immediately and reboot it. The target hangs immediately without any chance
-        to shutdown, but it will reboot automatically. 
+        to shutdown, but it will reboot automatically.
 
         Args:
             wait (bool, optional): wait until the target is back online. Defaults to True.
@@ -1354,7 +1625,7 @@ represented by a 'WindowsTarget' object, a switch is represented by a
         raise NotImplementedError()
 
     def upload(self, local_path, remote_path, log=True) -&gt; bool:
-        &#34;&#34;&#34; Upload a file to the target.
+        &#34;&#34;&#34;Upload a file to the target.
 
         Upload a file from local_path to remote_path on the target.
 
@@ -1368,7 +1639,7 @@ represented by a 'WindowsTarget' object, a switch is represented by a
         raise NotImplementedError()
 
     def download(self, local_path, remote_path, log=True) -&gt; bool:
-        &#34;&#34;&#34; Download a file from the target. 
+        &#34;&#34;&#34;Download a file from the target.
 
         Download a file from remote_path on the target to local_path.
 
@@ -1377,26 +1648,27 @@ represented by a 'WindowsTarget' object, a switch is represented by a
             remote_path (str): remote file path, can be a file or a directory or a wildcard.
 
         Returns:
-            bool: True if success, False if failed. 
+            bool: True if success, False if failed.
         &#34;&#34;&#34;
         raise NotImplementedError()
 
     def wait_alive(self, svc=None, timeout=None) -&gt; bool:
-        &#34;&#34;&#34; Wait until the target is back online. 
+        &#34;&#34;&#34;Wait until the target is back online.
 
         Wait until the target is back online. If svc is specified, wait until the service is back
         online. If timeout is specified, wait until the target is back online or timeout.
 
         Args:
             svc (str, optional): service name. Defaults to the service that was used to connect this
-            target. 
+            target.
             timeout (int, optional): timeout in seconds. Defaults to None, means wait forever.
 
         Returns:
             bool: True if the target is back online, False if timeout.
         &#34;&#34;&#34;
         self.log(
-            f&#34;waiting on {self.address}:{str(svc) if svc else self.svc} to be online...&#34;)
+            f&#34;waiting on {self.address}:{str(svc) if svc else self.svc} to be online...&#34;
+        )
         start = time.time()
         while not self.alive(svc, 1):
             dur = time.time() - start
@@ -1406,7 +1678,7 @@ represented by a 'WindowsTarget' object, a switch is represented by a
         return True
 
     def wait_down(self, svc=None, timeout=None) -&gt; bool:
-        &#34;&#34;&#34; Wait until the target is down. 
+        &#34;&#34;&#34;Wait until the target is down.
 
         Wait until the target is down. If svc is specified, wait until the service is down. If
         timeout is specified, wait until the target is down or timeout.
@@ -1428,7 +1700,7 @@ represented by a 'WindowsTarget' object, a switch is represented by a
         return True
 
     def alive(self, svc=None, timeout=1) -&gt; bool:
-        &#34;&#34;&#34; Check if the target is alive. 
+        &#34;&#34;&#34;Check if the target is alive.
 
         Check if the target is alive. If svc is specified, check if the service is alive. If timeout
         is specified, check if the target is alive or timeout.
@@ -1458,7 +1730,7 @@ represented by a 'WindowsTarget' object, a switch is represented by a
 <span>def <span class="ident">alive</span></span>(<span>self, svc=None, timeout=1) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Check if the target is alive. </p>
+<div class="desc"><p>Check if the target is alive.</p>
 <p>Check if the target is alive. If svc is specified, check if the service is alive. If timeout
 is specified, check if the target is alive or timeout.</p>
 <h2 id="args">Args</h2>
@@ -1479,7 +1751,7 @@ is specified, check if the target is alive or timeout.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def alive(self, svc=None, timeout=1) -&gt; bool:
-    &#34;&#34;&#34; Check if the target is alive. 
+    &#34;&#34;&#34;Check if the target is alive.
 
     Check if the target is alive. If svc is specified, check if the service is alive. If timeout
     is specified, check if the target is alive or timeout.
@@ -1500,7 +1772,7 @@ is specified, check if the target is alive or timeout.</p>
 <span>def <span class="ident">download</span></span>(<span>self, local_path, remote_path, log=True) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Download a file from the target. </p>
+<div class="desc"><p>Download a file from the target.</p>
 <p>Download a file from remote_path on the target to local_path.</p>
 <h2 id="args">Args</h2>
 <dl>
@@ -1519,7 +1791,7 @@ is specified, check if the target is alive or timeout.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def download(self, local_path, remote_path, log=True) -&gt; bool:
-    &#34;&#34;&#34; Download a file from the target. 
+    &#34;&#34;&#34;Download a file from the target.
 
     Download a file from remote_path on the target to local_path.
 
@@ -1528,7 +1800,7 @@ is specified, check if the target is alive or timeout.</p>
         remote_path (str): remote file path, can be a file or a directory or a wildcard.
 
     Returns:
-        bool: True if success, False if failed. 
+        bool: True if success, False if failed.
     &#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
 </details>
@@ -1573,18 +1845,18 @@ factory method of shell objects.</p>
 </summary>
 <pre><code class="python">def newshell(self, conn: Connection = None) -&gt; Shell:
     &#34;&#34;&#34;
-        Create and return a new shell object associated with this target.
+    Create and return a new shell object associated with this target.
 
-        newshell() returns a shell object. Users use shell object to operate on this target. A
-        target object can have multiple shell objects associated on it. newshell() is actually a
-        factory method of shell objects.
+    newshell() returns a shell object. Users use shell object to operate on this target. A
+    target object can have multiple shell objects associated on it. newshell() is actually a
+    factory method of shell objects.
 
-        Args:
-            conn (Connection, optional): a connection object this shell reuses. Defaults to
-            None. if conn is None, a new connection will be created.
+    Args:
+        conn (Connection, optional): a connection object this shell reuses. Defaults to
+        None. if conn is None, a new connection will be created.
 
-        Returns:
-            Shell: a shell object.
+    Returns:
+        Shell: a shell object.
     &#34;&#34;&#34;
     shell = Shell(self, conn)
     if shell:
@@ -1609,7 +1881,7 @@ Caution: The server will never come back online unless it is manually rebooted.<
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def panic(self, log=True):
-    &#34;&#34;&#34; Panic the target.
+    &#34;&#34;&#34;Panic the target.
 
     Panic the target immediately, the target hangs immediately without any chance to shutdown.
     Caution: The server will never come back online unless it is manually rebooted.
@@ -1624,9 +1896,9 @@ Caution: The server will never come back online unless it is manually rebooted.<
 <span>def <span class="ident">panicreboot</span></span>(<span>self, wait=True, log=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Panic the target and reboot it. </p>
+<div class="desc"><p>Panic the target and reboot it.</p>
 <p>Panic the target immediately and reboot it. The target hangs immediately without any chance
-to shutdown, but it will reboot automatically. </p>
+to shutdown, but it will reboot automatically.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>wait</code></strong> :&ensp;<code>bool</code>, optional</dt>
@@ -1639,10 +1911,10 @@ to shutdown, but it will reboot automatically. </p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def panicreboot(self, wait=True, log=True):
-    &#34;&#34;&#34; Panic the target and reboot it. 
+    &#34;&#34;&#34;Panic the target and reboot it.
 
     Panic the target immediately and reboot it. The target hangs immediately without any chance
-    to shutdown, but it will reboot automatically. 
+    to shutdown, but it will reboot automatically.
 
     Args:
         wait (bool, optional): wait until the target is back online. Defaults to True.
@@ -1655,13 +1927,13 @@ to shutdown, but it will reboot automatically. </p>
 <span>def <span class="ident">reboot</span></span>(<span>self, wait=True, log=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Reboot the target. </p>
+<div class="desc"><p>Reboot the target.</p>
 <p>Reboot the target gracefully, the target gets a chance to shutdown all services and then
 reboot.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>wait</code></strong> :&ensp;<code>bool</code>, optional</dt>
-<dd>wait until the target is back online. Defaults to True. </dd>
+<dd>wait until the target is back online. Defaults to True.</dd>
 <dt><strong><code>log</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>log the reboot event. Defaults to True.</dd>
 </dl></div>
@@ -1670,13 +1942,13 @@ reboot.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def reboot(self, wait=True, log=True):
-    &#34;&#34;&#34;Reboot the target. 
+    &#34;&#34;&#34;Reboot the target.
 
     Reboot the target gracefully, the target gets a chance to shutdown all services and then
     reboot.
 
     Args:
-        wait (bool, optional): wait until the target is back online. Defaults to True. 
+        wait (bool, optional): wait until the target is back online. Defaults to True.
         log (bool, optional): log the reboot event. Defaults to True.
     &#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
@@ -1705,7 +1977,7 @@ reboot.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def upload(self, local_path, remote_path, log=True) -&gt; bool:
-    &#34;&#34;&#34; Upload a file to the target.
+    &#34;&#34;&#34;Upload a file to the target.
 
     Upload a file from local_path to remote_path on the target.
 
@@ -1723,7 +1995,7 @@ reboot.</p>
 <span>def <span class="ident">wait_alive</span></span>(<span>self, svc=None, timeout=None) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wait until the target is back online. </p>
+<div class="desc"><p>Wait until the target is back online.</p>
 <p>Wait until the target is back online. If svc is specified, wait until the service is back
 online. If timeout is specified, wait until the target is back online or timeout.</p>
 <h2 id="args">Args</h2>
@@ -1744,21 +2016,22 @@ online. If timeout is specified, wait until the target is back online or timeout
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def wait_alive(self, svc=None, timeout=None) -&gt; bool:
-    &#34;&#34;&#34; Wait until the target is back online. 
+    &#34;&#34;&#34;Wait until the target is back online.
 
     Wait until the target is back online. If svc is specified, wait until the service is back
     online. If timeout is specified, wait until the target is back online or timeout.
 
     Args:
         svc (str, optional): service name. Defaults to the service that was used to connect this
-        target. 
+        target.
         timeout (int, optional): timeout in seconds. Defaults to None, means wait forever.
 
     Returns:
         bool: True if the target is back online, False if timeout.
     &#34;&#34;&#34;
     self.log(
-        f&#34;waiting on {self.address}:{str(svc) if svc else self.svc} to be online...&#34;)
+        f&#34;waiting on {self.address}:{str(svc) if svc else self.svc} to be online...&#34;
+    )
     start = time.time()
     while not self.alive(svc, 1):
         dur = time.time() - start
@@ -1772,7 +2045,7 @@ online. If timeout is specified, wait until the target is back online or timeout
 <span>def <span class="ident">wait_down</span></span>(<span>self, svc=None, timeout=None) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wait until the target is down. </p>
+<div class="desc"><p>Wait until the target is down.</p>
 <p>Wait until the target is down. If svc is specified, wait until the service is down. If
 timeout is specified, wait until the target is down or timeout.</p>
 <h2 id="args">Args</h2>
@@ -1793,7 +2066,7 @@ timeout is specified, wait until the target is down or timeout.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def wait_down(self, svc=None, timeout=None) -&gt; bool:
-    &#34;&#34;&#34; Wait until the target is down. 
+    &#34;&#34;&#34;Wait until the target is down.
 
     Wait until the target is down. If svc is specified, wait until the service is down. If
     timeout is specified, wait until the target is down or timeout.
@@ -1835,6 +2108,14 @@ timeout is specified, wait until the target is down or timeout.</p>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="cctf.Case" href="#cctf.Case">Case</a></code></h4>
+<ul class="">
+<li><code><a title="cctf.Case.fail" href="#cctf.Case.fail">fail</a></code></li>
+<li><code><a title="cctf.Case.log" href="#cctf.Case.log">log</a></code></li>
+<li><code><a title="cctf.Case.succ" href="#cctf.Case.succ">succ</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="cctf.Command" href="#cctf.Command">Command</a></code></h4>
 <ul class="two-column">
