@@ -270,7 +270,7 @@ class Target(Common):
         """Check if the target is alive.
 
         Check if the target is alive. If svc is specified, check if the service is alive. If timeout
-        is specified, check if the target is alive or timeout.
+        is specified, keep checking if the target is alive or timeout.
 
         Args:
             svc (str, optional): service name. Defaults to the service that was used to connect this

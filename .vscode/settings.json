@@ -1,14 +1,21 @@
 {
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
-  },
-  "python.formatting.provider": "none",
-  "autopep8.interpreter": ["/usr/local/bin/python3.7"],
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": true,
-  "pylint.path": ["/usr/local/bin/pylint"],
-  "pylint.interpreter": ["/usr/local/bin/python3.7"],
-  "python.linting.flake8Enabled": false,
-  "liveServer.settings.port": 5501,
-  "editor.formatOnSave": true
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none",
+    "autopep8.interpreter": [
+        "/usr/local/bin/python3.7"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "pylint.path": [
+        "/usr/local/bin/pylint"
+    ],
+    "pylint.interpreter": [
+        "/usr/local/bin/python3.7"
+    ],
+    "python.linting.flake8Enabled": false,
+    "liveServer.settings.port": 5501,
+    "editor.formatOnSave": true,
+    "rewrap.wrappingColumn": 80
 }

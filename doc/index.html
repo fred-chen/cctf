@@ -29,113 +29,122 @@
 <p>The CCTF package is a framework for running commands on remote servers.</p>
 <p>The CCTF package leverages the multi-threading capability of Python to run
 multiple commands on multiple servers simultaneously and asychronously. </p>
-<p>It also provides a simple way to capture the output and errors of the
-commands and log them to files. </p>
+<p>It also provides a simple way to capture the output and errors of the commands
+and log them to files. </p>
 <p>The CCTF package is designed to be used in a test framework, where the test
-framework can use the CCTF to simulate all kinds of user actions on the
-server nodes then capture the output of the commands, then use the output to
-determine if the test is passed or failed.</p>
-<p>CCTF exposes a set of simple API to the users:</p>
-<pre><code class="language-python">    class Target:
-        # which represents a server node, or any other devices.
+framework can use the CCTF to simulate all kinds of user actions on the server
+nodes then capture the output of the commands, then use the output to determine
+if the test is passed or failed.</p>
+<p>CCTF exposes a set of simple API to the users, which are 1 function and 3
+classes:: </p>
+<pre><code>def gettarget(): 
+    # This function is used to create a Target object. Which is kind # of
+    the entry point of the CCTF framework.
 
-    class Shell: 
-        # which represents a shell session on a server node.
+class Target:
+    # A Target object represents a server node, or any other devices.
 
-    class Command: 
-        # which represents a command to be run on a server node.
+class Shell: 
+    # A Shell object represents a shell session on a server node.
 
-    def gettarget(): 
-        # This function is used to create a Target object. Which is kind
-        # of the entry point of the CCTF framework.
+class Command: 
+    # A Command object represents a command to be run on a server node.
 </code></pre>
 <p>CCTF intends to be a simple and easy to use framework. The main idea behind CCTF
 is to simulate a common use case: a user logs into a bunch of server nodes,
-opens many many terminals for multiple notes, runs commands, maybe reboot some
-of them, then logs out. CCTF provides an automatic way to do this. The user can
-create a Target object, then use the Target object to create as many Shell
-objects, each of the Shell objects represents a terminal to that target. Then
-use the Shell objects to run Commands. The commands will be sent to the server
-nodes and executed by the server nodes, then return the exit status, output and
-errors of the command. The user can then use the output and errors to determine
-if the command is successful or not.</p>
-<p>EXAMPLE</p>
-<pre><code class="language-python">    # create a target object 
-    target = gettarget(&quot;10.1.0.96&quot;, &quot;root&quot;, &quot;password&quot;) 
+opens many many terminals for each of those nodes, runs commands, maybe reboot
+some of them, then logs out. CCTF provides an automatic way to do this. The user
+can create as many Target objects as they want, then use the Target object to
+create as many Shell objects, each of the Shell objects represents a terminal
+to that target. Then use the Shell objects to run Commands. The commands will be
+sent to the server nodes and executed by the server nodes, then return the exit
+status, output and errors of the commands. The user can then use the output and
+errors to determine if the commands were successful or not.</p>
+<p>Example::</p>
+<pre><code># create a target object 
+target = gettarget("10.1.0.96", "root", "password")
 
-    # create a shell object associated on the target 
-    shell  = target.newshell()
+# create a shell object associated on the target 
+shell  = target.newshell()
 
-    # run a command on the target 
-    command = shell.exe(&quot;banner Hello CCTF!&quot;)
+# run a command on the target 
+command = shell.exe("banner Hello CCTF!")
 
-    # check the result of a command
-    if command.succ():
-        print(&quot;Command succeeded&quot;)
+# check the result of a command 
+if command.succ():
+    print("Command succeeded")
+if command.fail():
+    print("Command failed")
+if command.get_exitcode() != 0:
+    print("Command failed with exit code: %d" % command.get_exitcode())
+
+# you can run a command asynchronously 
+command = shell.exe("banner Hello CCTF!", wait=False) # return immediately
+
+# do something else here ...
+
+# then check the result of the command 
+command.wait()  # wait for the command to finish, this is not really necessary 
+                # because the .succ() .fail() .get_exitcode() will wait 
+                # for the command to finish.
+if command.succ():
+    print("Command succeeded")
+
+# you can reboot the target then wait for it to be back online 
+target.reboot()
+
+# you also can reboot the target without waiting for it to be back online 
+target.reboot(wait=False) # return immediately
+
+# do something else here ...
+
+# then wait for the target to be back online 
+target.wait_online() # wait for the target to be back online
+
+# you can upload a file to the target 
+target.upload("local_file", "remote_file")
+
+# you can download a file from the target 
+target.download("local_file", "remote_file")
+
+# connect to multiple targets is easy
+target1 = gettarget("10.1.0.91", "root", "password") 
+target2 = gettarget("10.1.0.92", "root", "password") 
+target3 = gettarget("10.1.0.93", "root", "password")
+
+# get 10 shells from each of the targets, 30 shells in total 
+shells = [] 
+for target in [target1, target2, target3]:
+    for i in range(10):
+        shell = target.newshell() shells.append(shell)
+
+# run a command on all 30 shells (to 3 targets) asynchronously 
+commands = []
+for shell in shells:
+    command = shell.exe("banner Hello CCTF!", wait=False) # return immediately 
+    commands.append(command)
+
+# do something else here ...
+
+# wait for all 30 commands to finish and check the result
+for command in commands:
     if command.fail():
-        print(&quot;Command failed&quot;)
-    if command.get_exitcode() != 0:
-        print(&quot;Command failed with exit code: %d&quot; % command.get_exitcode())
-
-    # you can run a command asynchronously
-    command = shell.exe(&quot;banner Hello CCTF!&quot;, wait=False) # return immediately
-
-    # do something else here ...
-
-    # then check the result of the command
-    command.wait()  # wait for the command to finish, this is not really necessary 
-                    # because the .succ() .fail() .get_exitcode() will wait 
-                    # for the command to finish.
-    if command.succ():
-        print(&quot;Command succeeded&quot;)
-
-    # reboot the target then wait for it to be back online 
-    target.reboot()
-
-    # reboot the target asynchronously
-    target.reboot(wait=False) # it will return immediately
-
-    # do something else here ...
-
-    # then wait for the target to be back online
-    target.wait_online() # wait for the target to be back online
-
-    # upload a file to the target 
-    target.upload(&quot;local_file&quot;, &quot;remote_file&quot;)
-
-    # download a file from the target 
-    target.download(&quot;local_file&quot;, &quot;remote_file&quot;)
-
-    # connecto to multiple targets
-    target1 = gettarget(&quot;10.1.0.91&quot;, &quot;root&quot;, &quot;password&quot;)
-    target2 = gettarget(&quot;10.1.0.92&quot;, &quot;root&quot;, &quot;password&quot;)
-    target3 = gettarget(&quot;10.1.0.93&quot;, &quot;root&quot;, &quot;password&quot;)
-
-    # get 10 shells from each of the targets, 30 shells in total
-    shells = []
-    for target in [target1, target2, target3]:
-        for i in range(10):
-            shell = target.newshell()
-            shells.append(shell)
-
-    # run a command on all 30 shells (to 3 targets) simultaneously
-    commands = []
-    for shell in shells:
-        command = shell.exe(&quot;banner Hello CCTF!&quot;, wait=False) # return immediately
-        commands.append(command)
-
-    # do something else here ...
-
-    # wait for all 30 commands to finish
-    for command in commands:
-        if command.fail():
-            print(&quot;Command failed with code %d: %s&quot; % 
-                command.get_exitcode(), command.get_cmdline())
+        print("Command failed with code %d: %s" % 
+            command.get_exitcode(), command.get_cmdline())
 </code></pre>
 <p>All command execution will be logged to files and stdout. So a tester can
 observe the execution of the commands and determine if the commands are executed
 correctly.</p>
-<p>CCTF is designed to be extensible. It provides a set of base classes, and</p>
+<p>CCTF is designed to be extensible. It provides a set of base classes to define
+some common operations and attributes. For example, the Target class defines a
+generic target, which can be a server node, a switch, a router, or any other
+device types, its subclasses implement specific types of targets, such as
+LinuxTarget, AixTarget, SunOsTarget, etc. The Connection class defines a generic
+connection, which can be a telnet connection, an ssh connection, or any other
+kinds of connections, its subclasses implement specific types of connections, such
+as TelnetConnection, SshConnection, etc. In case any new kinds of targets or
+connection types are needed, the user can easily create new subclasses to extend
+CCTF.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -154,43 +163,43 @@ The CCTF package is a framework for running commands on remote servers.
 The CCTF package leverages the multi-threading capability of Python to run
 multiple commands on multiple servers simultaneously and asychronously. 
 
-It also provides a simple way to capture the output and errors of the
-commands and log them to files. 
+It also provides a simple way to capture the output and errors of the commands
+and log them to files. 
 
 The CCTF package is designed to be used in a test framework, where the test
-framework can use the CCTF to simulate all kinds of user actions on the
-server nodes then capture the output of the commands, then use the output to
-determine if the test is passed or failed.
+framework can use the CCTF to simulate all kinds of user actions on the server
+nodes then capture the output of the commands, then use the output to determine
+if the test is passed or failed.
 
-CCTF exposes a set of simple API to the users:
-```python
-    class Target:
-        # which represents a server node, or any other devices.
-
-    class Shell: 
-        # which represents a shell session on a server node.
-    
-    class Command: 
-        # which represents a command to be run on a server node.
+CCTF exposes a set of simple API to the users, which are 1 function and 3
+classes:: 
 
     def gettarget(): 
-        # This function is used to create a Target object. Which is kind
-        # of the entry point of the CCTF framework.
-```
+        # This function is used to create a Target object. Which is kind # of
+        the entry point of the CCTF framework.
+
+    class Target:
+        # A Target object represents a server node, or any other devices.
+
+    class Shell: 
+        # A Shell object represents a shell session on a server node.
+    
+    class Command: 
+        # A Command object represents a command to be run on a server node.
 
 CCTF intends to be a simple and easy to use framework. The main idea behind CCTF
 is to simulate a common use case: a user logs into a bunch of server nodes,
-opens many many terminals for multiple notes, runs commands, maybe reboot some
-of them, then logs out. CCTF provides an automatic way to do this. The user can
-create a Target object, then use the Target object to create as many Shell
-objects, each of the Shell objects represents a terminal to that target. Then
-use the Shell objects to run Commands. The commands will be sent to the server
-nodes and executed by the server nodes, then return the exit status, output and
-errors of the command. The user can then use the output and errors to determine
-if the command is successful or not.
+opens many many terminals for each of those nodes, runs commands, maybe reboot
+some of them, then logs out. CCTF provides an automatic way to do this. The user
+can create as many Target objects as they want, then use the Target object to 
+create as many Shell objects, each of the Shell objects represents a terminal 
+to that target. Then use the Shell objects to run Commands. The commands will be 
+sent to the server nodes and executed by the server nodes, then return the exit 
+status, output and errors of the commands. The user can then use the output and 
+errors to determine if the commands were successful or not.
 
-EXAMPLE
-```python
+Example::
+
     # create a target object 
     target = gettarget(&#34;10.1.0.96&#34;, &#34;root&#34;, &#34;password&#34;) 
 
@@ -200,7 +209,7 @@ EXAMPLE
     # run a command on the target 
     command = shell.exe(&#34;banner Hello CCTF!&#34;)
 
-    # check the result of a command
+    # check the result of a command 
     if command.succ():
         print(&#34;Command succeeded&#34;)
     if command.fail():
@@ -208,67 +217,74 @@ EXAMPLE
     if command.get_exitcode() != 0:
         print(&#34;Command failed with exit code: %d&#34; % command.get_exitcode())
     
-    # you can run a command asynchronously
+    # you can run a command asynchronously 
     command = shell.exe(&#34;banner Hello CCTF!&#34;, wait=False) # return immediately
     
     # do something else here ...
 
-    # then check the result of the command
+    # then check the result of the command 
     command.wait()  # wait for the command to finish, this is not really necessary 
                     # because the .succ() .fail() .get_exitcode() will wait 
                     # for the command to finish.
     if command.succ():
         print(&#34;Command succeeded&#34;)
 
-    # reboot the target then wait for it to be back online 
+    # you can reboot the target then wait for it to be back online 
     target.reboot()
 
-    # reboot the target asynchronously
-    target.reboot(wait=False) # it will return immediately
+    # you also can reboot the target without waiting for it to be back online 
+    target.reboot(wait=False) # return immediately
     
     # do something else here ...
     
-    # then wait for the target to be back online
+    # then wait for the target to be back online 
     target.wait_online() # wait for the target to be back online
 
-    # upload a file to the target 
+    # you can upload a file to the target 
     target.upload(&#34;local_file&#34;, &#34;remote_file&#34;)
     
-    # download a file from the target 
+    # you can download a file from the target 
     target.download(&#34;local_file&#34;, &#34;remote_file&#34;)
 
-    # connecto to multiple targets
-    target1 = gettarget(&#34;10.1.0.91&#34;, &#34;root&#34;, &#34;password&#34;)
-    target2 = gettarget(&#34;10.1.0.92&#34;, &#34;root&#34;, &#34;password&#34;)
+    # connect to multiple targets is easy
+    target1 = gettarget(&#34;10.1.0.91&#34;, &#34;root&#34;, &#34;password&#34;) 
+    target2 = gettarget(&#34;10.1.0.92&#34;, &#34;root&#34;, &#34;password&#34;) 
     target3 = gettarget(&#34;10.1.0.93&#34;, &#34;root&#34;, &#34;password&#34;)
     
-    # get 10 shells from each of the targets, 30 shells in total
-    shells = []
+    # get 10 shells from each of the targets, 30 shells in total 
+    shells = [] 
     for target in [target1, target2, target3]:
         for i in range(10):
-            shell = target.newshell()
-            shells.append(shell)
+            shell = target.newshell() shells.append(shell)
     
-    # run a command on all 30 shells (to 3 targets) simultaneously
+    # run a command on all 30 shells (to 3 targets) asynchronously 
     commands = []
     for shell in shells:
-        command = shell.exe(&#34;banner Hello CCTF!&#34;, wait=False) # return immediately
+        command = shell.exe(&#34;banner Hello CCTF!&#34;, wait=False) # return immediately 
         commands.append(command)
     
     # do something else here ...
     
-    # wait for all 30 commands to finish
+    # wait for all 30 commands to finish and check the result
     for command in commands:
         if command.fail():
             print(&#34;Command failed with code %d: %s&#34; % 
                 command.get_exitcode(), command.get_cmdline())
-```
 
 All command execution will be logged to files and stdout. So a tester can
 observe the execution of the commands and determine if the commands are executed
 correctly.
 
-CCTF is designed to be extensible. It provides a set of base classes, and
+CCTF is designed to be extensible. It provides a set of base classes to define
+some common operations and attributes. For example, the Target class defines a
+generic target, which can be a server node, a switch, a router, or any other
+device types, its subclasses implement specific types of targets, such as
+LinuxTarget, AixTarget, SunOsTarget, etc. The Connection class defines a generic 
+connection, which can be a telnet connection, an ssh connection, or any other
+kinds of connections, its subclasses implement specific types of connections, such 
+as TelnetConnection, SshConnection, etc. In case any new kinds of targets or 
+connection types are needed, the user can easily create new subclasses to extend
+CCTF.
 &#34;&#34;&#34;
 
 __pdoc__ = {
@@ -298,9 +314,8 @@ from .target import Target
 from .targetfactory import gettarget
 from .shell import Shell
 from .command import Command
-from .case import Case
 
-__all__ = [&#34;Target&#34;, &#34;gettarget&#34;, &#34;Shell&#34;, &#34;Command&#34;, &#34;Case&#34;]</code></pre>
+__all__ = [&#34;Target&#34;, &#34;gettarget&#34;, &#34;Shell&#34;, &#34;Command&#34;]</code></pre>
 </details>
 </section>
 <section>
@@ -374,205 +389,6 @@ and issue simple command to detect target type then create target object respect
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="cctf.Case"><code class="flex name class">
-<span>class <span class="ident">Case</span></span>
-<span>(</span><span>casename)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Case object represents a test case.</p>
-<p>A Case object is created by calling the Case() constructor. It parses the
-sys.argv[1:] to get a target list and a load percentage for the case logic's
-reference. It also parses the sys.argv[1:] to get a list of parameters. The
-parameters are passed into the case object as a dictionary. The case object
-can use the parameters to configure itself.</p>
-<p>when running a script that uses the Case object, the user can pass in a list
-of targets, a load percentage, and a list of parameters. The list of targets
-is passed in by the "-t" option. The load percentage is passed in by the
-"-l" option. The list of parameters is passed in by the rest of the
-arguments. The format of the arguments is:</p>
-<ol>
-<li>target list: "-t user:password@address0, user:password@address1, &hellip;"</li>
-<li>load percentage: "-l 50"</li>
-<li>parameters: "param_name=value param_name=value &hellip;"</li>
-</ol>
-<p>Example:</p>
-<pre><code class="language-python">    # if the user runs the script with the following command line:
-    python script.py -t root@10.1.0.91,root@10.1.0.92 -l 50 param1=1 param2=2
-
-    # in script.py
-    tc = Case(casename = &quot;script.py&quot;)
-
-    # then the script can get the target list, load percentage, and parameters from Case object:
-    # tc.targets = [('root', None, '10.1.0.91'), ('root', None, '10.1.0.92')]
-    # tc.load = 50
-    # tc.params = {'param1': '1', 'param2': '2'}
-
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Case(Common):
-    &#34;&#34;&#34;Case object represents a test case.
-
-    A Case object is created by calling the Case() constructor. It parses the
-    sys.argv[1:] to get a target list and a load percentage for the case logic&#39;s
-    reference. It also parses the sys.argv[1:] to get a list of parameters. The
-    parameters are passed into the case object as a dictionary. The case object
-    can use the parameters to configure itself.
-
-    when running a script that uses the Case object, the user can pass in a list
-    of targets, a load percentage, and a list of parameters. The list of targets
-    is passed in by the &#34;-t&#34; option. The load percentage is passed in by the
-    &#34;-l&#34; option. The list of parameters is passed in by the rest of the
-    arguments. The format of the arguments is:
-
-    1. target list: &#34;-t user:password@address0, user:password@address1, ...&#34;
-    2. load percentage: &#34;-l 50&#34;
-    3. parameters: &#34;param_name=value param_name=value ...&#34;
-
-    Example:
-    ```python
-        # if the user runs the script with the following command line:
-        python script.py -t root@10.1.0.91,root@10.1.0.92 -l 50 param1=1 param2=2
-
-        # in script.py
-        tc = Case(casename = &#34;script.py&#34;)
-
-        # then the script can get the target list, load percentage, and parameters from Case object:
-        # tc.targets = [(&#39;root&#39;, None, &#39;10.1.0.91&#39;), (&#39;root&#39;, None, &#39;10.1.0.92&#39;)]
-        # tc.load = 50
-        # tc.params = {&#39;param1&#39;: &#39;1&#39;, &#39;param2&#39;: &#39;2&#39;}
-
-    ```
-
-    &#34;&#34;&#34;
-
-    def __init__(self, casename):
-        self.casename = casename
-        self.start = time.time()
-        self.end = None
-        self.targets = []  # list of target addresses: [(user, pass, addr), ...]
-        self.params = {}  # the customized parameters for the case
-        self.load = 50
-        self._parse_params()
-        self.log(&#34;Starting case %s...&#34; % (self.casename))
-
-    def succ(self):
-        &#34;&#34;&#34;Exit the program with exit code 0.&#34;&#34;&#34;
-        self.log(&#34;Case %s succeeds.&#34; % (self.casename))
-        exit(0)
-
-    def fail(self, exitcode=1):
-        &#34;&#34;&#34;Exit the program with errno. Default errno is 1.&#34;&#34;&#34;
-        self.log(&#34;Case %s failed.&#34; % (self.casename), 1)
-        exit(exitcode)
-
-    def log(self, msg, level=3):
-        &#34;&#34;&#34;Log a message to stdout.&#34;&#34;&#34;
-        super().log(&#34;CASE &#34; + self.casename + &#34;: &#34; + msg, level)
-
-    def _parse_params(self):
-        &#34;&#34;&#34;
-        standard parameters:
-            -t: a target list, format: user:password@address0, user:password@address1, ...
-            -l: a percentage from 0-100, indicating how big load should a case generates
-        other case-specific parameters:
-            format: param_name=value param_name=value ...
-            any parameter can be passed into a case, the case interprets them respectively
-        &#34;&#34;&#34;
-        s = &#34;-t:-l:&#34;
-        opts = []
-        args = []
-        try:
-            opts, args = getopt.gnu_getopt(sys.argv[1:], s)
-        except Exception as msg:
-            print(msg)
-        for opt in opts:
-            if opt[0] == &#34;-t&#34;:
-                # parse target addresses
-                addrs = opt[1].split(&#34;,&#34;)
-                reg = re.compile(&#34;(([^:,]+)(:(.+))?@([^,]+))&#34;)
-                for a in addrs:
-                    if not a:
-                        continue
-                    m = re.match(reg, a)
-                    if m:
-                        self.targets.append((m.group(2), m.group(4), m.group(5)))
-                    else:
-                        self.log(&#34;invalid address string: &#39;%s&#39;&#34; % (a))
-                        self.fail(1)
-            if opt[0] == &#34;-l&#34;:
-                if opt[1].isdigit():
-                    self.load = int(opt[1])
-                else:
-                    self.log(&#34;invalid load percent string: &#39;%s&#39;&#34; % (opt[1]))
-                    self.fail(1)
-
-        for arg in args:
-            reg = re.compile(&#34;(\S+)=(\S+)&#34;)
-            m = re.match(reg, arg)
-            if m:
-                self.params[m.group(1)] = m.group(2)
-            else:
-                self.log(&#34;invalid parameter string: &#39;%s&#39;&#34; % (arg))
-                self.fail(1)
-
-    def __str__(self):
-        return &#34;CASE &#34; + self.casename</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>cctf.common.Common</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="cctf.Case.fail"><code class="name flex">
-<span>def <span class="ident">fail</span></span>(<span>self, exitcode=1)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Exit the program with errno. Default errno is 1.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def fail(self, exitcode=1):
-    &#34;&#34;&#34;Exit the program with errno. Default errno is 1.&#34;&#34;&#34;
-    self.log(&#34;Case %s failed.&#34; % (self.casename), 1)
-    exit(exitcode)</code></pre>
-</details>
-</dd>
-<dt id="cctf.Case.log"><code class="name flex">
-<span>def <span class="ident">log</span></span>(<span>self, msg, level=3)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Log a message to stdout.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def log(self, msg, level=3):
-    &#34;&#34;&#34;Log a message to stdout.&#34;&#34;&#34;
-    super().log(&#34;CASE &#34; + self.casename + &#34;: &#34; + msg, level)</code></pre>
-</details>
-</dd>
-<dt id="cctf.Case.succ"><code class="name flex">
-<span>def <span class="ident">succ</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Exit the program with exit code 0.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def succ(self):
-    &#34;&#34;&#34;Exit the program with exit code 0.&#34;&#34;&#34;
-    self.log(&#34;Case %s succeeds.&#34; % (self.casename))
-    exit(0)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 <dt id="cctf.Command"><code class="flex name class">
 <span>class <span class="ident">Command</span></span>
 <span>(</span><span>cmd, log=True, longrun_report=1800, wait_report=30)</span>
@@ -1052,20 +868,7 @@ associated command, or check the result of the command.</p></div>
 a shell object, user can run commands on the target by calling shell.exe()
 method. The exe() method returns a Command object to the caller. The Command
 object contains the command line, the output, the error, the exit code, and
-the duration of the command.</p>
-<p>This constructor should always be called with keyword arguments. Arguments are:</p>
-<p><em>group</em> should be None; reserved for future extension when a ThreadGroup
-class is implemented.</p>
-<p><em>target</em> is the callable object to be invoked by the run()
-method. Defaults to None, meaning nothing is called.</p>
-<p><em>name</em> is the thread name. By default, a unique name is constructed of
-the form "Thread-N" where N is a small decimal number.</p>
-<p><em>args</em> is the argument tuple for the target invocation. Defaults to ().</p>
-<p><em>kwargs</em> is a dictionary of keyword arguments for the target
-invocation. Defaults to {}.</p>
-<p>If a subclass overrides the constructor, it must make sure to invoke
-the base class constructor (Thread.<strong>init</strong>()) before doing anything
-else to the thread.</p></div>
+the duration of the command.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1703,7 +1506,7 @@ can even define a mobile phone has a target.</p></div>
         &#34;&#34;&#34;Check if the target is alive.
 
         Check if the target is alive. If svc is specified, check if the service is alive. If timeout
-        is specified, check if the target is alive or timeout.
+        is specified, keep checking if the target is alive or timeout.
 
         Args:
             svc (str, optional): service name. Defaults to the service that was used to connect this
@@ -1732,7 +1535,7 @@ can even define a mobile phone has a target.</p></div>
 <dd>
 <div class="desc"><p>Check if the target is alive.</p>
 <p>Check if the target is alive. If svc is specified, check if the service is alive. If timeout
-is specified, check if the target is alive or timeout.</p>
+is specified, keep checking if the target is alive or timeout.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>svc</code></strong> :&ensp;<code>str</code>, optional</dt>
@@ -1754,7 +1557,7 @@ is specified, check if the target is alive or timeout.</p>
     &#34;&#34;&#34;Check if the target is alive.
 
     Check if the target is alive. If svc is specified, check if the service is alive. If timeout
-    is specified, check if the target is alive or timeout.
+    is specified, keep checking if the target is alive or timeout.
 
     Args:
         svc (str, optional): service name. Defaults to the service that was used to connect this
@@ -2108,14 +1911,6 @@ timeout is specified, wait until the target is down or timeout.</p>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
-<li>
-<h4><code><a title="cctf.Case" href="#cctf.Case">Case</a></code></h4>
-<ul class="">
-<li><code><a title="cctf.Case.fail" href="#cctf.Case.fail">fail</a></code></li>
-<li><code><a title="cctf.Case.log" href="#cctf.Case.log">log</a></code></li>
-<li><code><a title="cctf.Case.succ" href="#cctf.Case.succ">succ</a></code></li>
-</ul>
-</li>
 <li>
 <h4><code><a title="cctf.Command" href="#cctf.Command">Command</a></code></h4>
 <ul class="two-column">
