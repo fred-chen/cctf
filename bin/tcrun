@@ -92,6 +92,11 @@ def usage():
 
 
 def report(results):
+    """Report the results of the cases.
+    
+    Args:
+        results: a list of tuples, each tuple contains the result of a case.
+    """
     logfile = openlog("summary")
     log(logfile, "\n\n" + "*" * 30 + " SUMMARY REPORT " + "*" * 30)
     log(logfile, "CASENAME\tRESULT\tDUR(S)\tLOGFILE")
@@ -102,8 +107,6 @@ def report(results):
         dur = time.mktime(end) - time.mktime(start) if (end and start) else None
         result = "success" if not r[3] else "fail"
         logname = r[4]
-        #         start_str = '%4d-%02d-%02d %02d:%02d:%02d' % (start.tm_year, start.tm_mon, start.tm_mday, start.tm_hour, start.tm_min, start.tm_sec) if start else None
-        #         end_str = '%4d-%02d-%02d %02d:%02d:%02d' % (end.tm_year, end.tm_mon, end.tm_mday, end.tm_hour, end.tm_min, end.tm_sec) if end else None
         log(
             logfile,
             "%s\t%s\t%s\t%s" % (casename, result, dur, os.path.basename(logname)),
