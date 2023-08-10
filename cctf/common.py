@@ -12,6 +12,7 @@ import os
 from threading import RLock
 
 g_printlck = RLock()
+g_prog_name = os.path.basename(sys.argv[0])
 
 
 class Common:
@@ -50,7 +51,7 @@ class Common:
             print(
                 f"[{pri}]"
                 + f"[{tstr}]"
-                + f"[{os.path.basename(sys.argv[0])} : {self.__class__.__name__}] "
+                + f"[{g_prog_name} : {self.__class__.__name__}] "
                 + msg
             )
         sys.stdout.flush()

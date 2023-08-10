@@ -26,8 +26,8 @@ svclist = {
 def connect(
     host="127.0.0.1", username=None, password=None, svc="ssh", timeout=30, newline="\n"
 ) -> Connection:
-    """connect() is a factory method of connection objects. 
-    
+    """connect() is a factory method of connection objects.
+
     connect() detects available connection method ( ssh/rsh/telnet ) and create
     connection object respectively.
 
