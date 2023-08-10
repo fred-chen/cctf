@@ -21,7 +21,13 @@ class Common:
     step_number = 0
 
     def log(self, msg, level=3):
-        """Log a message to stdout."""
+        """Log a message to stdout.
+
+        Args:
+            msg: the message to be logged.
+            level: the level of the message.
+                0: critical, 1: error, 2: warning, 3: info, 99: step. Default is 3.
+        """
 
         g_printlck.acquire()
         if level == 0:

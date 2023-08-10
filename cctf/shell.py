@@ -259,10 +259,4 @@ class Shell(Common, threading.Thread):
         self.conn.write(send)
 
     def log(self, msg, level=3):
-        """log a message with a given level.
-
-        Args:
-            msg (str): the message to be logged
-            level (int, optional): the level of the message. Defaults to 3.
-        """
         Common.log(self, f"[{self.target}({self.shell_id})]: {msg}", level)

@@ -1119,12 +1119,6 @@ the duration of the command.</p></div>
         self.conn.write(send)
 
     def log(self, msg, level=3):
-        &#34;&#34;&#34;log a message with a given level.
-
-        Args:
-            msg (str): the message to be logged
-            level (int, optional): the level of the message. Defaults to 3.
-        &#34;&#34;&#34;
         Common.log(self, f&#34;[{self.target}({self.shell_id})]: {msg}&#34;, level)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -1246,25 +1240,20 @@ seconds.</p>
 <span>def <span class="ident">log</span></span>(<span>self, msg, level=3)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>log a message with a given level.</p>
+<div class="desc"><p>Log a message to stdout.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>msg</code></strong> :&ensp;<code>str</code></dt>
-<dd>the message to be logged</dd>
-<dt><strong><code>level</code></strong> :&ensp;<code>int</code>, optional</dt>
-<dd>the level of the message. Defaults to 3.</dd>
+<dt><strong><code>msg</code></strong></dt>
+<dd>the message to be logged.</dd>
+<dt><strong><code>level</code></strong></dt>
+<dd>the level of the message.
+0: critical, 1: error, 2: warning, 3: info, 99: step. Default is 3.</dd>
 </dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def log(self, msg, level=3):
-    &#34;&#34;&#34;log a message with a given level.
-
-    Args:
-        msg (str): the message to be logged
-        level (int, optional): the level of the message. Defaults to 3.
-    &#34;&#34;&#34;
     Common.log(self, f&#34;[{self.target}({self.shell_id})]: {msg}&#34;, level)</code></pre>
 </details>
 </dd>
