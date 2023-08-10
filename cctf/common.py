@@ -6,7 +6,7 @@ Created on Aug 25, 2018
 ===============================================================================
 """
 
-import time
+import datetime
 import sys
 import os
 from threading import RLock
@@ -36,30 +36,15 @@ class Common:
             pri = "STEP"
         else:
             pri = "UNKNOWN"
-        t = time.localtime()
+        curr_time = datetime.datetime.now()
         if pri == "STEP":
-            print("\n\nSTEP %d: %s\n\n" % (self.step_number, msg))
+            print(f"\n\nSTEP {self.step_number}: {msg}\n\n")
         else:
-            tstr = "%4d-%02d-%02d %02d:%02d:%02d" % (
-                t.tm_year,
-                t.tm_mon,
-                t.tm_mday,
-                t.tm_hour,
-                t.tm_min,
-                t.tm_sec,
-            )
+            tstr = f"{curr_time:%Y-%m-%d %H:%M:%S}"
             print(
-                "["
-                + pri
-                + "]"
-                + "["
-                + tstr
-                + "]"
-                + "["
-                + os.path.basename(sys.argv[0])
-                + ":"
-                + self.__class__.__name__
-                + "] "
+                f"[{pri}]"
+                + f"[{tstr}]"
+                + f"[{os.path.basename(sys.argv[0])} : {self.__class__.__name__}] "
                 + msg
             )
         sys.stdout.flush()
@@ -87,8 +72,8 @@ class Common:
         self.log(msg, 99)
 
 
-class lockable:
-    """A lockable object."""
+class LockAble:
+    """A LockAble object."""
 
     def __init__(self):
         self.lck = RLock()

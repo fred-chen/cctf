@@ -1,31 +1,37 @@
-'''
+"""
 Created on Aug 25, 2018
 
 @author: fred
 
 ===============================================================================
-'''
+"""
 
-import sys
 import nmap
 from .common import Common
 
 
 class Scanner(Common):
+    """Scanner is a class that provides nmap scanning functions."""
+
     def __init__(self, *args, **kwargs):
         Common.__init__(self, *args, **kwargs)
-        self.nm = nmap.PortScanner()
-        self.ports = '22'
-        self.hosts = 'localhost'
-        self.arguments = '-sV -O'
+        self.scanner = nmap.PortScanner()
+        self.ports = "22"
+        self.hosts = "localhost"
+        self.arguments = "-sV -O"
 
     def scan(self, hosts=None, ports=None, arguments=None) -> dict:
-        """scan hosts for open ports 
+        """scan hosts for open ports
 
         Args:
-            hosts (str, optional): the list of hosts to scan. Format is nmap complient, e.g. 192.168.0.*,192.168.1.1-100. Defaults to None.
-            ports (str, optional): the list of ports to scan. Format is nmap complient, e.g. 22,80,443,50-100. Defaults to None.
-            arguments (str, optional): the list of arguments to pass to nmap. Defaults to None.
+            hosts (str, optional): the list of hosts to scan. Format is nmap
+            complient, e.g. 192.168.0.*,192.168.1.1-100. Defaults to None.
+
+            ports (str, optional): the list of ports to scan. Format is nmap
+            complient, e.g. 22,80,443,50-100. Defaults to None.
+
+            arguments (str, optional): the list of arguments to pass to nmap.
+            Defaults to None.
 
         Returns:
             dict: the nmap scan results in dict format. example:
@@ -92,4 +98,4 @@ class Scanner(Common):
         if not arguments:
             arguments = self.arguments
 
-        return self.nm.scan(hosts=hosts, ports=ports, arguments=arguments)
+        return self.scanner.scan(hosts=hosts, ports=ports, arguments=arguments)

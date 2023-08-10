@@ -16,10 +16,10 @@ being executed on remote target, or check the result of the command.
 import threading
 import time
 import datetime
-from .common import Common, lockable
+from .common import Common, LockAble
 
 
-class Command(Common, lockable):
+class Command(Common, LockAble):
     """
     Command object is created by shell object, and put into shell's queue to be
     executed.
@@ -30,7 +30,7 @@ class Command(Common, lockable):
     """
 
     def __init__(self, cmd, log=True, longrun_report=1800, wait_report=30):
-        lockable.__init__(self)
+        LockAble.__init__(self)
         self.printlog = log
         self.longrun_report = longrun_report
         self.wait_report = wait_report
@@ -47,7 +47,7 @@ class Command(Common, lockable):
         self.start = None
         self.dur = None  # command.dur will be filled by the shell when it finishes executing it
         self._done = False
-        self.cv = threading.Condition()
+        self.cond = threading.Condition()
 
     def done(self):
         """Return True if the command is done, otherwise return False."""
@@ -55,14 +55,14 @@ class Command(Common, lockable):
 
     def setdone(self):
         """Set the command status to done."""
-        self.cv.acquire()
+        self.cond.acquire()
         self.lock()
         self._done = True
         self.unlock()
-        self.cv.notifyAll()
+        self.cond.notifyAll()
         if self.printlog:
             self.cmdlog()
-        self.cv.release()
+        self.cond.release()
 
     def wait(self, timeout=None) -> int:
         """Wait for the command to be done.
@@ -82,13 +82,13 @@ class Command(Common, lockable):
                 and dur_wait >= self.wait_report
                 and int(dur_wait) % self.wait_report == 0
             ):
-                msg = "waited for %d secs ... %s\n\n" % (dur_wait, self)
+                msg = f"waited for {dur_wait} secs ... {self}\n\n"
                 self.log(msg)
             if timeout and dur_wait > timeout:
                 break
-            self.cv.acquire()
-            self.cv.wait(1)
-            self.cv.release()
+            self.cond.acquire()
+            self.cond.wait(1)
+            self.cond.release()
         return int(self.exit.strip()) if self._done else None
 
     def __str__(self):
@@ -100,18 +100,16 @@ class Command(Common, lockable):
             )
             if self.exit is None:  # command failed to exec
                 return (
-                    "command failed execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n"
-                    % (
-                        "-" * 60,
-                        self.shell.target,
-                        self.shell.shell_id,
-                        cmd,
-                        None,
-                        None,
-                        None,
-                        self.dur,
-                        "-" * 60,
-                    )
+                    "command failed execution.\n"
+                    f"{'-'*60}\n"
+                    f"TARGET  : {self.shell.target}\n"
+                    f"SHELL   : {self.shell.shell_id}\n"
+                    f"COMMAND : {cmd}\n"
+                    "STDOUT  :\n"
+                    "STDERR  :\n"
+                    "EXIT    :\n"
+                    f"DURATION: {self.dur:.3f} ms\n"
+                    f"{'-'*60}\n"
                 )
             out = (
                 self.stdout.strip()
@@ -124,38 +122,30 @@ class Command(Common, lockable):
                 else "\n" + self.stderr.strip()
             )
             return (
-                "\n%s COMMAND FININSHED %s\n" % ("=" * 40, "=" * 40)
-                + "TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n"
-                % (
-                    self.shell.target,
-                    self.shell.shell_id,
-                    cmd,
-                    out,
-                    err,
-                    self.exit.strip(),
-                    self.dur,
-                )
-                + "=" * 99
+                f"\n{'='*40} COMMAND FININSHED {'='*40}\n"
+                f"TARGET  : {self.shell.target}\n"
+                f"SHELL   : {self.shell.shell_id}\n"
+                f"COMMAND : {cmd}\n"
+                f"STDOUT  : {out}\n"
+                f"STDERR  : {err}\n"
+                f"EXIT    : {self.exit.strip()}\n"
+                f"DURATION: {self.dur:.3f} ms\n"
+                f"{'='*99}"
             )
+
         if not self.start:
             return (
-                "command hasn't started yet. target: '%s [shell: %s]'  CMD : %s\n\n"
-                % (self.shell.target.address, self.shell.shell_id, self.cmdline)
+                f"command hasn't started yet. target: '{self.shell.target.address}"
+                + f" [shell: {self.shell.shell_id}]'  CMD : {self.cmdline}\n\n"
             )
-        else:
-            dur = datetime.datetime.now() - self.start
-            return (
-                "\n%s COMMAND RUNNING %s\n" % ("." * 40, "." * 40)
-                + "SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n"
-                % (
-                    self.screentext.strip(),
-                    self.shell.target,
-                    self.shell.shell_id,
-                    dur.total_seconds(),
-                    self.cmdline,
-                )
-                + "." * 97
-            )
+        dur = datetime.datetime.now() - self.start
+        return (
+            f"\n{'.'*40} COMMAND RUNNING {'.'*40}\n"
+            + f"SCREEN :\n{self.screentext.strip()}\n\n"
+            + f"TARGET  : {self.shell.target} [shell: {self.shell.shell_id}]\n"
+            + f"RUNTIME : {dur.total_seconds()} secs.\nCMD     : {self.cmdline}\n"
+            + "." * 97
+        )
 
     def cmdlog(self):
         """Log the command object with cmdline, host, exit code, stdout, stderr etc."""
@@ -177,7 +167,7 @@ class Command(Common, lockable):
         result = None
         try:
             result = int(self.stdout.strip())
-        except Exception as e:
+        except ValueError:
             result = None
         return result
 
@@ -187,7 +177,7 @@ class Command(Common, lockable):
         result = None
         try:
             result = float(self.stdout.strip())
-        except:
+        except ValueError:
             result = None
         return result
 
@@ -197,7 +187,7 @@ class Command(Common, lockable):
         result = []
         try:
             result = self.stdout.strip().split(splitter) if self.stdout.strip() else []
-        except:
+        except ValueError:
             result = []
         return result
 

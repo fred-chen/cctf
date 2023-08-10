@@ -36,6 +36,8 @@ classes::
     class Command: 
         # A Command object represents a command to be run on a server node.
 
+![image](../doc/Architect.jpg)
+
 CCTF intends to be a simple and easy to use framework. The main idea behind CCTF
 is to simulate a common use case: a user logs into a bunch of server nodes,
 opens many many terminals for each of those nodes, runs commands, maybe reboot
@@ -65,6 +67,27 @@ Example::
         print("Command failed")
     if command.get_exitcode() != 0:
         print("Command failed with exit code: %d" % command.get_exitcode())
+    if command.get_output() != "":
+        print("Command output: %s" % command.get_output())
+    if command.get_error() != "":
+        print("Command error: %s" % command.get_error())
+    
+    # you can directly get desired type of output from the command object if 
+    # the output of the command is predictable. for example, if the command 
+    # is "ls -l", you can get the output as a list of files and directories
+    command = shell.exe("ls -l /tmp")
+    if command.succ():
+        files: list = command.getlist()
+    
+    # as for integers
+    command = shell.exe("bc <<< '220 * 284'")
+    if command.succ():
+        result: int = command.getint() # result == 62480
+
+    # and floats
+    command = shell.exe("bc -l <<< '284 / 220'")
+    if command.succ():
+        result: float = command.getfloat() # result == 1.29090909090909090909
     
     # you can run a command asynchronously 
     command = shell.exe("banner Hello CCTF!", wait=False) # return immediately

@@ -52,14 +52,14 @@ from .connection import Connection
 
 def __execmd(conn, cmd, timeout=60):
     conn.write('ECHO="line_of_cctf2018"')
-    conn.nl()
+    conn.write_newline()
     conn.write("echo start_$ECHO;")
-    conn.nl()
+    conn.write_newline()
     conn.waitfor("start_line_of_cctf2018", timeout)
     conn.write(cmd)
-    conn.nl()
+    conn.write_newline()
     conn.write("echo end_$ECHO")
-    conn.nl()
+    conn.write_newline()
     txt = conn.waitfor("end_line_of_cctf2018", timeout)
     return txt
 
@@ -168,11 +168,23 @@ class Target(Common):
         """
         raise NotImplementedError()
 
+    def shutdown(self, wait=True, log=True):
+        """Shutdown the target.
+
+        Shutdown the target gracefully, the target gets a chance to shutdown all services and then
+        shutdown.
+
+        Args:
+            wait (bool, optional): wait until the target is back online. Defaults to True.
+            log (bool, optional): log the shutdown event. Defaults to True.
+        """
+        raise NotImplementedError()
+
     def panic(self, log=True):
         """Panic the target.
 
         Panic the target immediately, the target hangs immediately without any chance to shutdown.
-        Caution: The server will never come back online unless it is manually rebooted.
+        Caution: The server will never come back unless it is manually rebooted.
 
         Args:
             log (bool, optional): log the panic event. Defaults to True.

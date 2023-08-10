@@ -50,6 +50,7 @@ class Shell:
 class Command: 
     # A Command object represents a command to be run on a server node.
 </code></pre>
+<p><img alt="image" src="../doc/Architect.jpg"></p>
 <p>CCTF intends to be a simple and easy to use framework. The main idea behind CCTF
 is to simulate a common use case: a user logs into a bunch of server nodes,
 opens many many terminals for each of those nodes, runs commands, maybe reboot
@@ -77,6 +78,27 @@ if command.fail():
     print("Command failed")
 if command.get_exitcode() != 0:
     print("Command failed with exit code: %d" % command.get_exitcode())
+if command.get_output() != "":
+    print("Command output: %s" % command.get_output())
+if command.get_error() != "":
+    print("Command error: %s" % command.get_error())
+
+# you can directly get desired type of output from the command object if 
+# the output of the command is predictable. for example, if the command 
+# is "ls -l", you can get the output as a list of files and directories
+command = shell.exe("ls -l /tmp")
+if command.succ():
+    files: list = command.getlist()
+
+# as for integers
+command = shell.exe("bc &lt;&lt;&lt; '220 * 284'")
+if command.succ():
+    result: int = command.getint() # result == 62480
+
+# and floats
+command = shell.exe("bc -l &lt;&lt;&lt; '284 / 220'")
+if command.succ():
+    result: float = command.getfloat() # result == 1.29090909090909090909
 
 # you can run a command asynchronously 
 command = shell.exe("banner Hello CCTF!", wait=False) # return immediately
@@ -187,6 +209,8 @@ classes::
     class Command: 
         # A Command object represents a command to be run on a server node.
 
+![image](../doc/Architect.jpg)
+
 CCTF intends to be a simple and easy to use framework. The main idea behind CCTF
 is to simulate a common use case: a user logs into a bunch of server nodes,
 opens many many terminals for each of those nodes, runs commands, maybe reboot
@@ -216,6 +240,27 @@ Example::
         print(&#34;Command failed&#34;)
     if command.get_exitcode() != 0:
         print(&#34;Command failed with exit code: %d&#34; % command.get_exitcode())
+    if command.get_output() != &#34;&#34;:
+        print(&#34;Command output: %s&#34; % command.get_output())
+    if command.get_error() != &#34;&#34;:
+        print(&#34;Command error: %s&#34; % command.get_error())
+    
+    # you can directly get desired type of output from the command object if 
+    # the output of the command is predictable. for example, if the command 
+    # is &#34;ls -l&#34;, you can get the output as a list of files and directories
+    command = shell.exe(&#34;ls -l /tmp&#34;)
+    if command.succ():
+        files: list = command.getlist()
+    
+    # as for integers
+    command = shell.exe(&#34;bc &lt;&lt;&lt; &#39;220 * 284&#39;&#34;)
+    if command.succ():
+        result: int = command.getint() # result == 62480
+
+    # and floats
+    command = shell.exe(&#34;bc -l &lt;&lt;&lt; &#39;284 / 220&#39;&#34;)
+    if command.succ():
+        result: float = command.getfloat() # result == 1.29090909090909090909
     
     # you can run a command asynchronously 
     command = shell.exe(&#34;banner Hello CCTF!&#34;, wait=False) # return immediately
@@ -380,7 +425,7 @@ and issue simple command to detect target type then create target object respect
         target = LinuxTarget(host, svc, username, password, conn, timeout)
     else:
         conn.printlog()
-        Common.log(&#34;unsupported target type.&#34;)
+        Common().log(&#34;unsupported target type.&#34;)
     return target</code></pre>
 </details>
 </dd>
@@ -403,7 +448,7 @@ associated command, or check the result of the command.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Command(Common, lockable):
+<pre><code class="python">class Command(Common, LockAble):
     &#34;&#34;&#34;
     Command object is created by shell object, and put into shell&#39;s queue to be
     executed.
@@ -414,7 +459,7 @@ associated command, or check the result of the command.</p></div>
     &#34;&#34;&#34;
 
     def __init__(self, cmd, log=True, longrun_report=1800, wait_report=30):
-        lockable.__init__(self)
+        LockAble.__init__(self)
         self.printlog = log
         self.longrun_report = longrun_report
         self.wait_report = wait_report
@@ -431,7 +476,7 @@ associated command, or check the result of the command.</p></div>
         self.start = None
         self.dur = None  # command.dur will be filled by the shell when it finishes executing it
         self._done = False
-        self.cv = threading.Condition()
+        self.cond = threading.Condition()
 
     def done(self):
         &#34;&#34;&#34;Return True if the command is done, otherwise return False.&#34;&#34;&#34;
@@ -439,14 +484,14 @@ associated command, or check the result of the command.</p></div>
 
     def setdone(self):
         &#34;&#34;&#34;Set the command status to done.&#34;&#34;&#34;
-        self.cv.acquire()
+        self.cond.acquire()
         self.lock()
         self._done = True
         self.unlock()
-        self.cv.notifyAll()
+        self.cond.notifyAll()
         if self.printlog:
             self.cmdlog()
-        self.cv.release()
+        self.cond.release()
 
     def wait(self, timeout=None) -&gt; int:
         &#34;&#34;&#34;Wait for the command to be done.
@@ -466,13 +511,13 @@ associated command, or check the result of the command.</p></div>
                 and dur_wait &gt;= self.wait_report
                 and int(dur_wait) % self.wait_report == 0
             ):
-                msg = &#34;waited for %d secs ... %s\n\n&#34; % (dur_wait, self)
+                msg = f&#34;waited for {dur_wait} secs ... {self}\n\n&#34;
                 self.log(msg)
             if timeout and dur_wait &gt; timeout:
                 break
-            self.cv.acquire()
-            self.cv.wait(1)
-            self.cv.release()
+            self.cond.acquire()
+            self.cond.wait(1)
+            self.cond.release()
         return int(self.exit.strip()) if self._done else None
 
     def __str__(self):
@@ -484,18 +529,16 @@ associated command, or check the result of the command.</p></div>
             )
             if self.exit is None:  # command failed to exec
                 return (
-                    &#34;command failed execution.\n%s\nTARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n%s\n&#34;
-                    % (
-                        &#34;-&#34; * 60,
-                        self.shell.target,
-                        self.shell.shell_id,
-                        cmd,
-                        None,
-                        None,
-                        None,
-                        self.dur,
-                        &#34;-&#34; * 60,
-                    )
+                    &#34;command failed execution.\n&#34;
+                    f&#34;{&#39;-&#39;*60}\n&#34;
+                    f&#34;TARGET  : {self.shell.target}\n&#34;
+                    f&#34;SHELL   : {self.shell.shell_id}\n&#34;
+                    f&#34;COMMAND : {cmd}\n&#34;
+                    &#34;STDOUT  :\n&#34;
+                    &#34;STDERR  :\n&#34;
+                    &#34;EXIT    :\n&#34;
+                    f&#34;DURATION: {self.dur:.3f} ms\n&#34;
+                    f&#34;{&#39;-&#39;*60}\n&#34;
                 )
             out = (
                 self.stdout.strip()
@@ -508,38 +551,30 @@ associated command, or check the result of the command.</p></div>
                 else &#34;\n&#34; + self.stderr.strip()
             )
             return (
-                &#34;\n%s COMMAND FININSHED %s\n&#34; % (&#34;=&#34; * 40, &#34;=&#34; * 40)
-                + &#34;TARGET  : %s\nSHELL   : %s\nCOMMAND : %s\nSTDOUT  : %s\nSTDERR  : %s\nEXIT    : %s\nDURATION: %d ms\n&#34;
-                % (
-                    self.shell.target,
-                    self.shell.shell_id,
-                    cmd,
-                    out,
-                    err,
-                    self.exit.strip(),
-                    self.dur,
-                )
-                + &#34;=&#34; * 99
+                f&#34;\n{&#39;=&#39;*40} COMMAND FININSHED {&#39;=&#39;*40}\n&#34;
+                f&#34;TARGET  : {self.shell.target}\n&#34;
+                f&#34;SHELL   : {self.shell.shell_id}\n&#34;
+                f&#34;COMMAND : {cmd}\n&#34;
+                f&#34;STDOUT  : {out}\n&#34;
+                f&#34;STDERR  : {err}\n&#34;
+                f&#34;EXIT    : {self.exit.strip()}\n&#34;
+                f&#34;DURATION: {self.dur:.3f} ms\n&#34;
+                f&#34;{&#39;=&#39;*99}&#34;
             )
+
         if not self.start:
             return (
-                &#34;command hasn&#39;t started yet. target: &#39;%s [shell: %s]&#39;  CMD : %s\n\n&#34;
-                % (self.shell.target.address, self.shell.shell_id, self.cmdline)
+                f&#34;command hasn&#39;t started yet. target: &#39;{self.shell.target.address}&#34;
+                + f&#34; [shell: {self.shell.shell_id}]&#39;  CMD : {self.cmdline}\n\n&#34;
             )
-        else:
-            dur = datetime.datetime.now() - self.start
-            return (
-                &#34;\n%s COMMAND RUNNING %s\n&#34; % (&#34;.&#34; * 40, &#34;.&#34; * 40)
-                + &#34;SCREEN :\n%s\n\nTARGET  : %s [shell: %s]\nRUNTIME : %d secs.\nCMD     : %s\n&#34;
-                % (
-                    self.screentext.strip(),
-                    self.shell.target,
-                    self.shell.shell_id,
-                    dur.total_seconds(),
-                    self.cmdline,
-                )
-                + &#34;.&#34; * 97
-            )
+        dur = datetime.datetime.now() - self.start
+        return (
+            f&#34;\n{&#39;.&#39;*40} COMMAND RUNNING {&#39;.&#39;*40}\n&#34;
+            + f&#34;SCREEN :\n{self.screentext.strip()}\n\n&#34;
+            + f&#34;TARGET  : {self.shell.target} [shell: {self.shell.shell_id}]\n&#34;
+            + f&#34;RUNTIME : {dur.total_seconds()} secs.\nCMD     : {self.cmdline}\n&#34;
+            + &#34;.&#34; * 97
+        )
 
     def cmdlog(self):
         &#34;&#34;&#34;Log the command object with cmdline, host, exit code, stdout, stderr etc.&#34;&#34;&#34;
@@ -561,7 +596,7 @@ associated command, or check the result of the command.</p></div>
         result = None
         try:
             result = int(self.stdout.strip())
-        except Exception as e:
+        except ValueError:
             result = None
         return result
 
@@ -571,7 +606,7 @@ associated command, or check the result of the command.</p></div>
         result = None
         try:
             result = float(self.stdout.strip())
-        except:
+        except ValueError:
             result = None
         return result
 
@@ -581,7 +616,7 @@ associated command, or check the result of the command.</p></div>
         result = []
         try:
             result = self.stdout.strip().split(splitter) if self.stdout.strip() else []
-        except:
+        except ValueError:
             result = []
         return result
 
@@ -607,7 +642,7 @@ associated command, or check the result of the command.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>cctf.common.Common</li>
-<li>cctf.common.lockable</li>
+<li>cctf.common.LockAble</li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -727,7 +762,7 @@ associated command, or check the result of the command.</p></div>
     result = None
     try:
         result = float(self.stdout.strip())
-    except:
+    except ValueError:
         result = None
     return result</code></pre>
 </details>
@@ -747,7 +782,7 @@ associated command, or check the result of the command.</p></div>
     result = None
     try:
         result = int(self.stdout.strip())
-    except Exception as e:
+    except ValueError:
         result = None
     return result</code></pre>
 </details>
@@ -767,7 +802,7 @@ associated command, or check the result of the command.</p></div>
     result = []
     try:
         result = self.stdout.strip().split(splitter) if self.stdout.strip() else []
-    except:
+    except ValueError:
         result = []
     return result</code></pre>
 </details>
@@ -783,14 +818,14 @@ associated command, or check the result of the command.</p></div>
 </summary>
 <pre><code class="python">def setdone(self):
     &#34;&#34;&#34;Set the command status to done.&#34;&#34;&#34;
-    self.cv.acquire()
+    self.cond.acquire()
     self.lock()
     self._done = True
     self.unlock()
-    self.cv.notifyAll()
+    self.cond.notifyAll()
     if self.printlog:
         self.cmdlog()
-    self.cv.release()</code></pre>
+    self.cond.release()</code></pre>
 </details>
 </dd>
 <dt id="cctf.Command.succ"><code class="name flex">
@@ -846,13 +881,13 @@ associated command, or check the result of the command.</p></div>
             and dur_wait &gt;= self.wait_report
             and int(dur_wait) % self.wait_report == 0
         ):
-            msg = &#34;waited for %d secs ... %s\n\n&#34; % (dur_wait, self)
+            msg = f&#34;waited for {dur_wait} secs ... {self}\n\n&#34;
             self.log(msg)
         if timeout and dur_wait &gt; timeout:
             break
-        self.cv.acquire()
-        self.cv.wait(1)
-        self.cv.release()
+        self.cond.acquire()
+        self.cond.wait(1)
+        self.cond.release()
     return int(self.exit.strip()) if self._done else None</code></pre>
 </details>
 </dd>
@@ -863,7 +898,7 @@ associated command, or check the result of the command.</p></div>
 <span>(</span><span>target, conn=None, timeout=300)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Shell object represents a connected pseudo terminal (pty) on the target. </p>
+<div class="desc"><p>Shell object represents a connected pseudo terminal (pty) on the target.</p>
 <p>User can create a shell object by calling the target.newshell() method. With
 a shell object, user can run commands on the target by calling shell.exe()
 method. The exe() method returns a Command object to the caller. The Command
@@ -874,40 +909,48 @@ the duration of the command.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Shell(Common, threading.Thread):
-    &#34;&#34;&#34; Shell object represents a connected pseudo terminal (pty) on the target. 
-    
+    &#34;&#34;&#34;Shell object represents a connected pseudo terminal (pty) on the target.
+
     User can create a shell object by calling the target.newshell() method. With
     a shell object, user can run commands on the target by calling shell.exe()
     method. The exe() method returns a Command object to the caller. The Command
     object contains the command line, the output, the error, the exit code, and
     the duration of the command.
     &#34;&#34;&#34;
+
     def __init__(self, target, conn=None, timeout=300):
         threading.Thread.__init__(self)
         self.queuq = Queue()
         self.target = target
         self.conn = conn
         self.timeout = timeout
-        self.shell_id = str(uuid.uuid4()).split(&#39;-&#39;, maxsplit=1)[0]
+        self.shell_id = str(uuid.uuid4()).split(&#34;-&#34;, maxsplit=1)[0]
         self.__connect()
         self.setDaemon(True)
         self.start()
 
     def __connect(self):
-        &#34;&#34;&#34; connect to the target and set up the shell. &#34;&#34;&#34;
-        if (self.conn is None):
-            self.conn = connect(self.target.address, self.target.username,
-                                self.target.password, self.target.svc, self.target.timeout, self.target.newline)
+        &#34;&#34;&#34;connect to the target and set up the shell.&#34;&#34;&#34;
+        if self.conn is None:
+            self.conn = connect(
+                self.target.address,
+                self.target.username,
+                self.target.password,
+                self.target.svc,
+                self.target.timeout,
+                self.target.newline,
+            )
         if self.conn:
             self.__setshell()
         return self.conn
 
     def __setshell(self):
         self.conn.write(&#34;set +H&#34;)
-        self.conn.nl()
+        self.conn.write_newline()
         self.conn.write(
-            &#34;trap ctrl_c INT &amp;&amp; function ctrl_c() { echo \&#34;Trapped CTRL-C\&#34;; }&#34;)
-        self.conn.nl()
+            &#39;trap ctrl_c INT &amp;&amp; function ctrl_c() { echo &#34;Trapped CTRL-C&#34;; }&#39;
+        )
+        self.conn.write_newline()
 
     def __reconnect(self):
         self.__disconnect()
@@ -918,7 +961,9 @@ the duration of the command.</p></div>
             self.conn.disconnect()
         self.conn = None
 
-    def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) -&gt; Command:
+    def exe(
+        self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30
+    ) -&gt; Command:
         &#34;&#34;&#34;
         put a command into q, wait (not not to wait) for it to be executed by
         the shelll thread.
@@ -949,18 +994,17 @@ the duration of the command.</p></div>
         return cmdobj
 
     def gettarget(self):
-        &#34;&#34;&#34; return the target object of the shell. &#34;&#34;&#34;
+        &#34;&#34;&#34;return the target object of the shell.&#34;&#34;&#34;
         return self.target
 
     def run(self):
-        &#34;&#34;&#34; the thread loop to fetch and run commands in the queue. 
-        
-        this is a private method. don&#39;t call it. 
+        &#34;&#34;&#34;the thread loop to fetch and run commands in the queue.
+
+        this is a private method. don&#39;t call it.
         &#34;&#34;&#34;
         while True:
             cmdobj = self.queuq.get()
-            filename = &#34;CCTF_%s_%s&#34; % (
-                threading.current_thread().ident, random.randrange(1000000000))
+            filename = f&#34;CCTF_{threading.current_thread().ident}_{random.randrange(1000000000)}&#34;
             cmdobj.reserve = filename
             start = datetime.datetime.now()
             for i in range(1, 6):
@@ -974,18 +1018,22 @@ the duration of the command.</p></div>
                 if broken:
                     dur = 0
                     alive = False
-                    timeout = self.timeout if self.timeout else 900  # default timeout is 15 minutes
-                    self.log(&#34;connection broken. resending command &#39;%s&#39;. timeout %d secs, attempt %d ...&#34; % (
-                        cmdobj.cmdline, timeout, i), 2)
+                    timeout = (
+                        self.timeout if self.timeout else 900
+                    )  # default timeout is 15 minutes
+                    self.log(
+                        f&#34;connection broken. resending command &#39;{cmdobj.cmdline}&#39;.&#34;
+                        + f&#34;timeout {timeout} secs, attempt {i} ...&#34;,
+                        2,
+                    )
                     while True:
                         if self.target.alive():
                             alive = True
                             break
-                        else:
-                            time.sleep(1)
-                            dur += 1
-                            if dur &gt; timeout:
-                                break
+                        time.sleep(1)
+                        dur += 1
+                        if dur &gt; timeout:
+                            break
                     if alive:
                         self.__reconnect()
                     continue
@@ -996,11 +1044,14 @@ the duration of the command.</p></div>
             cmdobj.setdone()
 
     def _sendcmd(self, cmdobj: Command):
-        cmdline = cmdobj.cmdline.replace(&#39;&#34;&#39;, r&#39;\&#34;&#39;)
+        cmdline = cmdobj.cmdline.replace(&#39;&#34;&#39;, r&#34;\&#34;&#34;)
         cmd = f&#34;FN=/tmp/{cmdobj.reserve};&#34;
         # we use &#39;tee&#39; because we also want to capture the terminal screen of
         # the command, so we can monitor the long running commands
-        cmd += &#39;eval &#34;%s&#34; &gt; &gt;(tee ${FN}.out) 2&gt; &gt;(tee ${FN}.err &gt;&amp;2); echo $?&gt;${FN}.exit; stdbuf -o0 echo -ne &#34; &#34;;&#39; % (cmdline)
+        cmd += (
+            &#39;eval &#34;%s&#34; &gt; &gt;(tee ${FN}.out) 2&gt; &gt;(tee ${FN}.err &gt;&amp;2);&#39; % (cmdline)
+            + &#39;echo $?&gt;${FN}.exit; stdbuf -o0 echo -ne &#34; &#34;;&#39;
+        )
         # cmd += f&#39;eval &#34;{cmdline}&#34; &gt; $FN.out 2&gt;$FN.err; echo $?&gt;$FN.exit;
         # stdbuf -o0 echo -ne &#34; &#34;;&#39; wait for output files to be generated
         cmd += &#34;while [ ! -e ${FN}.out ]; do continue; done; sync ${FN}.out;&#34;
@@ -1012,33 +1063,41 @@ the duration of the command.</p></div>
         cmd += &#34;rm -f ${FN}.out ${FN}.err ${FN}.exit&#34;
         if (not self.conn) or self.conn.write(cmd) is None:
             return None
-        return self.conn.nl()
+        return self.conn.write_newline()
 
     def _getresults(self, cmdobj):
         txt = None
-        reg_screen = re.compile(&#34;==/tmp/%sSTART==(.+)==OUTEND==(.+)==ERREND==(.+)==EXITEND==.+==/tmp/%sEND==&#34; %
-                               (cmdobj.reserve, cmdobj.reserve), re.DOTALL)
+        reg_screen = re.compile(
+            f&#34;==/tmp/{cmdobj.reserve}START==(.+)==OUTEND==&#34;
+            + f&#34;(.+)==ERREND==(.+)==EXITEND==.+==/tmp/{cmdobj.reserve}END==&#34;,
+            re.DOTALL,
+        )
         cmdobj.screentext = &#34;&#34;
         if self.conn:
             while True:
-                txt = self.conn.waitfor(&#34;==/tmp/%sEND==&#34; % (cmdobj.reserve), 1)
-                if txt is None:   # connection broken
+                txt = self.conn.waitfor(f&#34;==/tmp/{cmdobj.reserve}END==&#34;, 1)
+                if txt is None:  # connection broken
                     cmdobj.stdout = None
                     cmdobj.stderr = None
                     cmdobj.exit = None
                     return txt
                 cmdobj.screentext += txt.replace(self.UNIQIDENTIFIER, &#34;&#34;)
                 match = reg_screen.search(cmdobj.screentext)
-                if match:   # command finished
+                if match:  # command finished
                     break
                 dur = datetime.datetime.now() - cmdobj.start
                 if int(dur.total_seconds()) == 1:  # report command running for one time
-                    self.log(&#34;running &#39;%s&#39;&#34; % (cmdobj.cmdline))
+                    self.log(f&#34;running &#39;{cmdobj.cmdline}&#39;&#34;)
                 if cmdobj.longrun_report:
-                    if dur.total_seconds() &gt;= cmdobj.longrun_report and int(dur.total_seconds()) % cmdobj.longrun_report == 0:
-                        self.log(&#34;command has been running for %d seconds. %s\n\n&#34; % (
-                            dur.total_seconds(), cmdobj))
-        else:   # connection broken
+                    if (
+                        dur.total_seconds() &gt;= cmdobj.longrun_report
+                        and int(dur.total_seconds()) % cmdobj.longrun_report == 0
+                    ):
+                        self.log(
+                            f&#34;command has been running for {dur.total_seconds()} seconds.&#34;
+                            + f&#34;{cmdobj}\n\n&#34;
+                        )
+        else:  # connection broken
             cmdobj.stdout = None
             cmdobj.stderr = None
             cmdobj.exit = None
@@ -1050,16 +1109,17 @@ the duration of the command.</p></div>
         # print(&#34;screen:\n%s&#34; % cmdobj.screentext)  # for debug
         return txt
 
-    def interrupt(self, send=&#39;\x03&#39;):
+    def interrupt(self, send=&#34;\x03&#34;):
         &#34;&#34;&#34;terminate the current command with &#39;ctrl-c&#39; (&#39;\x03&#39;)
 
         Args:
-            send (str, optional): the control character to terminate the current forground process. Defaults to &#39;\x03&#39;.
+            send (str, optional): the control character to terminate the current
+            forground process. Defaults to &#39;\x03&#39;.
         &#34;&#34;&#34;
         self.conn.write(send)
 
     def log(self, msg, level=3):
-        &#34;&#34;&#34; log a message with a given level. 
+        &#34;&#34;&#34;log a message with a given level.
 
         Args:
             msg (str): the message to be logged
@@ -1110,7 +1170,9 @@ seconds.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def exe(self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30) -&gt; Command:
+<pre><code class="python">def exe(
+    self, cmdline, wait=True, log=True, longrun_report=1800, wait_report=30
+) -&gt; Command:
     &#34;&#34;&#34;
     put a command into q, wait (not not to wait) for it to be executed by
     the shelll thread.
@@ -1151,7 +1213,7 @@ seconds.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def gettarget(self):
-    &#34;&#34;&#34; return the target object of the shell. &#34;&#34;&#34;
+    &#34;&#34;&#34;return the target object of the shell.&#34;&#34;&#34;
     return self.target</code></pre>
 </details>
 </dd>
@@ -1163,17 +1225,19 @@ seconds.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>send</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>the control character to terminate the current forground process. Defaults to ''.</dd>
-</dl></div>
+<dd>the control character to terminate the current</dd>
+</dl>
+<p>forground process. Defaults to ''.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def interrupt(self, send=&#39;\x03&#39;):
+<pre><code class="python">def interrupt(self, send=&#34;\x03&#34;):
     &#34;&#34;&#34;terminate the current command with &#39;ctrl-c&#39; (&#39;\x03&#39;)
 
     Args:
-        send (str, optional): the control character to terminate the current forground process. Defaults to &#39;\x03&#39;.
+        send (str, optional): the control character to terminate the current
+        forground process. Defaults to &#39;\x03&#39;.
     &#34;&#34;&#34;
     self.conn.write(send)</code></pre>
 </details>
@@ -1182,7 +1246,7 @@ seconds.</p>
 <span>def <span class="ident">log</span></span>(<span>self, msg, level=3)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>log a message with a given level. </p>
+<div class="desc"><p>log a message with a given level.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>msg</code></strong> :&ensp;<code>str</code></dt>
@@ -1195,7 +1259,7 @@ seconds.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def log(self, msg, level=3):
-    &#34;&#34;&#34; log a message with a given level. 
+    &#34;&#34;&#34;log a message with a given level.
 
     Args:
         msg (str): the message to be logged
@@ -1208,21 +1272,20 @@ seconds.</p>
 <span>def <span class="ident">run</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>the thread loop to fetch and run commands in the queue. </p>
+<div class="desc"><p>the thread loop to fetch and run commands in the queue.</p>
 <p>this is a private method. don't call it.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self):
-    &#34;&#34;&#34; the thread loop to fetch and run commands in the queue. 
-    
-    this is a private method. don&#39;t call it. 
+    &#34;&#34;&#34;the thread loop to fetch and run commands in the queue.
+
+    this is a private method. don&#39;t call it.
     &#34;&#34;&#34;
     while True:
         cmdobj = self.queuq.get()
-        filename = &#34;CCTF_%s_%s&#34; % (
-            threading.current_thread().ident, random.randrange(1000000000))
+        filename = f&#34;CCTF_{threading.current_thread().ident}_{random.randrange(1000000000)}&#34;
         cmdobj.reserve = filename
         start = datetime.datetime.now()
         for i in range(1, 6):
@@ -1236,18 +1299,22 @@ seconds.</p>
             if broken:
                 dur = 0
                 alive = False
-                timeout = self.timeout if self.timeout else 900  # default timeout is 15 minutes
-                self.log(&#34;connection broken. resending command &#39;%s&#39;. timeout %d secs, attempt %d ...&#34; % (
-                    cmdobj.cmdline, timeout, i), 2)
+                timeout = (
+                    self.timeout if self.timeout else 900
+                )  # default timeout is 15 minutes
+                self.log(
+                    f&#34;connection broken. resending command &#39;{cmdobj.cmdline}&#39;.&#34;
+                    + f&#34;timeout {timeout} secs, attempt {i} ...&#34;,
+                    2,
+                )
                 while True:
                     if self.target.alive():
                         alive = True
                         break
-                    else:
-                        time.sleep(1)
-                        dur += 1
-                        if dur &gt; timeout:
-                            break
+                    time.sleep(1)
+                    dur += 1
+                    if dur &gt; timeout:
+                        break
                 if alive:
                     self.__reconnect()
                 continue
@@ -1404,11 +1471,23 @@ can even define a mobile phone has a target.</p></div>
         &#34;&#34;&#34;
         raise NotImplementedError()
 
+    def shutdown(self, wait=True, log=True):
+        &#34;&#34;&#34;Shutdown the target.
+
+        Shutdown the target gracefully, the target gets a chance to shutdown all services and then
+        shutdown.
+
+        Args:
+            wait (bool, optional): wait until the target is back online. Defaults to True.
+            log (bool, optional): log the shutdown event. Defaults to True.
+        &#34;&#34;&#34;
+        raise NotImplementedError()
+
     def panic(self, log=True):
         &#34;&#34;&#34;Panic the target.
 
         Panic the target immediately, the target hangs immediately without any chance to shutdown.
-        Caution: The server will never come back online unless it is manually rebooted.
+        Caution: The server will never come back unless it is manually rebooted.
 
         Args:
             log (bool, optional): log the panic event. Defaults to True.
@@ -1673,7 +1752,7 @@ factory method of shell objects.</p>
 <dd>
 <div class="desc"><p>Panic the target.</p>
 <p>Panic the target immediately, the target hangs immediately without any chance to shutdown.
-Caution: The server will never come back online unless it is manually rebooted.</p>
+Caution: The server will never come back unless it is manually rebooted.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>log</code></strong> :&ensp;<code>bool</code>, optional</dt>
@@ -1687,7 +1766,7 @@ Caution: The server will never come back online unless it is manually rebooted.<
     &#34;&#34;&#34;Panic the target.
 
     Panic the target immediately, the target hangs immediately without any chance to shutdown.
-    Caution: The server will never come back online unless it is manually rebooted.
+    Caution: The server will never come back unless it is manually rebooted.
 
     Args:
         log (bool, optional): log the panic event. Defaults to True.
@@ -1753,6 +1832,37 @@ reboot.</p>
     Args:
         wait (bool, optional): wait until the target is back online. Defaults to True.
         log (bool, optional): log the reboot event. Defaults to True.
+    &#34;&#34;&#34;
+    raise NotImplementedError()</code></pre>
+</details>
+</dd>
+<dt id="cctf.Target.shutdown"><code class="name flex">
+<span>def <span class="ident">shutdown</span></span>(<span>self, wait=True, log=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Shutdown the target.</p>
+<p>Shutdown the target gracefully, the target gets a chance to shutdown all services and then
+shutdown.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>wait</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>wait until the target is back online. Defaults to True.</dd>
+<dt><strong><code>log</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>log the shutdown event. Defaults to True.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def shutdown(self, wait=True, log=True):
+    &#34;&#34;&#34;Shutdown the target.
+
+    Shutdown the target gracefully, the target gets a chance to shutdown all services and then
+    shutdown.
+
+    Args:
+        wait (bool, optional): wait until the target is back online. Defaults to True.
+        log (bool, optional): log the shutdown event. Defaults to True.
     &#34;&#34;&#34;
     raise NotImplementedError()</code></pre>
 </details>
@@ -1949,6 +2059,7 @@ timeout is specified, wait until the target is down or timeout.</p>
 <li><code><a title="cctf.Target.panic" href="#cctf.Target.panic">panic</a></code></li>
 <li><code><a title="cctf.Target.panicreboot" href="#cctf.Target.panicreboot">panicreboot</a></code></li>
 <li><code><a title="cctf.Target.reboot" href="#cctf.Target.reboot">reboot</a></code></li>
+<li><code><a title="cctf.Target.shutdown" href="#cctf.Target.shutdown">shutdown</a></code></li>
 <li><code><a title="cctf.Target.upload" href="#cctf.Target.upload">upload</a></code></li>
 <li><code><a title="cctf.Target.wait_alive" href="#cctf.Target.wait_alive">wait_alive</a></code></li>
 <li><code><a title="cctf.Target.wait_down" href="#cctf.Target.wait_down">wait_down</a></code></li>

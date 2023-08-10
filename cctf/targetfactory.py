@@ -38,5 +38,5 @@ def gettarget(host, username=None, password=None, svc="ssh", timeout=60) -> Targ
         target = LinuxTarget(host, svc, username, password, conn, timeout)
     else:
         conn.printlog()
-        Common.log("unsupported target type.")
+        Common().log("unsupported target type.")
     return target

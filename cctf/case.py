@@ -65,16 +65,16 @@ class Case(Common):
         self.params = {}  # the customized parameters for the case
         self.load = 50
         self._parse_params()
-        self.log("Starting case %s..." % (self.casename))
+        self.log(f"Starting case {self.casename}...")
 
     def succ(self):
         """Exit the program with exit code 0."""
-        self.log("Case %s succeeds." % (self.casename))
+        self.log(f"Case {self.casename} succeeds.")
         exit(0)
 
     def fail(self, exitcode=1):
         """Exit the program with errno. Default errno is 1."""
-        self.log("Case %s failed." % (self.casename), 1)
+        self.log(f"Case {self.casename} failed.")
         exit(exitcode)
 
     def log(self, msg, level=3):
@@ -90,41 +90,43 @@ class Case(Common):
             format: param_name=value param_name=value ...
             any parameter can be passed into a case, the case interprets them respectively
         """
-        s = "-t:-l:"
+        optstr = "-t:-l:"
         opts = []
         args = []
         try:
-            opts, args = getopt.gnu_getopt(sys.argv[1:], s)
-        except Exception as msg:
+            opts, args = getopt.gnu_getopt(sys.argv[1:], optstr)
+        except getopt.GetoptError as msg:
             print(msg)
         for opt in opts:
             if opt[0] == "-t":
                 # parse target addresses
                 addrs = opt[1].split(",")
                 reg = re.compile("(([^:,]+)(:(.+))?@([^,]+))")
-                for a in addrs:
-                    if not a:
+                for addr in addrs:
+                    if not addr:
                         continue
-                    m = re.match(reg, a)
-                    if m:
-                        self.targets.append((m.group(2), m.group(4), m.group(5)))
+                    match = re.match(reg, addr)
+                    if match:
+                        self.targets.append(
+                            (match.group(2), match.group(4), match.group(5))
+                        )
                     else:
-                        self.log("invalid address string: '%s'" % (a))
+                        self.log(f"invalid address string: '{addr}'")
                         self.fail(1)
             if opt[0] == "-l":
                 if opt[1].isdigit():
                     self.load = int(opt[1])
                 else:
-                    self.log("invalid load percent string: '%s'" % (opt[1]))
+                    self.log(f"invalid load percent string: '{opt[1]}'")
                     self.fail(1)
 
         for arg in args:
-            reg = re.compile("(\S+)=(\S+)")
-            m = re.match(reg, arg)
-            if m:
-                self.params[m.group(1)] = m.group(2)
+            reg = re.compile(r"(\S+)=(\S+)")
+            match = re.match(reg, arg)
+            if match:
+                self.params[match.group(1)] = match.group(2)
             else:
-                self.log("invalid parameter string: '%s'" % (arg))
+                self.log(f"invalid parameter string: '{arg}'")
                 self.fail(1)
 
     def __str__(self):
