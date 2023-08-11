@@ -26,15 +26,14 @@
 <p>@author: fred</p>
 <p>===============================================================================</p>
 <h2 id="description">Description</h2>
-<p>The CCTF package is a framework for running commands on remote servers.</p>
-<p>The CCTF package leverages the multi-threading capability of Python to run
-multiple commands on multiple servers simultaneously and asychronously. </p>
-<p>It also provides a simple way to capture the output and errors of the commands
-and log them to files. </p>
+<p>The CCTF package is a framework for running commands on remote servers. It
+leverages multi-threading capability of Python to run hundreds of commands on
+multiple servers simultaneously and asychronously. It also provides a simple way
+to capture the output and errors of the commands and log them to user screen. </p>
 <p>The CCTF package is designed to be used in a test framework, where the test
-framework can use the CCTF to simulate all kinds of user actions on the server
-nodes then capture the output of the commands, then use the output to determine
-if the test is passed or failed.</p>
+framework can use the CCTF to simulate all kinds of workloads and user actions
+on the server nodes then capture the output of the commands, then use the output
+to determine if the test is passed or failed.</p>
 <p>CCTF exposes a set of simple API to the users, which are 1 function and 3
 classes:: </p>
 <pre><code>def gettarget(): 
@@ -61,7 +60,7 @@ to that target. Then use the Shell objects to run Commands. The commands will be
 sent to the server nodes and executed by the server nodes, then return the exit
 status, output and errors of the commands. The user can then use the output and
 errors to determine if the commands were successful or not.</p>
-<p>Example::</p>
+<h2 id="example">Example</h2>
 <pre><code># create a target object 
 target = gettarget("10.1.0.96", "root", "password")
 
@@ -180,18 +179,15 @@ Created on Aug 25, 2018
 
 DESCRIPTION
 ----------------
-The CCTF package is a framework for running commands on remote servers.
-
-The CCTF package leverages the multi-threading capability of Python to run
-multiple commands on multiple servers simultaneously and asychronously. 
-
-It also provides a simple way to capture the output and errors of the commands
-and log them to files. 
+The CCTF package is a framework for running commands on remote servers. It
+leverages multi-threading capability of Python to run hundreds of commands on
+multiple servers simultaneously and asychronously. It also provides a simple way
+to capture the output and errors of the commands and log them to user screen. 
 
 The CCTF package is designed to be used in a test framework, where the test
-framework can use the CCTF to simulate all kinds of user actions on the server
-nodes then capture the output of the commands, then use the output to determine
-if the test is passed or failed.
+framework can use the CCTF to simulate all kinds of workloads and user actions
+on the server nodes then capture the output of the commands, then use the output
+to determine if the test is passed or failed.
 
 CCTF exposes a set of simple API to the users, which are 1 function and 3
 classes:: 
@@ -222,8 +218,8 @@ sent to the server nodes and executed by the server nodes, then return the exit
 status, output and errors of the commands. The user can then use the output and 
 errors to determine if the commands were successful or not.
 
-Example::
-
+Example
+----------------
     # create a target object 
     target = gettarget(&#34;10.1.0.96&#34;, &#34;root&#34;, &#34;password&#34;) 
 
@@ -371,10 +367,10 @@ __all__ = [&#34;Target&#34;, &#34;gettarget&#34;, &#34;Shell&#34;, &#34;Command&
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="cctf.gettarget"><code class="name flex">
-<span>def <span class="ident">gettarget</span></span>(<span>host, username=None, password=None, svc='ssh', timeout=60) ‑> cctf.target.Target</span>
+<span>def <span class="ident">gettarget</span></span>(<span>host: str, username: str = None, password: str = None, svc: str = 'ssh', timeout: int = 60) ‑> cctf.target.Target</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Factory function of target. </p>
+<div class="desc"><p>Factory function of target.</p>
 <p>Creating connection to the target address
 and issue simple command to detect target type then create target object respectively.</p>
 <h2 id="args">Args</h2>
@@ -399,11 +395,17 @@ and issue simple command to detect target type then create target object respect
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def gettarget(host, username=None, password=None, svc=&#34;ssh&#34;, timeout=60) -&gt; Target:
+<pre><code class="python">def gettarget(
+    host: str,
+    username: str = None,
+    password: str = None,
+    svc: str = &#34;ssh&#34;,
+    timeout: int = 60,
+) -&gt; Target:
     &#34;&#34;&#34;
-    Factory function of target. 
-    
-    Creating connection to the target address 
+    Factory function of target.
+
+    Creating connection to the target address
     and issue simple command to detect target type then create target object respectively.
 
     Args:
@@ -1065,7 +1067,7 @@ the duration of the command.</p></div>
             return None
         return self.conn.write_newline()
 
-    def _getresults(self, cmdobj):
+    def _getresults(self, cmdobj: Command):
         txt = None
         reg_screen = re.compile(
             f&#34;==/tmp/{cmdobj.reserve}START==(.+)==OUTEND==&#34;
@@ -2000,6 +2002,7 @@ timeout is specified, wait until the target is down or timeout.</p>
 <div class="toc">
 <ul>
 <li><a href="#description">DESCRIPTION</a></li>
+<li><a href="#example">Example</a></li>
 </ul>
 </div>
 <ul id="index">

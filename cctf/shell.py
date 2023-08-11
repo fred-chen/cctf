@@ -205,7 +205,7 @@ class Shell(Common, threading.Thread):
             return None
         return self.conn.write_newline()
 
-    def _getresults(self, cmdobj):
+    def _getresults(self, cmdobj: Command):
         txt = None
         reg_screen = re.compile(
             f"==/tmp/{cmdobj.reserve}START==(.+)==OUTEND=="

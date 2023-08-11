@@ -7,18 +7,15 @@ Created on Aug 25, 2018
 
 DESCRIPTION
 ----------------
-The CCTF package is a framework for running commands on remote servers.
-
-The CCTF package leverages the multi-threading capability of Python to run
-multiple commands on multiple servers simultaneously and asychronously. 
-
-It also provides a simple way to capture the output and errors of the commands
-and log them to files. 
+The CCTF package is a framework for running commands on remote servers. It
+leverages multi-threading capability of Python to run hundreds of commands on
+multiple servers simultaneously and asychronously. It also provides a simple way
+to capture the output and errors of the commands and log them to user screen. 
 
 The CCTF package is designed to be used in a test framework, where the test
-framework can use the CCTF to simulate all kinds of user actions on the server
-nodes then capture the output of the commands, then use the output to determine
-if the test is passed or failed.
+framework can use the CCTF to simulate all kinds of workloads and user actions
+on the server nodes then capture the output of the commands, then use the output
+to determine if the test is passed or failed.
 
 CCTF exposes a set of simple API to the users, which are 1 function and 3
 classes:: 
@@ -49,8 +46,8 @@ sent to the server nodes and executed by the server nodes, then return the exit
 status, output and errors of the commands. The user can then use the output and 
 errors to determine if the commands were successful or not.
 
-Example::
-
+Example
+----------------
     # create a target object 
     target = gettarget("10.1.0.96", "root", "password") 
 
