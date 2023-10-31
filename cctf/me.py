@@ -175,7 +175,7 @@ def expect(
                     match = pattern.search(line)
                     if match:
                         if resp:
-                            os.write(pty_fd, resp + "\n")
+                            os.write(pty_fd, (resp + "\n").encode("utf-8"))
         except OSError as _err:  # child process ended
             break
         dur = time.time() - start
