@@ -13,6 +13,7 @@ from .common import Common
 from .me import is_server_svc_alive
 from .connection import Connection
 from . import connection
+from getpass import getuser
 
 svclist = {
     "ssh": 22,  # ssh
@@ -35,6 +36,7 @@ def connect(
     implements connection interface ) svc can be any one of: shell(rsh-remote
     shell), ssh or telnet.
     """
+    username = username or getuser()
     conn = None
     if svc is not None:
         conn = createconn(host, svc, username, password, timeout, newline)
